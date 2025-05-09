@@ -30,7 +30,7 @@
                 <div class="card-header pb-0">
                     <h6 class="mb-0">
                         <i class="ni ni-bullet-list-67 me-2 text-primary"></i>
-                        <strong>Listado de Sucursales</strong>
+                        <strong>Listado de Sucurles</strong>
                     </h6>
                 </div>
                 
@@ -65,24 +65,36 @@
                                         <td style="text-align: center; vertical-align: middle">{{ $sucursal->direccion }}</td>
                                         <td style="text-align: center; vertical-align: middle">{{ $sucursal->telefono }}</td>
                                         <td style="text-align: center; vertical-align: middle">
-                                            <div class="btn-group" role="group">
-                                                <!-- Botón Editar -->
-                                                <button type="button" class="btn btn-sm btn-outline-warning mx-1" 
-                                                        data-bs-toggle="modal" data-bs-target="#editModal{{ $sucursal->id }}"
-                                                        title="Editar">
-                                                    <i class="ni ni-ruler-pencil"></i>
-                                                </button>
-                                                
-                                                <!-- Botón Eliminar -->
-                                                <form action="{{ route('admin.sucursals.destroy', $sucursal->id) }}" method="POST" style="display: inline-block;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                                            onclick="return confirm('¿Estás seguro de eliminar esta sucursal?')">
-                                                        <i class="ni ni-fat-remove"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
+                                        <div class="btn-group" role="group">
+    <!-- Botón Editar - Azul con icono -->
+    <button type="button" 
+            class="btn btn-sm bg-gradient-info text-white rounded-start shadow-sm px-3" 
+            data-bs-toggle="modal" 
+            data-bs-target="#editModal{{ $sucursal->id }}"
+            title="Editar sucursal"
+            data-bs-toggle="tooltip">
+        <span class="btn-inner--icon me-1">
+            <i class="fas fa-pencil-alt"></i>
+        </span>
+        <span class="btn-inner--text">Editar</span>
+    </button>
+    
+    <!-- Botón Eliminar - Verde con icono -->
+    <form action="{{ route('admin.sucursals.destroy', $sucursal->id) }}" method="POST" class="d-inline">
+        @csrf
+        @method('DELETE')
+        <button type="submit" 
+                class="btn btn-sm bg-gradient-success text-white rounded-end shadow-sm px-3"
+                onclick="return confirm('¿Estás seguro de eliminar esta sucursal?')"
+                title="Eliminar sucursal"
+                data-bs-toggle="tooltip">
+            <span class="btn-inner--icon me-1">
+                <i class="fas fa-trash-alt"></i>
+            </span>
+            <span class="btn-inner--text">Eliminar</span>
+        </button>
+    </form>
+</div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -252,6 +264,9 @@
         }
     });
 </script>
+<!-- Bootstrap 5 JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
 @endpush
 
 @endsection

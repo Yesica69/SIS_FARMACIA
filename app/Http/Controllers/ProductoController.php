@@ -172,4 +172,14 @@ class ProductoController extends Controller
             ->with('mensaje', 'Se elimino con éxito.')
             ->with('icono', 'success');
     }
+    public function buscar(Request $request)
+{
+    $query = $request->get('query');
+    
+    return Producto::where('codigo', 'like', "%$query%")
+                 ->orWhere('nombre', 'like', "%$query%")
+                 ->select('id', 'codigo', 'nombre', 'descripcion', 'precio_compra')
+                 ->limit(10)
+                 ->get();
+}
 }

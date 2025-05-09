@@ -1,378 +1,343 @@
-@extends('adminlte::page')
-
-@section('content_header')
-    <h1><b>Nueva venta</b></h1>
-@endsection
+@extends('layouts.app', ['title' => 'Nueva venta'])
 
 @section('content')
-<div class="row">
-    <!-- Formulario para crear un usuario -->
-    <div class="col-md-12">
-        <div class="card card-outline card-primary">
-            <div class="card-header">
-                <h3 class="card-title">Ingrese los datos</h3>
-                <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
+@include('layouts.navbars.auth.topnav', ['title' => 'Nueva venta'])
+<div class="container-fluid mt--6">
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <!-- Card header -->
+                <div class="card-header border-0">
+                    <div class="row align-items-center">
+                        <div class="col-8">
+                            <h3 class="mb-0">Ingrese los datos</h3>
+                        </div>
+                        <div class="col-4 text-right">
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#collapseCard">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="card-body">
-                <!-- Formulario -->
-                <form action="{{ route('admin.ventas.create') }}" id="form_venta" method="POST">
-                    @csrf
+                
+                <!-- Card body -->
+                <div class="card-body">
+                    <form action="{{ route('admin.ventas.create') }}" id="form_venta" method="POST">
+                        @csrf
 
-                    <div class="modal-body text-left">
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="row">
-                                    <!-- Columna izquierda (Cantidad) -->
+                                    <!-- Cantidad -->
                                     <div class="col-md-2">
                                         <div class="form-group">
-                                            <label for="cantidad">Cantidad</label>
-                                            <input type="number" class="form-control" id ="cantidad" value="1" required>
+                                            <label for="cantidad" class="form-control-label">Cantidad</label>
+                                            <input type="number" class="form-control" id="cantidad" value="1" required>
                                             @error('cantidad')
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
                                         </div>
                                     </div>
 
-                                    <!-- Columna del código de producto -->
+                                    <!-- Código -->
                                     <div class="col-md-6">
-                                        <label for="codigo">Codigo</label>
+                                        <label for="codigo" class="form-control-label">Código</label>
                                         <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fas fa-barcode"></i></span>
-                                            </div>
-                                            <input id ="codigo" type="text" class="form-control" name="codigo" >                                      
+                                            <span class="input-group-text"><i class="fas fa-barcode"></i></span>
+                                            <input id="codigo" type="text" class="form-control" name="codigo">
                                         </div>
                                     </div>
 
-                                    <!-- Botón de modal para ver productos -->
+                                    <!-- Botones -->
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <div style="height: 32px"></div>
-                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#verModal">
+                                            <label class="form-control-label" style="visibility: hidden;">Buscar</label>
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verModal">
                                                 <i class="fas fa-search"></i>
                                             </button>
-
-                                            <!-- Modal para ver productos -->
-                                            <div class="modal fade" id="verModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog modal-lg">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header bg-primary text-white">
-                                                            <h5 class="modal-title" id="exampleModalLabel"><b>Listado de productos</b></h5>
-                                                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                        <table id="mitabla" class="table table-striped table-bordered table-hover table-lg table-responsive">
-                                                                <!-- Aquí va el contenido de la tabla de productos -->
-                                                                
-                                                                        <thead class="thead-dark">
-                                                                            <tr>
-                                                                                <th>Nro</th>
-                                                                                <th>Accion</th>
-                                                                                <th>Código</th>
-                                                                                <th>Nombre</th>
-                                                                                <th>Descripción</th>
-                                                                                <th>Stock</th>
-                                                                                <th>Precio</th>
-                                                                                <th>Fecha de Vencimiento</th>
-                                                                                <th>Imagen</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            <?php $contador = 1; ?>
-                                                                            @foreach($productos as $producto)
-                                                                            <tr>
-                                                                                <td>{{ $contador++ }}</td>
-                                                                                <td style="text-align: center;vertical-align: middle">
-                                                                                    <button type="button"class="btn btn-info seleccionar-btn" data-id="{{$producto->codigo}}">Seleccionar</button>
-                                                                                </td>
-                                                                                <td>{{ $producto->codigo }}</td>
-                                                                                <td><b>{{ $producto->nombre }}</b></td>
-                                                                                <td>{{ $producto->descripcion }}</td>
-                                                                                <td style="color: red; font-weight: bold;">{{ $producto->stock }}</td>
-                                                                                <td style="color: red; font-weight: bold;">{{ $producto->precio_venta }}</td>
-                                                                                <td style="color: red; font-weight: bold;">{{ $producto->fecha_vencimiento }}</td>
-                                                                                <td class="text-center">
-                                                                                    @if($producto->imagen)
-                                                                                        <img src="{{ asset('storage/' . $producto->imagen) }}" width="80" height="80" alt="Imagen">
-                                                                                    @else
-                                                                                        <p>Sin imagen</p>
-                                                                                    @endif
-                                                                                </td>
-                                                                            </tr>
-                                                                            @endforeach
-                                                                        </tbody>
-                                                                    
-
-                                                            </table>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <a href="{{url('/admin/productos/create')}}" type="button" class="btn btn-success"> <i class="fas fa-plus"></i> </a>
+                                            <a href="{{url('/admin/productos/create')}}" class="btn btn-success">
+                                                <i class="fas fa-plus"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Tabla de productos seleccionados -->
-                                <div class="row">
+                                <!-- Tabla de productos -->
+                                <div class="table-responsive">
                                     <table class="table table-sm table-striped table-bordered table-hover">
-                                        <thead>
+                                        <thead class="thead-light">
                                             <tr>
                                                 <th>Nro</th>
-                                                <th>Codigo</th>
+                                                <th>Código</th>
                                                 <th>Cantidad</th>
                                                 <th>Nombre</th>
-                                                <th>Costo</th>
+                                                <th>Precio</th>
                                                 <th>Total</th>
-                                                <th>Accion</th>
+                                                <th>Acción</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <!-- Aquí puedes agregar las filas dinámicamente con los productos -->
-                                             <?php $cont = 1; $total_cantidad = 0; $total_venta = 0;?>
-                                             @foreach($tmp_ventas as $tmp_venta)
-                                            
-
-
-                                             <tr>
+                                            <?php $cont = 1; $total_cantidad = 0; $total_venta = 0;?>
+                                            @foreach($tmp_ventas as $tmp_venta)
+                                            <tr>
                                                 <td style="text-align: center">{{$cont++}}</td>
                                                 <td style="text-align: center">{{$tmp_venta->producto->codigo}}</td>
                                                 <td style="text-align: center">{{$tmp_venta->cantidad}}</td>
-                                                <td >{{$tmp_venta->producto->nombre}}</td>
+                                                <td>{{$tmp_venta->producto->nombre}}</td>
                                                 <td style="text-align: center">{{$tmp_venta->producto->precio_venta}}</td>
                                                 <td style="text-align: center">{{$costo = $tmp_venta->cantidad * $tmp_venta->producto->precio_venta}}</td>
                                                 <td style="text-align: center">
-                                                <!-- Botón Eliminar -->
-                                                
-                                                    <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="{{$tmp_venta->id}}">
-                                                        <i class="fas fa-trash"></i> 
+                                                    <button type="button" class="btn btn-sm btn-icon btn-danger delete-btn" data-id="{{$tmp_venta->id}}">
+                                                        <i class="fas fa-trash"></i>
                                                     </button>
-                                                
-
                                                 </td>
-                                             </tr>
-                                              <!--calcular el total-->
-                                              @php
-                                             $total_cantidad += $tmp_venta->cantidad;
-                                             $total_venta += $costo;
-                                             @endphp
-                                             @endforeach
-                                        </tbody>
-                                        <tfooter>
-                                            <tr>
-                                                <td colspan="2" style="text-align: right">Total</td>
-                                               <td style="text-align: center"><b>{{$total_cantidad}}</b></td>
-                                               <td colspan="2" style="text-align: right">Total venta</td>
-                                               <td style="text-align: center"><b>{{$total_venta}}</b></td>
                                             </tr>
-                                        </tfooter>
+                                            @php
+                                            $total_cantidad += $tmp_venta->cantidad;
+                                            $total_venta += $costo;
+                                            @endphp
+                                            @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="2" class="text-end">Total</td>
+                                                <td style="text-align: center"><b>{{$total_cantidad}}</b></td>
+                                                <td colspan="2" class="text-end">Total venta</td>
+                                                <td style="text-align: center"><b>{{$total_venta}}</b></td>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
                             </div>
 
-                            <!-- Columna derecha (Fecha) -->
-
+                            <!-- Columna derecha -->
                             <div class="col-md-4">
-                                <div class="row">
+                                <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#clienteModal">
-                                            <i class="fas fa-search"></i>  cliente
+                                        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#clienteModal">
+                                            <i class="fas fa-search"></i> Cliente
                                         </button>
-                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#clientecrearModal">
+                                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#clientecrearModal">
                                             <i class="fas fa-plus"></i>
                                         </button>
                                     </div>
+                                    <div class="col-12 mt-2">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <label for="">Nonmbre del cliente</label>
+                                                <label>Nombre del cliente</label>
                                                 <input type="text" class="form-control" id="nombre_cliente_select" value="S/N" disabled>
-                                                <input type="text" class="form-control" id="id_cliente" name="cliente_id" hidden>
+                                                <input type="hidden" class="form-control" id="id_cliente" name="cliente_id">
                                             </div>
                                             <div class="col-md-6">
-                                                <label for="">NIT/CI del cliente</label>
+                                                <label>NIT/CI del cliente</label>
                                                 <input type="text" class="form-control" id="nit_cliente_select" value="0" disabled>
-                                               
                                             </div>
                                         </div>
-<hr>
-                                    
-                                </div> <!-- Cierra la fila correctamente -->
+                                    </div>
+                                </div>
 
                                 <hr>
 
-                                <div class="row">
+                                <div class="row mb-3">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="fecha">Fecha de venta</label>
+                                            <label for="fecha" class="form-control-label">Fecha de venta</label>
                                             <input type="date" class="form-control" name="fecha" value="{{ old('fecha',date('Y-m-d')) }}">
                                             @error('fecha')
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
                                         </div>
                                     </div>
+                                </div>
 
-                                    
-                                </div> <!-- Cierra la fila correctamente -->
-
-                                <!-- Sección del Total -->
+                                <!-- Total -->
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-12">
                                         <div class="form-group">
-                                            <label for="precio_total">Total</label>
-                                            <input type="text" style="text-align: center;background-color: pink" class="form-control" name="precio_total" 
-                                                value="{{$total_venta}}">
+                                            <label for="precio_total" class="form-control-label">Total</label>
+                                            <input type="text" style="text-align: center; background-color: #f8d7da" class="form-control" name="precio_total" value="{{$total_venta}}" readonly>
                                             @error('precio_total')
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
                                         </div>
                                     </div>
-                                </div> <!-- Cierra la fila correctamente -->
-                            </div> <!-- Cierra col-md-4 correctamente -->
-
-                            <!-- Modal para ver clientes -->
-                            <div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-primary text-white">
-                                            <h5 class="modal-title" id="exampleModalLabel"><b>Listado de clientes</b></h5>
-                                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <table id="mitabla2" class="table table-striped table-bordered table-hover table-lg table-responsive">
-                                                <thead class="thead-dark">
-                                                    <tr>
-                                                        <th>Nro</th>
-                                                        <th>Acción</th>
-                                                        <th>Nombre</th>
-                                                        <th>NIT/CI</th>
-                                                        <th>Celular</th>
-                                                        <th>Correo</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php $contador = 1; ?>
-                                                    @foreach($clientes as $cliente)
-                                                    <tr>
-                                                        <td>{{ $contador++ }}</td>
-                                                        <td class="text-center">
-                                                            <button type="button" class="btn btn-info seleccionar-btn-cliente" data-id="{{$cliente->id}}"  data-nit="{{$cliente->nit_ci}}" data-nombre_cliente="{{$cliente->nombre_cliente}}">
-                                                                Seleccionar
-                                                            </button>
-                                                        </td>
-                                                        <td><b>{{ $cliente->nombre_cliente }}</b></td>
-                                                        <td><b>{{ $cliente->nit_ci }}</b></td>
-                                                        <td><b>{{ $cliente->celular }}</b></td>
-                                                        <td><b>{{ $cliente->email }}</b></td>
-                                                    </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                                        </div>
-                                    </div>
                                 </div>
-                            </div> <!-- Cierra el modal correctamente -->
-  <!-- Modal para ver clientes -->
-  <div class="modal fade" id="clientecrearModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-primary text-white">
-                                            <h5 class="modal-title" id="exampleModalLabel"><b>Registar de clientes</b></h5>
-                                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                        
-                    
-                                            @csrf
+                            </div>
+                        </div>
 
-                                            <div class="row">
-                                                <!-- Campo Nombre -->
-                                                <div class="col-md-12">
-                                                    <div class="form-group">
-                                                        <label for="nombre_cliente">Nombre</label>
-                                                        <input type="text" class="form-control" value="{{ old('nombre_cliente') }}" id="nombre_cliente" >
-                                                        @error('nombre_cliente')
-                                                            <small style="color: red;">{{$message}}</small>
-                                                        @enderror
-                                                    </div>
-                                                </div>   
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">Registrar venta</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                                                <!-- Campo Nit -->
-                                                <div class="col-md-4">
-                                                    <div class="form-group">
-                                                        <label for="nit_ci">NIT/CI</label>
-                                                        <input type="text" class="form-control" value="{{ old('nit_ci') }}" id="nit_ci"   >
-                                                        @error('nit_ci')
-                                                            <small style="color: red;">{{$message}}</small>
-                                                        @enderror
-                                                    </div>
-                                                </div>  
+<!-- Modal Productos -->
+<div class="modal fade" id="verModal" tabindex="-1" aria-labelledby="verModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="verModalLabel">Listado de productos</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table id="mitabla" class="table table-striped table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nro</th>
+                            <th>Acción</th>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Stock</th>
+                            <th>Precio</th>
+                            <th>Fecha Venc.</th>
+                            <th>Imagen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $contador = 1; ?>
+                        @foreach($productos as $producto)
+                        <tr>
+                            <td>{{ $contador++ }}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-info seleccionar-btn" data-id="{{$producto->codigo}}">
+                                    Seleccionar
+                                </button>
+                            </td>
+                            <td>{{ $producto->codigo }}</td>
+                            <td><strong>{{ $producto->nombre }}</strong></td>
+                            <td>{{ $producto->descripcion }}</td>
+                            <td style="color: red; font-weight: bold;">{{ $producto->stock }}</td>
+                            <td style="color: red; font-weight: bold;">{{ $producto->precio_venta }}</td>
+                            <td style="color: red; font-weight: bold;">{{ $producto->fecha_vencimiento }}</td>
+                            <td class="text-center">
+                                @if($producto->imagen)
+                                    <img src="{{ asset('storage/' . $producto->imagen) }}" width="80" height="80" alt="Imagen">
+                                @else
+                                    <p>Sin imagen</p>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-                                                <!-- Campo Celular -->
-                                                <div class="col-md-4">
-                                                    <div class="form-group">
-                                                        <label for="celular">Celular</label>
-                                                        <input type="text" class="form-control" value="{{ old('celular') }}" id="celular"  >
-                                                        @error('celular')
-                                                            <small style="color: red;">{{$message}}</small>
-                                                        @enderror
-                                                    </div>
-                                                </div>                 
+<!-- Modal Clientes -->
+<div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="clienteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="clienteModalLabel">Listado de clientes</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table id="mitabla2" class="table table-striped table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nro</th>
+                            <th>Acción</th>
+                            <th>Nombre</th>
+                            <th>NIT/CI</th>
+                            <th>Celular</th>
+                            <th>Correo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $contador = 1; ?>
+                        @foreach($clientes as $cliente)
+                        <tr>
+                            <td>{{ $contador++ }}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-info seleccionar-btn-cliente" 
+                                        data-id="{{$cliente->id}}" 
+                                        data-nit="{{$cliente->nit_ci}}" 
+                                        data-nombre_cliente="{{$cliente->nombre_cliente}}">
+                                    Seleccionar
+                                </button>
+                            </td>
+                            <td><strong>{{ $cliente->nombre_cliente }}</strong></td>
+                            <td><strong>{{ $cliente->nit_ci }}</strong></td>
+                            <td><strong>{{ $cliente->celular }}</strong></td>
+                            <td><strong>{{ $cliente->email }}</strong></td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-                                                <!-- Campo Correo -->
-                                                <div class="col-md-12">
-                                                    <div class="form-group">
-                                                        <label for="email">Correo</label>
-                                                        <div class="input-group">
-                                                            <input type="email" value="{{ old('email') }}" class="form-control" id="email" >
-                                                        </div>
-                                                        @error('email')
-                                                            <small style="color: red;">{{ $message }}</small>
-                                                        @enderror
-                                                    </div>
-                                                </div>
-                                            </div>
+<!-- Modal Crear Cliente -->
+<div class="modal fade" id="clientecrearModal" tabindex="-1" aria-labelledby="clientecrearModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="clientecrearModalLabel">Registrar cliente</h5>
+                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="nombre_cliente">Nombre</label>
+                            <input type="text" class="form-control" id="nombre_cliente" value="{{ old('nombre_cliente') }}">
+                            @error('nombre_cliente')
+                                <small class="text-danger">{{$message}}</small>
+                            @enderror
+                        </div>
+                    </div>   
 
-                                        
-                                        </div>
-                                        <div class="modal-footer">
-                                        <button type="button" onclick="guardar_cliente()" class="btn btn-primary" style="margin-left: 20px;">
-                                            <i class="fas fa-save"></i> Registrar
-                                        </button>
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> <!-- Cierra el modal correctamente -->
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="nit_ci">NIT/CI</label>
+                            <input type="text" class="form-control" id="nit_ci" value="{{ old('nit_ci') }}">
+                            @error('nit_ci')
+                                <small class="text-danger">{{$message}}</small>
+                            @enderror
+                        </div>
+                    </div>  
 
-                            
-                            
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="celular">Celular</label>
+                            <input type="text" class="form-control" id="celular" value="{{ old('celular') }}">
+                            @error('celular')
+                                <small class="text-danger">{{$message}}</small>
+                            @enderror
+                        </div>
+                    </div>                 
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="email">Correo</label>
+                            <input type="email" class="form-control" id="email" value="{{ old('email') }}">
+                            @error('email')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
                         </div>
                     </div>
-
-                    <!-- Footer del formulario -->
-                    <div class="modal-footer">
-                       
-                        <button type="submit" class="btn btn-primary">Registrar compra</button>
-                    </div>
-
-                </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="guardar_cliente()" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Registrar
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -380,156 +345,172 @@
 @endsection
 
 @section('css')
+<style>
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
 @endsection
 
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    //REGISTRAR UN CLINTE 
-    function guardar_cliente(){
-        const data = {
-    nombre_cliente: $('#nombre_cliente').val(),
-    nit_ci: $('#nit_ci').val(),
-    celular: $('#celular').val(),
-    email: $('#email').val(),
-    _token: '{{csrf_token()}}' 
-};
+// REGISTRAR UN CLIENTE
+function guardar_cliente(){
+    const data = {
+        nombre_cliente: $('#nombre_cliente').val(),
+        nit_ci: $('#nit_ci').val(),
+        celular: $('#celular').val(),
+        email: $('#email').val(),
+        _token: '{{csrf_token()}}' 
+    };
 
-        $.ajax({
-            url:'{{route("admin.ventas.cliente.store")}}',
-            type: 'POST',
-            data: data,
-            success:function (response) {
-                if (response.success) {
-                    Swal.fire({
-                        position: "top-end",
-                        icon: "success",
-                        title: "Se agrego el cliente",
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    location.reload();
-                } else {
-                    alert('Error: no se pudo eliminar el producto');
-                }
+    $.ajax({
+        url: '{{route("admin.ventas.cliente.store")}}',
+        type: 'POST',
+        data: data,
+        success: function(response) {
+            if (response.success) {
+                Swal.fire({
+                    position: "top-end",
+                    icon: "success",
+                    title: "Se agregó el cliente",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                location.reload();
+            } else {
+                Swal.fire('Error', 'No se pudo registrar el cliente', 'error');
+            }
+        },
+        error: function(error) {
+            Swal.fire('Error', 'Ocurrió un error al registrar el cliente', 'error');
+        }
+    });
+}
 
-                
-            },
-            error: function(error) {
-                    // Mostramos el mensaje de error con el contenido del objeto
-                    alert(JSON.stringify(error)); // Si necesitaver todo el error
-                }
-        });
-    }
-
-//selecionar de la busqueda lab
-$('.seleccionar-btn-cliente').click(function (){
-    var id_cliente = $(this).data('id');
-    var nombre_cliente = $(this).data('nombre_cliente');
-    var nit_ci = $(this).data('nit');
-  // alert(nombre_cliente);   nombre_cliente
-   $('#nombre_cliente_select').val(nombre_cliente);
-   $('#nit_cliente_select').val(nit_ci);
-   $('#id_cliente').val(id_cliente);
-   //cerra el modal 
-   $('#clienteModal').modal('hide');
-   
+// Seleccionar cliente
+$(document).on('click', '.seleccionar-btn-cliente', function(){
+    const id_cliente = $(this).data('id');
+    const nombre_cliente = $(this).data('nombre_cliente');
+    const nit_ci = $(this).data('nit');
+    
+    $('#nombre_cliente_select').val(nombre_cliente);
+    $('#nit_cliente_select').val(nit_ci);
+    $('#id_cliente').val(id_cliente);
+    
+    // Cerrar modal
+    const clienteModal = bootstrap.Modal.getInstance(document.getElementById('clienteModal'));
+    clienteModal.hide();
 });
 
-
-//selecionar de la busqueda un producto
-$('.seleccionar-btn').click(function (){
-    var id_producto = $(this).data('id');
-   // alert(id_producto)
-   $('#codigo').val(id_producto);
-   //cerra el modal 
-   $('#verModal').modal('hide');
-   $('#verModal').on('hidden.bs.modal', function () {
+// Seleccionar producto
+$(document).on('click', '.seleccionar-btn', function(){
+    const id_producto = $(this).data('id');
+    $('#codigo').val(id_producto);
+    
+    // Cerrar modal
+    const verModal = bootstrap.Modal.getInstance(document.getElementById('verModal'));
+    verModal.hide();
+    
     $('#codigo').focus();
-   });
 });
 
-
-//eliminar un compra
-$('.delete-btn').click(function () {
-    var id = $(this).data('id');
+// Eliminar producto de la venta temporal
+$(document).on('click', '.delete-btn', function() {
+    const id = $(this).data('id');
     if (id) {
-        $.ajax({
-            url: "{{url('/admin/ventas/create/tmp')}}/"+id, // Se corrigió el uso de route()
-            type: 'POST',
-            data: {
-                _token: '{{ csrf_token()}}', // Se corrigió el espacio en csrf_token()
-                _method: 'DELETE' // Se corrigió method por _method
-            },
-            success: function (response) {
-                if (response.success) {
-                    Swal.fire({
-                        position: "top-end",
-                        icon: "success",
-                        title: "Se eliminó el producto",
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    location.reload();
-                } else {
-                    alert('Error: no se pudo eliminar el producto');
-                }
-            },
-            error: function (error) {
-                alert(error);
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esta acción!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{url('/admin/ventas/create/tmp')}}/"+id,
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        _method: 'DELETE'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                position: "top-end",
+                                icon: "success",
+                                title: "Producto eliminado",
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            location.reload();
+                        } else {
+                            Swal.fire('Error', response.message || 'Error al eliminar', 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Error en la conexión', 'error');
+                    }
+                });
             }
         });
     }
 });
 
-//para que aparesca al presionar enter
+// Buscar producto por código (Enter)
 $('#codigo').focus();
-//la 
-$('#form_venta').on('keypress',function (e){
-    if(e.keyCode === 13){   
+$('#form_venta').on('keypress', function(e) {
+    if(e.keyCode === 13) {   
         e.preventDefault();
     }
 });
-//para buscar el prodiucto meiante un codio
-    $('#codigo').on('keyup', function (e) {
-        if (e.which === 13){
-            var codigo = $(this).val();
-        var cantidad = $('#cantidad').val();
+
+$('#codigo').on('keyup', function(e) {
+    if (e.which === 13) {
+        const codigo = $(this).val();
+        const cantidad = $('#cantidad').val();
 
         if(codigo.length > 0) {
             $.ajax({
-                url: "{{ route ('admin.ventas.tmp_ventas')}}",
+                url: "{{ route('admin.ventas.tmp_ventas') }}",
                 method: 'POST',
                 data: {
-                    _token: '{{csrf_token()}}',
+                    _token: '{{ csrf_token() }}',
                     codigo: codigo,
                     cantidad: cantidad
                 },
-                success: function (response) {
-                    // Si hay éxito, mostramos el mensaje específico
-                    if(response.success){
+                success: function(response) {
+                    if(response.success) {
                         Swal.fire({
                             position: "top-end",
                             icon: "success",
-                            title: "Se regristro el producto",
+                            title: "Producto agregado",
                             showConfirmButton: false,
                             timer: 1500
                         });
                         location.reload();
                     } else {
-                        alert('No se encontró el producto');
+                        Swal.fire('Error', response.message || 'Error al agregar', 'error');
                     }
                 },
-                error: function(error) {
-                    // Mostramos el mensaje de error con el contenido del objeto
-                    alert(JSON.stringify(error)); // Si necesitas ver todo el error
+                error: function() {
+                    Swal.fire('Error', 'Error en la conexión', 'error');
                 }
             });
         }
-        }
-    });
-</script>
+    }
+});
 
-<script>
+// DataTables
+$(document).ready(function() {
     $('#mitabla').DataTable({
         "pageLength": 5,
         "language": {
@@ -544,18 +525,14 @@ $('#form_venta').on('keypress',function (e){
                 "last": "Último",
                 "next": "Siguiente",
                 "previous": "Anterior"
-            },
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "emptyTable": "No hay datos disponibles en la tabla"
+            }
         }
     });
-
 
     $('#mitabla2').DataTable({
         "pageLength": 5,
         "language": {
-            "lengthMenu": "Mostrar _MENU_ ",
+            "lengthMenu": "Mostrar _MENU_ registros por página",
             "zeroRecords": "No se encontraron resultados",
             "info": "Mostrando página _PAGE_ de _PAGES_",
             "infoEmpty": "No hay registros disponibles",
@@ -566,14 +543,9 @@ $('#form_venta').on('keypress',function (e){
                 "last": "Último",
                 "next": "Siguiente",
                 "previous": "Anterior"
-            },
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "emptyTable": "No hay datos disponibles en la tabla"
+            }
         }
     });
-
-
-
+});
 </script>
 @endsection

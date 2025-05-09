@@ -7,7 +7,7 @@
         <!-- Primera tarjeta: Título y botón -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card border-radius-lg shadow">
+                <div class="card border-radius-lg shadow-sm" style="border-left: 4px solid #5e72e4;">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="mb-0">
@@ -26,8 +26,8 @@
         <!-- Segunda tarjeta: Tabla de proveedores -->
         <div class="row">
             <div class="col-12">
-                <div class="card mb-4 border-radius-lg shadow">
-                    <div class="card-header pb-0">
+                <div class="card mb-4 border-radius-lg shadow-sm">
+                    <div class="card-header pb-0" style="background-color: #f8fafc;">
                         <h6 class="mb-0">
                             <i class="ni ni-bullet-list-67 me-2 text-primary"></i>
                             <strong>Proveedores Registrados</strong>
@@ -38,7 +38,7 @@
                         <div class="table-responsive p-0">
                             <table id="mitabla" class="table align-items-center mb-0">
                                 <thead>
-                                    <tr>
+                                    <tr style="background-color: #f8fafc;">
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="width: 5%; text-align: center">Nro</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="text-align: center">Empresa</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="text-align: center">Dirección</th>
@@ -72,14 +72,14 @@
                                         <td style="text-align: center; vertical-align: middle">
                                             <div class="btn-group" role="group">
                                                 <!-- Botón Ver -->
-                                                <button type="button" class="btn btn-sm btn-outline-info mx-1" 
+                                                <button type="button" class="btn btn-sm bg-gradient-info mx-1 text-white" 
                                                         data-bs-toggle="modal" data-bs-target="#verModal{{ $proveedor->id }}"
                                                         title="Ver detalles">
                                                     <i class="ni ni-zoom-split-in"></i>
                                                 </button>
                                                 
                                                 <!-- Botón Editar -->
-                                                <button type="button" class="btn btn-sm btn-outline-warning mx-1" 
+                                                <button type="button" class="btn btn-sm bg-gradient-success mx-1 text-white" 
                                                         data-bs-toggle="modal" data-bs-target="#editModal{{ $proveedor->id }}"
                                                         title="Editar">
                                                     <i class="ni ni-ruler-pencil"></i>
@@ -89,7 +89,7 @@
                                                 <form action="{{ url('/admin/proveedores', $proveedor->id) }}" method="POST" style="display: inline-block;">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <button type="submit" class="btn btn-sm bg-gradient-danger text-white">
                                                         <i class="ni ni-fat-remove"></i>
                                                     </button>
                                                 </form>
@@ -393,33 +393,22 @@
 <style>
     .table thead th {
         background-color: #f8f9fa;
+        color: #495057;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
     .badge-primary {
         background-color: #5e72e4;
     }
-    .btn-outline-info {
-        color: #11cdef;
-        border-color: #11cdef;
+    .bg-gradient-info {
+        background: linear-gradient(87deg, #11cdef 0, #1171ef 100%) !important;
     }
-    .btn-outline-info:hover {
-        background-color: #11cdef;
-        color: white;
+    .bg-gradient-success {
+        background: linear-gradient(87deg, #2dce89 0, #2dcecc 100%) !important;
     }
-    .btn-outline-warning {
-        color: #fb6340;
-        border-color: #fb6340;
-    }
-    .btn-outline-warning:hover {
-        background-color: #fb6340;
-        color: #fff;
-    }
-    .btn-outline-danger {
-        color: #f5365c;
-        border-color: #f5365c;
-    }
-    .btn-outline-danger:hover {
-        background-color: #f5365c;
-        color: white;
+    .bg-gradient-danger {
+        background: linear-gradient(87deg, #f5365c 0, #f56036 100%) !important;
     }
     .modal-header {
         border-top-left-radius: 0.5rem;
@@ -428,26 +417,46 @@
     .bg-gradient-primary {
         background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%) !important;
     }
-    .bg-gradient-success {
-        background: linear-gradient(87deg, #2dce89 0, #2dcecc 100%) !important;
-    }
-    .bg-gradient-info {
-        background: linear-gradient(87deg, #11cdef 0, #1171ef 100%) !important;
-    }
     .table-hover tbody tr:hover {
         background-color: rgba(94, 114, 228, 0.05);
+        transition: background-color 0.2s ease;
     }
     .input-group-text {
         background-color: #f8fafc;
+        border-right: none;
+    }
+    .form-control {
+        border-left: none;
     }
     .form-control-static {
         padding: 0.375rem 0;
         margin-bottom: 0;
         line-height: 1.5;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid #e9ecef;
     }
     .border-radius-lg {
         border-radius: 0.5rem;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+    }
+    .btn-group .btn {
+        margin: 0 2px;
+        border-radius: 4px !important;
+    }
+    .table td, .table th {
+        vertical-align: middle;
+        padding: 0.75rem 1.5rem;
+    }
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.65em;
     }
 </style>
 @endpush

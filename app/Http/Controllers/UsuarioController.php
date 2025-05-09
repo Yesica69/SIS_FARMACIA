@@ -52,18 +52,18 @@ class UsuarioController extends Controller
 
         // Validación de los datos de entrada
         $request->validate([
-            'name' => 'required',
+            'firstname' => 'required',
             'email' => 'required|unique:users',
 
         ]);
 
         // Crear un nuevo usuario
         $usuario = new User();
-        $usuario->name = $request->name;
+        $usuario->firstname = $request->firstname;
         $usuario->email = $request->email;
         $usuario->ci = $request->ci;
 
-        $codigo = substr($request->name, 0, 3) . $request->ci;
+        $codigo = substr($request->firstname, 0, 3) . $request->ci;
 
         $usuario->password = Hash::make($codigo);
         $usuario->sucursal_id = $request->sucursal;
@@ -104,7 +104,7 @@ class UsuarioController extends Controller
     {
         // Validación de los datos de entrada
         $request->validate([
-            'name' => 'required|string|max:255',
+            'firtsname' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id, // El correo debe ser único, excepto para el usuario actual
             'password' => 'confirmed'
         ]);
@@ -113,7 +113,7 @@ class UsuarioController extends Controller
         $usuario = User::find($id);
 
         // Actualizar los datos básicos
-        $usuario->name = $request->name;
+        $usuario->firstname = $request->firstname;
         $usuario->email = $request->email;
         // Actualizar la contraseña s
         if ($request->filled('password')) {

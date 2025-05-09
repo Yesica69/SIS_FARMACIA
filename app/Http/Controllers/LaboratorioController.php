@@ -103,4 +103,8 @@ $laboratorio->save();
             ->with('mensaje', 'laboratorio eliminada con éxito.')
             ->with('icono', 'success');
     }
+    public function listar()
+{
+    return Laboratorio::select('id', 'nombre', 'telefono')->get();
+}
 }

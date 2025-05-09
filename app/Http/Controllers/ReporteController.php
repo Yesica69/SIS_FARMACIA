@@ -161,7 +161,7 @@ $egresos =MovimientoCaja::whereBetween('created_at', [$fechaInicio . ' 00:00:00'
                     ->orderBy('created_at', 'asc')
                     ->get();
 
-$total = $ingresos->sum('monto');
+$total = $egresos->sum('monto');
 
 $pdf = Pdf::loadView('admin.reporte.egresos_por_fecha_pdf', compact('egresos', 'total', 'fechaInicio', 'fechaFin'));
 

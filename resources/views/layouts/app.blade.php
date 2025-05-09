@@ -9,7 +9,13 @@
     <title>
          Dashboard 
     </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!--     Fonts and icons     -->
+          <!-- Bootstrap y FontAwesome necesarios -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Nucleo Icons -->
     <link href="./assets/css/nucleo-icons.css" rel="stylesheet" />
@@ -34,7 +40,8 @@
 <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
 <script src="{{ asset('assets/js/argon-dashboard.js') }}"></script>
 </head>
-
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="{{ asset('css/argon-dashboard.css') }}" rel="stylesheet">
     <!-- En la sección <head> -->
 <!-- Nucleo Icons -->
 <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
@@ -42,13 +49,24 @@
 
 <!-- CSS Files -->
 <link id="pagestyle" href="{{ asset('assets/css/argon-dashboard.css') }}" rel="stylesheet" />
-
+<!-- En la sección head -->
+<link href="{{ asset('argon/css/argon-dashboard.css') }}" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <!-- En la sección de scripts (antes de </body>) -->
 <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
 <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
 <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
 <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
 <script src="{{ asset('assets/js/argon-dashboard.js') }}"></script>
+<!-- CSS de Argon -->
+<link href="/assets/css/argon.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link href="/assets/css/fontawesome.min.css" rel="stylesheet">
+<!-- jQuery primero, luego Popper.js, luego Bootstrap JS -->
+<script src="/assets/js/jquery.min.js"></script>
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
+<!-- Argon JS -->
+<script src="/assets/js/argon.min.js"></script>
 </head>
 
 <body class="{{ $class ?? '' }}">

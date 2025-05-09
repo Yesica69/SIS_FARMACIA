@@ -49,7 +49,7 @@ class AdminController extends Controller
     $labels = $topProducts->pluck('nombre');
     $data = $topProducts->pluck('total_vendido');
 
-    return view('admin.index', compact(
+    return view('pages.dashboard', compact(
         'sucursal',
         'total_productos',
         'total_compras',

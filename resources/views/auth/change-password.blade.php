@@ -9,7 +9,7 @@
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                     <h6>
                         <i class="ni ni-lock-circle-open text-primary me-2"></i>
-                        <strong>Actualización de Contraseña</strong>
+                        <strong>Actualización de Contra</strong>
                     </h6>
                     <button type="button" class="btn btn-sm btn-primary mb-0" onclick="document.getElementById('passwordForm').submit()">
                         <i class="ni ni-check-bold me-1"></i> Guardar

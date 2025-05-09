@@ -1,27 +1,26 @@
-@extends('adminlte::page')
-
-@section('content_header')
-<div class="d-flex justify-content-between align-items-center">
-    <h1 class="m-0 text-dark"><i class="fas fa-shopping-cart mr-2"></i> <strong>Detalle de la Compra</strong></h1>
-</div>
-@endsection
+@extends('layouts.app', ['title' => 'Detalle de la Compra'])
 
 @section('content')
-<div class="container-fluid">
+@include('layouts.navbars.auth.topnav', ['title' => 'Detalle de la Compra'])
+<div class="container-fluid mt--6">
     <div class="row">
-        <div class="col-md-12">
-            <div class="card card-primary card-outline">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-info-circle mr-2"></i>Datos Registrados
-                    </h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
+        <div class="col">
+            <div class="card">
+                <!-- Card Header -->
+                <div class="card-header border-0">
+                    <div class="row align-items-center">
+                        <div class="col-8">
+                            <h3 class="mb-0"><i class="fas fa-shopping-cart me-2"></i> <strong>Detalle de la Compra</strong></h3>
+                        </div>
+                        <div class="col-4 text-end">
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#collapseCard">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
+                <!-- Card Body -->
                 <div class="card-body">
                     <div class="row">
                         <!-- Columna izquierda (Tabla de productos) -->
@@ -34,7 +33,7 @@
                                             <th style="text-align: center">Código</th>
                                             <th style="text-align: center">Cantidad</th>
                                             <th style="text-align: center">Nombre</th>
-                                            <th style="text-align: center">Lbortorio</th>
+                                            <th style="text-align: center">Laboratorio</th>
                                             <th style="text-align: center">Costo</th>
                                             <th style="text-align: center">Total</th>
                                         </tr>
@@ -45,7 +44,7 @@
                                             <tr>
                                                 <td style="text-align: center; vertical-align: middle">{{$cont++}}</td>
                                                 <td style="text-align: center; vertical-align: middle">
-                                                    <span class="badge badge-secondary">{{$detalle->producto->codigo}}</span>
+                                                    <span class="badge bg-secondary">{{$detalle->producto->codigo}}</span>
                                                 </td>
                                                 <td style="text-align: center; vertical-align: middle">{{$detalle->cantidad}}</td>
                                                 <td style="vertical-align: middle">{{$detalle->producto->nombre}}</td>
@@ -73,19 +72,18 @@
 
                         <!-- Columna derecha (Fecha y detalles de compra) -->
                         <div class="col-md-4">
-                            
                             <div class="card border-info mb-3">
                                 <div class="card-header bg-info text-white">
-                                    <h5 class="card-title mb-0"><i class="fas fa-calendar-alt mr-2"></i>Información de Compra</h5>
+                                    <h5 class="card-title mb-0"><i class="fas fa-calendar-alt me-2"></i>Información de Compra</h5>
                                 </div>
                                 <div class="card-body">
-                                    <div class="form-group">
-                                        <label for="fecha">Fecha</label>
+                                    <div class="form-group mb-3">
+                                        <label for="fecha" class="form-label">Fecha</label>
                                         <input type="date" class="form-control bg-light" value="{{$compra->fecha}}" disabled>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label for="comprobante{{$compra->id}}">Comprobante</label>
+                                    <div class="form-group mb-3">
+                                        <label for="comprobante{{$compra->id}}" class="form-label">Comprobante</label>
                                         <select name="comprobante" id="comprobante{{$compra->id}}" class="form-control bg-light" disabled>
                                             <option value="FACTURA" {{ trim($compra->comprobante) == 'FACTURA' ? 'selected' : '' }}>FACTURA</option>
                                             <option value="RECIBO" {{ trim($compra->comprobante) == 'RECIBO' ? 'selected' : '' }}>RECIBO</option>
@@ -93,8 +91,8 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="precio_total">Monto Total</label>
-                                        <input type="text" class="form-control text-center font-weight-bold text-danger bg-light" value="Bs{{number_format($total_compra, 2)}}" disabled>
+                                        <label for="precio_total" class="form-label">Monto Total</label>
+                                        <input type="text" class="form-control text-center fw-bold text-danger bg-light" value="Bs{{number_format($total_compra, 2)}}" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -102,9 +100,10 @@
                     </div>
                 </div>
                 
-                <div class="card-footer text-right">
+                <!-- Card Footer -->
+                <div class="card-footer d-flex justify-content-end">
                     <a href="{{url('/admin/compras')}}" class="btn btn-primary">
-                        <i class="fas fa-arrow-left mr-1"></i> Volver
+                        <i class="fas fa-arrow-left me-1"></i> Volver
                     </a>
                 </div>
             </div>
@@ -127,8 +126,8 @@
         font-size: 0.8rem;
         letter-spacing: 0.5px;
     }
-    .badge-secondary {
-        background-color: #6c757d;
+    .badge.bg-secondary {
+        background-color: #6c757d!important;
     }
     .table-hover tbody tr:hover {
         background-color: rgba(59, 130, 246, 0.05);
@@ -136,121 +135,146 @@
     .bg-light {
         background-color: #f8f9fa!important;
     }
-    .card.border-primary {
-        border-color: #3b82f6!important;
-    }
     .card.border-info {
-        border-color: #06b6d4!important;
+        border-color: #0dcaf0!important;
     }
     .text-danger {
         color: #dc3545!important;
     }
-    .font-weight-bold {
+    .fw-bold {
         font-weight: 600!important;
     }
 </style>
 @endsection
 
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 //selecionar de la busqueda lab
-$('.seleccionar-btn-laboratorio').click(function (){
-    var id_laboratorio = $(this).data('id');
-    var nombre = $(this).data('nombre');
-   $('#nombre_laboratorio').val(nombre);
-   $('#id_laboratorio').val(id_laboratorio);
-   $('#labModal').modal('hide');
+document.querySelectorAll('.seleccionar-btn-laboratorio').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const id_laboratorio = this.dataset.id;
+        const nombre = this.dataset.nombre;
+        document.getElementById('nombre_laboratorio').value = nombre;
+        document.getElementById('id_laboratorio').value = id_laboratorio;
+        const labModal = bootstrap.Modal.getInstance(document.getElementById('labModal'));
+        labModal.hide();
+    });
 });
 
 //selecionar de la busqueda un producto
-$('.seleccionar-btn').click(function (){
-    var id_producto = $(this).data('id');
-   $('#codigo').val(id_producto);
-   $('#verModal').modal('hide');
-   $('#verModal').on('hidden.bs.modal', function () {
-    $('#codigo').focus();
-   });
+document.querySelectorAll('.seleccionar-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const id_producto = this.dataset.id;
+        document.getElementById('codigo').value = id_producto;
+        const verModal = bootstrap.Modal.getInstance(document.getElementById('verModal'));
+        verModal.hide();
+        document.getElementById('codigo').focus();
+    });
 });
 
 //eliminar un compra
-$('.delete-btn').click(function () {
-    var id = $(this).data('id');
-    if (id) {
-        $.ajax({
-            url: "{{url('/admin/compras/create/tmp')}}/"+id,
-            type: 'POST',
-            data: {
-                _token: '{{ csrf_token()}}',
-                _method: 'DELETE'
-            },
-            success: function (response) {
-                if (response.success) {
+document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const id = this.dataset.id;
+        if (id) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch("{{url('/admin/compras/create/tmp')}}/"+id, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'X-HTTP-Method-Override': 'DELETE'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Se eliminó el producto',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            location.reload();
+                        } else {
+                            Swal.fire('Error', 'No se pudo eliminar el producto', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Ocurrió un error', 'error');
+                    });
+                }
+            });
+        }
+    });
+});
+
+//para que aparesca al presionar enter
+document.getElementById('codigo').focus();
+
+//prevenir el submit al presionar enter
+document.getElementById('form_compra').addEventListener('keypress', function(e) {
+    if(e.keyCode === 13) {   
+        e.preventDefault();
+    }
+});
+
+//para buscar el producto mediante un codigo
+document.getElementById('codigo').addEventListener('keyup', function(e) {
+    if (e.which === 13) {
+        const codigo = this.value;
+        const cantidad = document.getElementById('cantidad').value;
+
+        if(codigo.length > 0) {
+            fetch("{{ route('admin.compras.tmp_compras')}}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    codigo: codigo,
+                    cantidad: cantidad
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
                     Swal.fire({
-                        position: "top-end",
-                        icon: "success",
-                        title: "Se eliminó el producto",
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Se registró el producto',
                         showConfirmButton: false,
                         timer: 1500
                     });
                     location.reload();
                 } else {
-                    alert('Error: no se pudo eliminar el producto');
+                    Swal.fire('Error', data.message || 'No se encontró el producto', 'error');
                 }
-            },
-            error: function (error) {
-                alert(error);
-            }
-        });
-    }
-});
-
-//para que aparesca al presionar enter
-$('#codigo').focus();
-//la 
-$('#form_compra').on('keypress',function (e){
-    if(e.keyCode === 13){   
-        e.preventDefault();
-    }
-});
-//para buscar el prodiucto meiante un codio
-    $('#codigo').on('keyup', function (e) {
-        if (e.which === 13){
-            var codigo = $(this).val();
-        var cantidad = $('#cantidad').val();
-
-        if(codigo.length > 0) {
-            $.ajax({
-                url: "{{ route ('admin.compras.tmp_compras')}}",
-                method: 'POST',
-                data: {
-                    _token: '{{csrf_token()}}',
-                    codigo: codigo,
-                    cantidad: cantidad
-                },
-                success: function (response) {
-                    // Si hay éxito, mostramos el mensaje específico
-                    if(response.success){
-                        Swal.fire({
-                            position: "top-end",
-                            icon: "success",
-                            title: "Se regristro el producto",
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                        location.reload();
-                    } else {
-                        alert('No se encontró el producto');
-                    }
-                },
-                error: function(error) {
-                    // Mostramos el mensaje de error con el contenido del objeto
-                    alert(JSON.stringify(error)); // Si necesitas ver todo el error
-                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Ocurrió un error', 'error');
             });
         }
-        }
-    });
+    }
+});
 
+// DataTables (versión compatible con Bootstrap 5)
+$(document).ready(function() {
     $('#mitabla').DataTable({
         "pageLength": 5,
         "language": {
@@ -265,10 +289,7 @@ $('#form_compra').on('keypress',function (e){
                 "last": "Último",
                 "next": "Siguiente",
                 "previous": "Anterior"
-            },
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "emptyTable": "No hay datos disponibles en la tabla"
+            }
         }
     });
 
@@ -286,11 +307,9 @@ $('#form_compra').on('keypress',function (e){
                 "last": "Último",
                 "next": "Siguiente",
                 "previous": "Anterior"
-            },
-            "loadingRecords": "Cargando...",
-            "processing": "Procesando...",
-            "emptyTable": "No hay datos disponibles en la tabla"
+            }
         }
     });
+});
 </script>
 @endsection

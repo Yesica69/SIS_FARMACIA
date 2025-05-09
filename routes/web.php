@@ -220,3 +220,7 @@ Route::put('/admin/permisos/{id}', [App\Http\Controllers\PermisoController::clas
 Route::delete('/admin/permisos/{id}', [App\Http\Controllers\PermisoController::class, 'destroy'])->name('admin.permisos.destroy')->middleware('auth');
 Route::get('/admin/permisos/reporte', [App\Http\Controllers\PermisoController::class, 'reporte'])->name('admin.permisos.reporte');
 
+Route::get('/productos/buscar', [App\Http\Controllers\ProductoController::class, 'buscar'])->name('admin.productos.buscar');
+Route::get('/laboratorios/listar', [App\Http\Controllers\LaboratorioController::class, 'listar'])->name('admin.laboratorios.listar');
+Route::post('/compras/tmp', [App\Http\Controllers\CompraController::class, 'agregarTemporal'])->name('admin.compras.tmp_compras');
+Route::delete('/compras/tmp/{id}', [App\Http\Controllers\CompraController::class, 'eliminarTemporal']);

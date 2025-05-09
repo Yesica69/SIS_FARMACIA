@@ -1,255 +1,339 @@
 @extends('layouts.app', ['title' => 'Gestión de Laboratorios'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Laboratorios'])
-    
-    <div class="container-fluid py-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="card mb-4 border-radius-lg shadow">
-                    <!-- Card Header -->
-                    <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-0">
-                                <i class="ni ni-ambulance me-2 text-primary"></i>
-                                <strong>Laboratorios Registrados</strong>
-                            </h6>
-                        </div>
-                        <button type="button" class="btn bg-gradient-primary btn-sm mb-0" data-bs-toggle="modal" data-bs-target="#modalCrear">
-                            <i class="ni ni-fat-add me-1"></i> Nuevo Laboratorio
-                        </button>
+@include('layouts.navbars.auth.topnav', ['title' => 'Laboratorios'])
+<div class="container-fluid py-4">
+    <!-- Header Principal -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-radius-lg shadow-sm" style="border-left: 4px solid #5e72e4;">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-flask fa-2x me-3 text-primary"></i>
+                        <h4 class="mb-0">
+                            <strong>GESTIÓN DE LABORATORIOS</strong>
+                        </h4>
                     </div>
-                    
-                    <!-- Card Body -->
-                    <div class="card-body px-0 pt-0 pb-2">
-                        <div class="table-responsive p-0">
-                            <table id="mitabla" class="table align-items-center mb-0">
-                                <thead>
-                                    <tr>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="width: 8%; text-align: center">Nro</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="text-align: center">Nombre</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="text-align: center">Teléfono</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="text-align: center">Dirección</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="width: 15%; text-align: center">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $contador = 1;?>
-                                    @foreach($laboratorios as $laboratorio)
-                                    <tr>
-                                        <td style="text-align: center; vertical-align: middle">{{$contador++}}</td>
-                                        <td style="vertical-align: middle">
-                                            <span class="badge bg-gradient-primary p-2">
-                                                <i class="ni ni-ambulance me-1"></i> {{$laboratorio->nombre}}
+                    <button type="button" class="btn bg-gradient-primary shadow-sm" 
+                            data-bs-toggle="modal" data-bs-target="#modalCrear">
+                        <i class="fas fa-plus-circle me-1"></i> Nuevo Laboratorio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta de lista de laboratorios -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-radius-lg shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list-check me-2 text-primary"></i>
+                        <strong>Laboratorios Registrados</strong>
+                    </h5>
+                    <span class="badge bg-gradient-primary rounded-pill px-3 py-2">
+                        <i class="fas fa-database me-1"></i> Total: {{ $laboratorios->count() }}
+                    </span>
+                </div>
+
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table id="laboratorios-table" class="table align-items-center mb-0">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">#</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">Laboratorio</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">Teléfono</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">Dirección</th>
+                                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($laboratorios as $laboratorio)
+                                <tr>
+                                    <td class="text-center align-middle">
+                                        <span class="text-secondary text-xs font-weight-bold">{{ $loop->iteration }}</span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-gradient-info rounded-circle me-2 p-2">
+                                                <i class="fas fa-flask"></i>
                                             </span>
-                                        </td>
-                                        <td style="vertical-align: middle">{{$laboratorio->telefono}}</td>
-                                        <td style="vertical-align: middle">{{$laboratorio->direccion}}</td>
-                                        <td style="text-align: center; vertical-align: middle">
-                                            <div class="btn-group" role="group">
-                                                <!-- Botón Editar -->
-                                                <button type="button" class="btn btn-sm btn-outline-warning mx-1" data-bs-toggle="modal" 
-                                                    data-bs-target="#editModal{{ $laboratorio->id }}" title="Editar">
-                                                    <i class="ni ni-ruler-pencil"></i>
+                                            <span class="text-dark text-sm font-weight-bold">{{ $laboratorio->nombre }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <span class="text-dark text-sm">
+                                            <i class="fas fa-phone me-1 text-primary"></i> {{ $laboratorio->telefono }}
+                                        </span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <span class="text-dark text-sm">
+                                            <i class="fas fa-map-marker-alt me-1 text-primary"></i> {{ $laboratorio->direccion }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <div class="d-flex justify-content-center">
+                                            <!-- Botón Editar -->
+                                            <button type="button" class="btn btn-sm bg-gradient-info text-white mx-1" 
+                                                    data-bs-toggle="modal" data-bs-target="#editModal{{ $laboratorio->id }}"
+                                                    title="Editar laboratorio">
+                                                <i class="fas fa-pen"></i>
+                                            </button>
+                                            
+                                            <!-- Botón Eliminar -->
+                                            <form action="{{ url('/admin/laboratorios', $laboratorio->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm bg-gradient-danger text-white mx-1"
+                                                        title="Eliminar laboratorio"
+                                                        onclick="return confirm('¿Está seguro de eliminar este laboratorio?')">
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
-
-                                                <!-- Botón Eliminar -->
-                                                <form action="{{ url('/admin/laboratorios', $laboratorio->id) }}" method="POST" style="display: inline-block;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                        <i class="ni ni-fat-remove"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal para Crear Nuevo Laboratorio -->
-    <div class="modal fade" id="modalCrear" tabindex="-1" role="dialog" aria-labelledby="modalCrearLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-gradient-primary">
-                    <h5 class="modal-title text-white" id="modalCrearLabel">
-                        <i class="ni ni-fat-add me-2"></i><strong>Registrar Laboratorio</strong>
-                    </h5>
-                    <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+<!-- Modal para Crear Nuevo Laboratorio -->
+<div class="modal fade" id="modalCrear" tabindex="-1" aria-labelledby="modalCrearLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-gradient-primary text-white">
+                <h5 class="modal-title" id="modalCrearLabel">
+                    <i class="fas fa-plus-circle me-2"></i> Nuevo Laboratorio
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url('/admin/laboratorios/create') }}" method="post">
+                @csrf
                 <div class="modal-body">
-                    <form action="{{ url('/admin/laboratorios/create') }}" method="post">
-                        @csrf
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="nombre">Nombre del laboratorio</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="ni ni-ambulance"></i></span>
-                                        <input type="text" class="form-control" value="{{ old('nombre') }}" name="nombre" required>
-                                    </div>
-                                    @error('nombre')
-                                        <small class="text-danger">{{$message}}</small>
-                                    @enderror
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="telefono">Teléfono</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="ni ni-mobile-button"></i></span>
-                                        <input type="text" class="form-control" value="{{ old('telefono') }}" name="telefono" required>
-                                    </div>
-                                    @error('telefono')
-                                        <small class="text-danger">{{$message}}</small>
-                                    @enderror
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="direccion">Dirección</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="ni ni-pin-3"></i></span>
-                                        <input type="text" class="form-control" value="{{ old('direccion') }}" name="direccion" required>
-                                    </div>
-                                    @error('direccion')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                            </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Nombre del Laboratorio</label>
+                        <div class="input-group input-group-outline">
+                            <span class="input-group-text"><i class="fas fa-flask"></i></span>
+                            <input type="text" class="form-control" name="nombre" 
+                                   value="{{ old('nombre') }}" required 
+                                   placeholder="Ej: Laboratorio Clínico Central">
                         </div>
-                        
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                <i class="ni ni-fat-remove me-1"></i> Cancelar
-                            </button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="ni ni-check-bold me-1"></i> Registrar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+                        @error('nombre')
+                            <div class="text-danger small mt-2">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-    <!-- Modales para Editar (se generan dinámicamente para cada laboratorio) -->
-    @foreach($laboratorios as $laboratorio)
-    <div class="modal fade" id="editModal{{ $laboratorio->id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel{{ $laboratorio->id }}" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-gradient-success">
-                    <h5 class="modal-title text-white" id="editModalLabel{{ $laboratorio->id }}">
-                        <i class="ni ni-ruler-pencil me-2"></i>Editar Laboratorio
-                    </h5>
-                    <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <div class="input-group input-group-outline">
+                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                            <input type="text" class="form-control" name="telefono" 
+                                   value="{{ old('telefono') }}" required 
+                                   placeholder="Ej: 555-123456">
+                        </div>
+                        @error('telefono')
+                            <div class="text-danger small mt-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Dirección</label>
+                        <div class="input-group input-group-outline">
+                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                            <input type="text" class="form-control" name="direccion" 
+                                   value="{{ old('direccion') }}" required 
+                                   placeholder="Ej: Av. Principal #123">
+                        </div>
+                        @error('direccion')
+                            <div class="text-danger small mt-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn bg-gradient-primary">
+                        <i class="fas fa-save me-1"></i> Guardar
                     </button>
                 </div>
-                <form action="{{url('/admin/laboratorios', $laboratorio->id) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="nombre">Nombre del laboratorio</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="ni ni-ambulance"></i></span>
-                                <input type="text" class="form-control" value="{{$laboratorio->nombre}}" name="nombre">
-                            </div>
-                            @error('nombre')
-                                <small class="text-danger">{{$message}}</small>
-                            @enderror
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="telefono">Teléfono</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="ni ni-mobile-button"></i></span>
-                                <input type="text" class="form-control" value="{{$laboratorio->telefono}}" name="telefono">
-                            </div>
-                            @error('telefono')
-                                <small class="text-danger">{{$message}}</small>
-                            @enderror
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="direccion">Dirección</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="ni ni-pin-3"></i></span>
-                                <input type="text" class="form-control" value="{{$laboratorio->direccion}}" name="direccion">
-                            </div>
-                            @error('direccion')
-                                <small class="text-danger">{{$message}}</small>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="ni ni-fat-remove me-1"></i> Cerrar
-                        </button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="ni ni-check-bold me-1"></i> Actualizar
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
-    @endforeach
+</div>
+
+<!-- Modales de Edición (generados dinámicamente) -->
+@foreach($laboratorios as $laboratorio)
+<div class="modal fade" id="editModal{{ $laboratorio->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $laboratorio->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-gradient-info text-white">
+                <h5 class="modal-title" id="editModalLabel{{ $laboratorio->id }}">
+                    <i class="fas fa-edit me-2"></i> Editar Laboratorio
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url('/admin/laboratorios', $laboratorio->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Nombre</label>
+                        <div class="input-group input-group-outline">
+                            <span class="input-group-text"><i class="fas fa-flask"></i></span>
+                            <input type="text" class="form-control" name="nombre" 
+                                   value="{{ old('nombre', $laboratorio->nombre) }}" required>
+                        </div>
+                        @error('nombre')
+                            <div class="text-danger small mt-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <div class="input-group input-group-outline">
+                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                            <input type="text" class="form-control" name="telefono" 
+                                   value="{{ old('telefono', $laboratorio->telefono) }}" required>
+                        </div>
+                        @error('telefono')
+                            <div class="text-danger small mt-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Dirección</label>
+                        <div class="input-group input-group-outline">
+                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                            <input type="text" class="form-control" name="direccion" 
+                                   value="{{ old('direccion', $laboratorio->direccion) }}" required>
+                        </div>
+                        @error('direccion')
+                            <div class="text-danger small mt-2">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn bg-gradient-info text-white">
+                        <i class="fas fa-save me-1"></i> Actualizar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
+
 @endsection
 
 @push('css')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
-    .table thead th {
-        background-color: #f8f9fa;
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
     }
-    .badge-primary {
-        background-color: #5e72e4;
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
-    .btn-outline-warning {
-        color: #fb6340;
-        border-color: #fb6340;
+    
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
-    .btn-outline-warning:hover {
-        background-color: #fb6340;
-        color: #fff;
+    
+    .bg-light {
+        background-color: #f8fafc !important;
     }
-    .btn-outline-danger {
-        color: #f5365c;
-        border-color: #f5365c;
+    
+    .bg-gray-100 {
+        background-color: #f8f9fa !important;
     }
-    .btn-outline-danger:hover {
-        background-color: #f5365c;
-        color: white;
+    
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.75rem;
+        color: #6c757d;
     }
-    .modal-header {
-        border-top-left-radius: 0.5rem;
-        border-top-right-radius: 0.5rem;
+    
+    .table td {
+        vertical-align: middle;
+        padding: 1rem;
     }
-    .bg-gradient-primary {
-        background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%) !important;
+    
+    .input-group-outline {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        transition: border-color 0.15s ease-in-out;
     }
-    .bg-gradient-success {
-        background: linear-gradient(87deg, #2dce89 0, #2dcecc 100%) !important;
+    
+    .input-group-outline:focus-within {
+        border-color: #5e72e4;
+        box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
     }
-    .table-hover tbody tr:hover {
-        background-color: rgba(94, 114, 228, 0.05);
-    }
+    
     .input-group-text {
-        background-color: #f8fafc;
+        background-color: transparent;
+        border-right: none;
     }
+    
+    .form-control {
+        border-left: none;
+        background-color: transparent;
+    }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%) !important;
+    }
+    
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #11cdef 0%, #1171ef 100%) !important;
+    }
+    
+    .bg-gradient-danger {
+        background: linear-gradient(135deg, #f5365c 0%, #f56036 100%) !important;
+    }
+    
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border-radius: 0.375rem;
+    }
+    
+    .modal-content {
+        border: none;
+        border-radius: 12px;
+    }
+    
+    .modal-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .text-xs {
+        font-size: 0.75rem;
+    }
+    
+    .text-sm {
+        font-size: 0.875rem;
+    }
+    
     .border-radius-lg {
         border-radius: 0.5rem;
     }
@@ -257,28 +341,53 @@
 @endpush
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    $(document).ready(function() {
-        $('#mitabla').DataTable({
-            "pageLength": 5,
-            "language": {
-                "lengthMenu": "Mostrar _MENU_ registros por página",
-                "zeroRecords": "No se encontraron resultados",
-                "info": "Mostrando página _PAGE_ de _PAGES_",
-                "infoEmpty": "No hay registros disponibles",
-                "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                "search": "Buscar:",
-                "paginate": {
-                    "first": "Primero",
-                    "last": "Último",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
-                },
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "emptyTable": "No hay datos disponibles en la tabla"
+$(document).ready(function() {
+    // Configuración de DataTables
+    $('#laboratorios-table').DataTable({
+        "pageLength": 10,
+        "responsive": true,
+        "autoWidth": false,
+        "language": {
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "zeroRecords": "No se encontraron laboratorios",
+            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay laboratorios registrados",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "dom": '<"row"<"col-md-6"l><"col-md-6"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
+        "initComplete": function() {
+            $('.dataTables_filter input').addClass('form-control').attr('placeholder', 'Buscar laboratorio...');
+            $('.dataTables_length select').addClass('form-select');
+        }
+    });
+    
+    // Confirmación antes de eliminar con SweetAlert2
+    $('form[method="DELETE"]').on('submit', function(e) {
+        e.preventDefault();
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esta acción!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#5e72e4',
+            cancelButtonColor: '#f5365c',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.submit();
             }
         });
     });
+});
 </script>
 @endpush
