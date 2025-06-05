@@ -7,7 +7,16 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Producto;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
+use Carbon\Carbon;
+
+use DatePeriod; // Importación añadida
+use DateInterval; // Importación añadida
+use DateTime; // Importación añadida
+// Asegúrate de tener este modelo para acceder a los datos de ingresos
+use PDF; 
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class ProductoController extends Controller
 {
   
@@ -173,13 +182,157 @@ class ProductoController extends Controller
             ->with('icono', 'success');
     }
     public function buscar(Request $request)
+    {
+        $term = $request->input('term');
+        
+        $productos = Producto::where('codigo', 'like', "%$term%")
+                    ->orWhere('nombre', 'like', "%$term%")
+                    ->select('id', 'codigo', 'nombre', 'descripcion')
+                    ->limit(10)
+                    ->get();
+        
+        return response()->json($productos);
+    }
+
+    public function get($id)
 {
-    $query = $request->get('query');
+    $producto = Producto::find($id);
     
-    return Producto::where('codigo', 'like', "%$query%")
-                 ->orWhere('nombre', 'like', "%$query%")
-                 ->select('id', 'codigo', 'nombre', 'descripcion', 'precio_compra')
-                 ->limit(10)
-                 ->get();
+    if($producto) {
+        return response()->json([
+            'success' => true,
+            'producto' => $producto
+        ]);
+    }
+    
+    return response()->json(['success' => false]);
 }
+
+
+ public function generarReporte($tipo, Request $request)
+    {
+        // Validación del tipo de reporte
+        if (!in_array($tipo, ['pdf', 'excel', 'csv'])) {
+            abort(400, 'Tipo de reporte no válido');
+        }
+
+        // Obtener y procesar filtros
+        $filtros = $this->procesarFiltros($request);
+
+        // Obtener productos con filtros aplicados
+        $productos = $this->obtenerProductosFiltrados($filtros);
+
+        // Verificar si hay datos
+        if ($productos->isEmpty()) {
+            return back()->with('error', 'No hay productos con los filtros seleccionados');
+        }
+
+        // Convertir fechas a objetos Carbon
+        $productos = $this->convertirFechas($productos);
+
+        // Generar el reporte según el tipo
+        return $this->generarReportePorTipo($tipo, $productos);
+    }
+
+    protected function procesarFiltros(Request $request): array
+    {
+        return [
+            'categoria_id' => $request->input('categoria'),
+            'stockBajo' => $request->input('stockBajo', 0),
+            'diasVencimiento' => $request->input('diasVencimiento')
+        ];
+    }
+
+    protected function obtenerProductosFiltrados(array $filtros)
+    {
+        $query = Producto::with('categoria', 'laboratorio')
+                        ->where('sucursal_id', Auth::user()->sucursal_id);
+
+        if ($filtros['categoria_id']) {
+            $query->where('categoria_id', $filtros['categoria_id']);
+        }
+
+        if ($filtros['stockBajo']) {
+            $query->where('stock', '<', \DB::raw('stock_minimo'));
+        }
+
+        if ($filtros['diasVencimiento']) {
+            $fechaVencimiento = now()->addDays($filtros['diasVencimiento']);
+            $query->whereDate('fecha_vencimiento', '<=', $fechaVencimiento)
+                  ->whereNotNull('fecha_vencimiento');
+        }
+
+        return $query->get();
+    }
+
+    protected function convertirFechas($productos)
+    {
+        return $productos->map(function ($producto) {
+            $producto->fecha_ingreso = Carbon::parse($producto->fecha_ingreso);
+            $producto->fecha_vencimiento = $producto->fecha_vencimiento 
+                ? Carbon::parse($producto->fecha_vencimiento) 
+                : null;
+            return $producto;
+        });
+    }
+
+    protected function generarReportePorTipo($tipo, $productos)
+    {
+        switch ($tipo) {
+            case 'pdf':
+                return $this->generarPDF($productos);
+            case 'excel':
+                return $this->generarExcel($productos);
+            case 'csv':
+                return $this->generarCSV($productos);
+        }
+    }
+
+    private function generarPDF($productos)
+    {
+        $pdf = PDF::loadView('admin.productos.reporte', [
+            'productos' => $productos,
+            'fecha_generacion' => now()->format('d/m/Y H:i:s'),
+            'page' => 1, 
+             'pages' => 1
+        ]);
+        
+        return $pdf->download('reporte_productos_'.now()->format('YmdHis').'.pdf');
+    }
+
+    private function generarExcel($productos)
+    {
+        $data = $productos->map(function ($producto) {
+            return [
+                'Código' => $producto->codigo,
+                'Nombre' => $producto->nombre,
+                'Descripción' => $producto->descripcion,
+                'Categoría' => $producto->categoria->nombre,
+                'Laboratorio' => $producto->laboratorio->nombre,
+                'Stock' => $producto->stock,
+                'Stock Mínimo' => $producto->stock_minimo,
+                'Stock Máximo' => $producto->stock_maximo,
+                'Precio Compra' => $producto->precio_compra,
+                'Precio Venta' => $producto->precio_venta,
+                'Fecha Ingreso' => $producto->fecha_ingreso->format('d/m/Y'),
+                'Fecha Vencimiento' => $producto->fecha_vencimiento?->format('d/m/Y') ?? 'N/A',
+                
+            ];
+        });
+
+        return Excel::download(
+            new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection {
+                private $data;
+                public function __construct($data) { $this->data = $data; }
+                public function collection() { return $this->data; }
+            },
+            'reporte_productos_'.now()->format('YmdHis').'.xlsx'
+        );
+    }
+
+    private function generarCSV($productos): BinaryFileResponse
+    {
+        return $this->generarExcel($productos)
+            ->setContentDisposition('attachment', 'reporte_productos_'.now()->format('YmdHis').'.csv');
+    }
 }

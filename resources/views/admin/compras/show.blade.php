@@ -28,15 +28,20 @@
                             <div class="table-responsive">
                                 <table class="table table-hover table-bordered">
                                     <thead class="thead-light">
+                                        
+                                        
+
+
                                         <tr>
-                                            <th style="width: 5%; text-align: center">Nro</th>
-                                            <th style="text-align: center">Código</th>
-                                            <th style="text-align: center">Cantidad</th>
-                                            <th style="text-align: center">Nombre</th>
-                                            <th style="text-align: center">Laboratorio</th>
-                                            <th style="text-align: center">Costo</th>
-                                            <th style="text-align: center">Total</th>
-                                        </tr>
+                <th class="text-center px-1" style="width: 3%;">#</th>
+                <th class="text-center px-1" style="width: 10%;">Código</th>
+                <th class="text-center px-1" style="width: 5%;">Cantidad</th>
+                <th class="px-1" style="width: 40%;">Nombre</th>
+               
+                <th class="text-end px-1" style="width: 12%;">Unit.</th>
+                <th class="text-end px-1" style="width: 15%;">total</th>
+                
+            </tr>
                                     </thead>
                                     <tbody>
                                         <?php $cont = 1; $total_cantidad = 0; $total_compra = 0; ?>
@@ -48,7 +53,7 @@
                                                 </td>
                                                 <td style="text-align: center; vertical-align: middle">{{$detalle->cantidad}}</td>
                                                 <td style="vertical-align: middle">{{$detalle->producto->nombre}}</td>
-                                                <td style="vertical-align: middle">"{{$compra->laboratorio->nombre}}" </td>
+                                               
                                                 <td style="text-align: center; vertical-align: middle">Bs{{number_format($detalle->producto->precio_compra, 2)}}</td>
                                                 <td style="text-align: center; vertical-align: middle">Bs{{number_format($costo = $detalle->cantidad * $detalle->producto->precio_compra, 2)}}</td>
                                             </tr>
@@ -102,6 +107,11 @@
                 
                 <!-- Card Footer -->
                 <div class="card-footer d-flex justify-content-end">
+                    <a href="{{ url('/admin/compras/'.$compra->id.'/edit') }}" 
+                                               class="btn btn-sm btn-icon btn-success mx-3" 
+                                               title="Editar">
+                                                <i class="fas fa-pencil-alt"></i>Editar
+                                            </a>
                     <a href="{{url('/admin/compras')}}" class="btn btn-primary">
                         <i class="fas fa-arrow-left me-1"></i> Volver
                     </a>

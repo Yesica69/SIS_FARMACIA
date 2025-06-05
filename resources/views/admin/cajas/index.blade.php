@@ -8,114 +8,171 @@
             <div class="card">
                 <div class="card-header border-0">
                     <h3 class="mb-0"><b>Listado de cajas</b></h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Card de botones -->
-    <div class="row mt-3">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header bg-transparent border-0">
+                    <div class="card-header bg-transparent border-0">
                     @if ($cajaAbierto)                 
                     @else 
                     <a href="{{ url('/admin/cajas/create') }}" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Nuevo caja
                     </a>
 
-                    <a href="{{ url('/admin/cajas/ingresos') }}" target="_blank" class="btn btn-danger">
-                        <i class="fas fa-file-pdf"></i> reporte
-                    </a>
+                    
                     @endif
-                </div>
-            </div>
+
+
+                    <!-- Barra de acciones -->
+                <div class="d-flex gap-2 align-items-center">
+    <button class="btn btn-sm btn-outline-secondary" id="refreshTable">
+        <i class="fas fa-sync-alt me-1"></i> Actualizar
+    </button>
+    <div class="position-relative"> <!-- Contenedor relativo importante -->
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-download me-1"></i> Exportar
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg" 
+                style="z-index: 1060; position: absolute;"
+                aria-labelledby="exportDropdown">
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" 
+                       href="{{ route('admin.cajas.reporte', ['tipo' => 'pdf']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}"
+                       target="_blank">
+                        <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" 
+                       href="{{ route('admin.cajas.reporte', ['tipo' => 'excel']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
+                        <i class="fas fa-file-excel text-success me-2"></i> Excel
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" 
+                       href="{{ route('admin.cajas.reporte', ['tipo' => 'csv']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
+                        <i class="fas fa-file-csv text-info me-2"></i> CSV
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
+</div>
+                </div>
+                
+                </div>
+                
+            </div>
+            
+            
+        </div>
+    </div>
+
+   
 
     <!-- Card de tabla -->
     <div class="row mt-3">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="mitabla" class="table align-items-center table-flush">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th scope="col" class="text-center">Nro</th>
-                                    <th scope="col" class="text-center">Fecha de apertura</th>
-                                    <th scope="col" class="text-center">Monto inicial</th>
-                                    <th scope="col" class="text-center">Fecha de cierre</th>
-                                    <th scope="col" class="text-center">Monto final</th>
-                                    <th scope="col" class="text-center">Descripcion</th>
-                                    <th scope="col" class="text-center">Movimientos</th>
-                                    <th scope="col" class="text-center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php $contador = 1; @endphp
-                                @foreach($cajas as $caja)
-                                    <tr>
-                                        <td class="text-center">{{ $contador++ }}</td>
-                                        <td>{{ $caja->fecha_apertura }}</td>
-                                        <td>{{ $caja->monto_inicial }}</td>
-                                        <td>{{ $caja->fecha_cierre }}</td>
-                                        <td>{{ $caja->monto_final }}</td>
-                                        <td>{{ $caja->descripcion }}</td>
-                                        <td>
-                                            <div class="d-flex justify-content-around">
-                                                <div>
-                                                    <b>Ingresos</b>
-                                                    {{number_format($caja->total_ingresos,2)}}
-                                                </div>
-                                                <div>
-                                                    <b>Egresos</b>
-                                                    {{number_format($caja->total_egresos,2)}}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="btn-group" role="group">
-                                                <!-- Botón ingresos/egresos -->
-                                                <button type="button" class="btn btn-sm btn-outline-warning mx-1" 
-                                                    data-bs-toggle="modal" data-bs-target="#ingresoEgresoModal{{$caja->id}}">
-                                                    <i class="fas fa-cash-register"></i>
-                                                </button>
-                                                
-                                                <!-- Botón cerrar caja -->
-                                                <button type="button" class="btn btn-sm btn-outline-secondary mx-1" 
-                                                    data-bs-toggle="modal" data-bs-target="#cerrarModal{{$caja->id}}">
-                                                    <i class="fas fa-lock"></i>
-                                                </button>
-                                                
-                                                <!-- Botón ver -->
-                                                <button type="button" class="btn btn-sm btn-outline-primary mx-1" 
-                                                    data-bs-toggle="modal" data-bs-target="#verModal{{$caja->id}}">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                
-                                                <!-- Botón editar -->
-                                                <button type="button" class="btn btn-sm btn-outline-success mx-1" 
-                                                    data-bs-toggle="modal" data-bs-target="#editarModal{{$caja->id}}">
-                                                    <i class="fas fa-pencil"></i>
-                                                </button>
-                                                
-                                                <!-- Botón eliminar -->
-                                                <button type="button" class="btn btn-sm btn-outline-danger mx-1" 
-                                                    onclick="confirmDelete({{$caja->id}})">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                                <form id="deleteForm{{$caja->id}}" action="{{url('/admin/cajas/'.$caja->id)}}" method="POST" class="d-none">
-                                                    @csrf @method('DELETE')
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <!-- Tabla de Cajas -->
+        <div class="card-body pt-0">
+            <div class="table-responsive">
+                <table id="mitabla" class="table table-hover align-items-center mb-0 compact">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder text-center">#</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder">Apertura</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder text-end">Inicial</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder">Cierre</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder text-end">Final</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder">Movimientos</th>
+                            <th class="text-uppercase text-secondary text-xs font-weight-bolder text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($cajas as $caja)
+                        <tr>
+                            <td class="text-xs text-center">{{ $loop->iteration }}</td>
+                            <td class="text-xs">
+                                <div class="d-flex flex-column">
+                                    <span class="font-weight-bold">{{ date('d/m/Y', strtotime($caja->fecha_apertura)) }}</span>
+                                    <small class="text-muted">{{ date('H:i', strtotime($caja->fecha_apertura)) }}</small>
+                                </div>
+                            </td>
+                            <td class="text-xs text-end font-weight-bold text-primary">Bs {{ number_format($caja->monto_inicial, 2) }}</td>
+                            <td class="text-xs">
+                                @if($caja->fecha_cierre)
+                                <div class="d-flex flex-column">
+                                    <span class="font-weight-bold">{{ date('d/m/Y', strtotime($caja->fecha_cierre)) }}</span>
+                                    <small class="text-muted">{{ date('H:i', strtotime($caja->fecha_cierre)) }}</small>
+                                </div>
+                                @else
+                                <span class="badge bg-warning text-dark">Abierta</span>
+                                @endif
+                            </td>
+                            <td class="text-xs text-end font-weight-bold @if($caja->monto_final) text-success @else text-muted @endif">
+                                @if($caja->monto_final) Bs {{ number_format($caja->monto_final, 2) }} @else -- @endif
+                            </td>
+                            <td class="text-xs">
+                                <div class="d-flex justify-content-around">
+                                    <div class="text-center">
+                                        <span class="badge bg-success text-white">Ingresos</span>
+                                        <div class="font-weight-bold">Bs {{ number_format($caja->total_ingresos, 2) }}</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <span class="badge bg-danger text-white">Egresos</span>
+                                        <div class="font-weight-bold">Bs {{ number_format($caja->total_egresos, 2) }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+    <div class="d-flex justify-content-center gap-1">
+        <!-- Botón ingresos/egresos -->
+        @if(!$caja->fecha_cierre)
+        <button type="button" class="btn btn-action btn-warning"
+            data-bs-toggle="modal" data-bs-target="#ingresoEgresoModal{{$caja->id}}"
+            data-bs-tooltip="tooltip" title="Registrar Movimientos">
+            <i class="fas fa-exchange-alt"></i>
+        </button>
+        @endif
+        <!-- Botón cerrar caja -->
+        @if(!$caja->fecha_cierre)
+        <button type="button" class="btn btn-action btn-secondary"
+            data-bs-toggle="modal" data-bs-target="#cerrarModal{{$caja->id}}"
+            data-bs-tooltip="tooltip" title="Cerrar Caja">
+            <i class="fas fa-lock"></i>
+        </button>
+        @endif
+        
+        <!-- Botón ver -->
+        <button type="button" class="btn btn-action btn-info"
+            data-bs-toggle="modal" data-bs-target="#verModal{{$caja->id}}"
+            data-bs-tooltip="tooltip" title="Ver Detalles">
+            <i class="fas fa-eye"></i>
+        </button>
+        
+        <!-- Botón editar 
+        <button type="button" class="btn btn-action btn-primary"
+            data-bs-toggle="modal" data-bs-target="#editarModal{{$caja->id}}"
+            data-bs-tooltip="tooltip" title="Editar Caja">
+            <i class="fas fa-pencil-alt"></i>
+        </button>-->
+        
+        <!-- Botón eliminar -->
+        <button type="button" class="btn btn-action btn-danger"
+            onclick="confirmDelete({{$caja->id}})"
+            data-bs-tooltip="tooltip" title="Eliminar Caja">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+        <form id="deleteForm{{$caja->id}}" action="{{url('/admin/cajas/'.$caja->id)}}" method="POST" class="d-none">
+            @csrf @method('DELETE')
+        </form>
+    </div>
+</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
             </div>
         </div>
     </div>
@@ -264,14 +321,14 @@
                                         <tr>
                                             <td class="text-center">{{$i++}}</td>
                                             <td>{{$ingreso->descripcion}}</td>
-                                            <td>{{number_format($ingreso->monto, 2)}}</td>
+                                            <td>{{number_format($ingreso->monto, 2, '.', '.')}}</td>
                                         </tr>
                                         @endforeach
                                     </tbody>
                                     <tfoot>
                                         <tr>
                                             <td colspan="2" class="text-center"><b>Total</b></td>
-                                            <td><b>{{number_format($caja->movimientos->where('tipo', 'INGRESO')->sum('monto'), 2)}}</b></td>
+                                            <td><b>{{number_format($caja->movimientos->where('tipo', 'INGRESO')->sum('monto'), 2, '.', '.')}}</b></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -300,14 +357,14 @@
                                         <tr>
                                             <td class="text-center">{{$e++}}</td>
                                             <td>{{$egreso->descripcion}}</td>
-                                            <td>{{number_format($egreso->monto, 2)}}</td>
+                                            <td>{{ number_format($egreso->monto, 0, '.', '.') }}</td>
                                         </tr>
                                         @endforeach
                                     </tbody>
                                     <tfoot>
                                         <tr>
                                             <td colspan="2" class="text-center"><b>Total</b></td>
-                                            <td><b>{{number_format($caja->movimientos->where('tipo', 'EGRESO')->sum('monto'), 2)}}</b></td>
+                                            <td><b>{{number_format($caja->movimientos->where('tipo', 'EGRESO')->sum('monto'), 2, '.', '.')}}</b></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -356,6 +413,12 @@
     </div>
 </div>
 @endforeach
+
+
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection
 
 @section('css')
@@ -405,3 +468,11 @@
     }
 </script>
 @endsection
+
+
+
+
+
+
+
+

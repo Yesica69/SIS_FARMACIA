@@ -22,6 +22,14 @@ class Compra extends Model
     return $this->belongsTo(Laboratorio::class);
 }
 
+
+
+
+public function movimientosCaja()
+{
+    return $this->hasOne(MovimientoCaja::class, 'compra_id');
+}
+
 //public function laboratorio()
   //  {
     //    return $this->belongsTo(Laboratorio::class, 'laboratorio_id');

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 use App\Models\MovimientoCaja;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use DatePeriod; // Importación añadida
+use DateInterval; // Importación añadida
+use DateTime; // Importación añadida
 // Asegúrate de tener este modelo para acceder a los datos de ingresos
 use PDF; // Si estás usando domPDF o cualquier paquete para generar PDF
 
@@ -17,76 +20,101 @@ class ReporteController extends Controller
 
     public function ingresosPorFecha(Request $request)
     {
-        $fecha_inicio = $request->input('fecha_inicio');
-        $fecha_fin = $request->input('fecha_fin');
-
-        $ingresos = MovimientoCaja::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
-                               ->where('tipo', 'INGRESO')
-                               ->get();
-
+        // Validación de fechas
+        $validated = $request->validate([
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio'
+        ]);
+    
+        $fecha_inicio = $validated['fecha_inicio'];
+        $fecha_fin = $validated['fecha_fin'];
+    
+        // Optimización: Consulta directa con agregación en base de datos
         $dias_rango = Carbon::parse($fecha_inicio)->diffInDays($fecha_fin);
-
-        $datos = [];
-        $labels = [];
-
+    
         if ($dias_rango <= 30) {
-            // Agrupar por día
-            $periodo = new \DatePeriod(
-                new \DateTime($fecha_inicio),
-                new \DateInterval('P1D'),
-                (new \DateTime($fecha_fin))->modify('+1 day')
+            // Agrupación por día
+            $resultados = MovimientoCaja::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+                ->where('tipo', 'INGRESO')
+                ->selectRaw('DATE(created_at) as fecha, SUM(monto) as total')
+                ->groupBy('fecha')
+                ->orderBy('fecha')
+                ->get();
+    
+            // Rellenar días sin movimientos
+            $periodo = new DatePeriod(
+                new DateTime($fecha_inicio),
+                new DateInterval('P1D'),
+                (new DateTime($fecha_fin))->modify('+1 day')
             );
-
+    
+            $datos = [];
+            $labels = [];
+            $resultadosPorFecha = $resultados->pluck('total', 'fecha');
+    
             foreach ($periodo as $fecha) {
                 $fecha_formato = $fecha->format('Y-m-d');
-                $monto = $ingresos->where('created_at', '>=', $fecha_formato . ' 00:00:00')
-                                  ->where('created_at', '<=', $fecha_formato . ' 23:59:59')
-                                  ->sum('monto');
-
                 $labels[] = $fecha_formato;
-                $datos[] = $monto;
+                $datos[] = $resultadosPorFecha->get($fecha_formato, 0);
             }
-
         } else {
-            // Agrupar por mes
+            // Agrupación por mes
+            $resultados = MovimientoCaja::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+                ->where('tipo', 'INGRESO')
+                ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as mes, SUM(monto) as total')
+                ->groupBy('mes')
+                ->orderBy('mes')
+                ->get();
+    
+            // Rellenar meses sin movimientos
             $fechaIni = Carbon::parse($fecha_inicio)->startOfMonth();
             $fechaFin = Carbon::parse($fecha_fin)->endOfMonth();
+            
+            $datos = [];
+            $labels = [];
+            $resultadosPorMes = $resultados->pluck('total', 'mes');
+    
             while ($fechaIni <= $fechaFin) {
                 $mes = $fechaIni->format('Y-m');
-
-                $monto = $ingresos->filter(function ($ingreso) use ($mes) {
-                    return $ingreso->created_at->format('Y-m') === $mes;
-                })->sum('monto');
-
                 $labels[] = $mes;
-                $datos[] = $monto;
-
+                $datos[] = $resultadosPorMes->get($mes, 0);
                 $fechaIni->addMonth();
             }
         }
-
+    
         $total = array_sum($datos);
-
+    
         return view('admin.reporte.ingresos', compact('labels', 'datos', 'total'));
     }
     
 
     public function ingresosPorFechaPDF(Request $request)
-{
-    $fechaInicio = $request->fecha_inicio;
-    $fechaFin = $request->fecha_fin;
-
-    $ingresos =MovimientoCaja::whereBetween('created_at', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
-                        ->orderBy('created_at', 'asc')
-                        ->get();
-
-    $total = $ingresos->sum('monto');
-
-    $pdf = Pdf::loadView('admin.reporte.ingresos_por_fecha_pdf', compact('ingresos', 'total', 'fechaInicio', 'fechaFin'));
+    {
+        $validated = $request->validate([
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio'
+        ]);
     
-    return $pdf->stream('ingresos_por_fecha.pdf');
-}
-
+        $fechaInicio = Carbon::parse($validated['fecha_inicio'])->startOfDay();
+        $fechaFin = Carbon::parse($validated['fecha_fin'])->endOfDay();
+    
+        // FILTRAR SOLO INGRESOS
+        $ingresos = MovimientoCaja::whereBetween('created_at', [$fechaInicio, $fechaFin])
+                    ->where('tipo', 'INGRESO') // Este filtro es crucial
+                    ->orderBy('created_at')
+                    ->get();
+    
+        $total = $ingresos->sum('monto');
+    
+        $pdf = Pdf::loadView('admin.reporte.ingresos_por_fecha_pdf', [
+            'ingresos' => $ingresos,
+            'total' => $total,
+            'fechaInicio' => $fechaInicio->format('d/m/Y'),
+            'fechaFin' => $fechaFin->format('d/m/Y')
+        ]);
+    
+        return $pdf->stream('reporte_ingresos.pdf');
+    }
 
 
 //EGRESOS 
@@ -152,22 +180,33 @@ public function egresosPorFecha(Request $request)
 }
 
 
-public function egresosPorFechaPDF(Request $request)
+public function EgresosPorFechaPDF(Request $request)
 {
-$fechaInicio = $request->fecha_inicio;
-$fechaFin = $request->fecha_fin;
+    $validated = $request->validate([
+        'fecha_inicio' => 'required|date',
+        'fecha_fin' => 'required|date|after_or_equal:fecha_inicio'
+    ]);
 
-$egresos =MovimientoCaja::whereBetween('created_at', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
-                    ->orderBy('created_at', 'asc')
-                    ->get();
+    $fechaInicio = Carbon::parse($validated['fecha_inicio'])->startOfDay();
+    $fechaFin = Carbon::parse($validated['fecha_fin'])->endOfDay();
 
-$total = $egresos->sum('monto');
+    // FILTRAR SOLO INGRESOS
+    $egresos = MovimientoCaja::whereBetween('created_at', [$fechaInicio, $fechaFin])
+                ->where('tipo', 'EGRESO') // Este filtro es crucial
+                ->orderBy('created_at')
+                ->get();
 
-$pdf = Pdf::loadView('admin.reporte.egresos_por_fecha_pdf', compact('egresos', 'total', 'fechaInicio', 'fechaFin'));
+    $total = $egresos->sum('monto');
 
-return $pdf->stream('egresos_por_fecha.pdf');
+    $pdf = Pdf::loadView('admin.reporte.egresos_por_fecha_pdf', [
+        'egresos' => $egresos,
+        'total' => $total,
+        'fechaInicio' => $fechaInicio->format('d/m/Y'),
+        'fechaFin' => $fechaFin->format('d/m/Y')
+    ]);
+
+    return $pdf->stream('reporte_egresos.pdf');
 }
-
 
 
 

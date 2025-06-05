@@ -2,184 +2,156 @@
 
 @section('content')
 @include('layouts.navbars.auth.topnav', ['title' => 'Editar Compra #'.$compra->id])
-<div class="container-fluid mt--6">
-    <div class="row">
-        <div class="col">
-            <!-- Breadcrumb -->
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url('/admin/compras') }}">Compras</a></li>
-                    <li class="breadcrumb-item active">Editar</li>
-                </ol>
-            </nav>
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
 
-            <!-- Card Principal -->
-            <div class="card">
-                <!-- Card Header -->
-                <div class="card-header border-0">
-                    <div class="row align-items-center">
-                        <div class="col-8">
-                            <h3 class="mb-0"><i class="fas fa-edit me-2"></i> Editar Compra #{{ $compra->id }}</h3>
-                        </div>
-                        <div class="col-4 text-end">
-                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#collapseCard">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                        </div>
-                    </div>
+            <!-- Encabezado -->
+            <div class="card shadow mb-4 border-0">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Editar Compra #{{ $compra->id }}</h4>
                 </div>
+            </div>
 
-                <!-- Card Body -->
-                <div class="card-body">
-                    <form action="{{url('/admin/compras', $compra->id) }}" id="form_compra" method="post">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" value="{{$compra->id}}" id="id_compra" name="id_compra">
+            <form action="{{ url('/admin/compras', $compra->id) }}" method="post" id="form_compra">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="id_compra" value="{{ $compra->id }}">
 
-                        <div class="row">
-                            <!-- Columna Izquierda -->
-                            <div class="col-md-8">
-                                <div class="row mb-3">
+                <div class="row">
+                    <!-- Columna izquierda: Productos -->
+                    <div class="col-lg-8">
+                        <div class="card shadow-sm mb-4 border-0">
+                            <div class="card-header bg-light">
+                                <strong>Productos</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3 mb-4">
                                     <div class="col-md-2">
-                                        <div class="form-group">
-                                            <label for="cantidad" class="form-label">Cantidad</label>
-                                            <input type="number" class="form-control" id="cantidad" name="cantidad" value="1" required>
-                                            @error('cantidad')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
+                                        <label class="form-label">Cantidad</label>
+                                        <input type="number" name="cantidad" value="1" class="form-control" required>
                                     </div>
-
                                     <div class="col-md-6">
-                                        <label for="codigo" class="form-label">Código</label>
+                                        <label class="form-label">Código</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-barcode"></i></span>
-                                            <input id="codigo" type="text" class="form-control" name="codigo">
+                                            <input type="text" id="codigo" name="codigo" class="form-control">
                                         </div>
                                     </div>
-
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label class="form-label" style="visibility: hidden;">Buscar</label>
-                                            <div class="d-flex">
-                                                <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#verModal">
-                                                    <i class="fas fa-search"></i>
-                                                </button>
-                                                <a href="{{url('/admin/productos/create')}}" class="btn btn-success">
-                                                    <i class="fas fa-plus"></i>
-                                                </a>
-                                            </div>
-                                        </div>
+                                    <div class="col-md-4 d-flex align-items-end">
+                                        <button type="button" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#verModal">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                        <a href="{{ url('/admin/productos/create') }}" class="btn btn-outline-success">
+                                            <i class="fas fa-plus"></i>
+                                        </a>
                                     </div>
                                 </div>
 
-                                <!-- Tabla de Productos -->
+                                <!-- Tabla de productos -->
                                 <div class="table-responsive">
-                                    <table class="table table-sm table-striped table-bordered table-hover">
-                                        <thead class="thead-light">
-                                            <tr>
-                                                <th style="width: 5%; text-align: center">Nro</th>
-                                                <th style="text-align: center">Código</th>
-                                                <th style="text-align: center">Cantidad</th>
-                                                <th style="text-align: center">Nombre</th>
-                                                <th style="text-align: center">Costo</th>
-                                                <th style="text-align: center">Total</th>
-                                                <th style="text-align: center">Acción</th>
-                                            </tr>
+                                    <table class="table table-bordered table-hover align-middle">
+                                        <thead class="table-light text-center">
+                                        <tr>
+                <th class="text-center px-1" style="width: 3%;">#</th>
+                <th class="text-center px-1" style="width: 10%;">Código</th>
+                <th class="text-center px-1" style="width: 5%;">Cantidad</th>
+                <th class="px-1" style="width: 40%;">Nombre</th>
+                
+                <th class="text-end px-1" style="width: 12%;">Unit.</th>
+                <th class="text-end px-1" style="width: 15%;">total</th>
+                <th class="text-center px-1" style="width: 5%;"></th>
+                
+            </tr>
                                         </thead>
                                         <tbody>
-                                            <?php $cont = 1; $total_cantidad = 0; $total_compra = 0;?>
+                                            @php $cont = 1; $total_cantidad = 0; $total_compra = 0; @endphp
                                             @foreach($compra->detalles as $detalle)
-                                                <tr>
-                                                    <td style="text-align: center">{{$cont++}}</td>
-                                                    <td style="text-align: center">{{$detalle->producto->codigo}}</td>
-                                                    <td style="text-align: center">{{$detalle->cantidad}}</td>
-                                                    <td>{{$detalle->producto->nombre}}</td>
-                                                    <td style="text-align: center">{{$detalle->producto->precio_compra}}</td>
-                                                    <td style="text-align: center">{{$costo = $detalle->cantidad * $detalle->producto->precio_compra}}</td>
-                                                    <td style="text-align: center">
-                                                        <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="{{$detalle->id}}">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                @php
-                                                    $total_cantidad += $detalle->cantidad;
-                                                    $total_compra += $costo;
-                                                @endphp
+                                            <tr>
+                                                <td>{{ $cont++ }}</td>
+                                                <td>{{ $detalle->producto->codigo }}</td>
+                                                <td>{{ $detalle->cantidad }}</td>
+                                                <td>{{ $detalle->producto->nombre }}</td>
+                                                <td>{{ number_format($detalle->producto->precio_compra, 2) }}</td>
+                                                <td>
+                                                    @php $costo = $detalle->cantidad * $detalle->producto->precio_compra; @endphp
+                                                    {{ number_format($costo, 2) }}
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="{{ $detalle->id }}">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            @php
+                                                $total_cantidad += $detalle->cantidad;
+                                                $total_compra += $costo;
+                                            @endphp
                                             @endforeach
                                         </tbody>
-                                        <tfoot>
+                                        <tfoot class="table-light">
                                             <tr>
-                                                <td colspan="2" style="text-align: right">Total</td>
-                                                <td style="text-align: center"><b>{{$total_cantidad}}</b></td>
-                                                <td colspan="2" style="text-align: right">Total compra</td>
-                                                <td style="text-align: center"><b>{{$total_compra}}</b></td>
+                                                <td colspan="2" class="text-end fw-bold">Total</td>
+                                                <td class="text-center fw-bold">{{ $total_cantidad }}</td>
+                                                <td colspan="2" class="text-end fw-bold">Total Compra</td>
+                                                <td class="text-center fw-bold">{{ number_format($total_compra, 2) }}</td>
                                                 <td></td>
                                             </tr>
                                         </tfoot>
                                     </table>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <!-- Columna Derecha -->
-                            <div class="col-md-4">
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#labModal">
-                                            <i class="fas fa-search me-2"></i>Buscar laboratorio
+                    <!-- Columna derecha: Detalles de compra -->
+                    <div class="col-lg-4">
+                        <div class="card shadow-sm mb-4 border-0">
+                            <div class="card-header bg-light">
+                                <strong>Detalles de compra</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Laboratorio</label>
+                                    <div class="input-group">
+                                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#labModal">
+                                            <i class="fas fa-search me-2"></i>Buscar
                                         </button>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input type="text" class="form-control" value="{{$compra->laboratorio->nombre}}" id="nombre_laboratorio" readonly>
-                                        <input type="hidden" class="form-control" id="id_laboratorio" value="{{$compra->laboratorio->id}}" name="laboratorio_id">
+                                        <input type="text" class="form-control ms-2" value="{{ $compra->laboratorio->nombre }}" id="nombre_laboratorio" readonly>
+                                        <input type="hidden" name="laboratorio_id" value="{{ $compra->laboratorio->id }}">
                                     </div>
                                 </div>
 
-                                <hr>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="fecha" class="form-label">Fecha</label>
-                                            <input type="date" class="form-control" name="fecha" value="{{$compra->fecha}}">
-                                            @error('fecha')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="comprobante" class="form-label">Comprobante</label>
-                                            <select name="comprobante" id="comprobante" class="form-control">
-                                                <option value="FACTURA" {{ trim($compra->comprobante) == 'FACTURA' ? 'selected' : '' }}>FACTURA</option>
-                                                <option value="RECIBO" {{ trim($compra->comprobante) == 'RECIBO' ? 'selected' : '' }}>RECIBO</option>
-                                            </select>
-                                        </div>
-                                    </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Fecha</label>
+                                    <input type="date" name="fecha" class="form-control" value="{{ $compra->fecha }}">
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label for="precio_total" class="form-label">Total</label>
-                                            <input type="text" style="text-align: center; background-color: #f8d7da" class="form-control" name="precio_total" value="{{$total_compra}}" readonly>
-                                            @error('precio_total')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                    </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Comprobante</label>
+                                    <select name="comprobante" class="form-select">
+                                        <option value="FACTURA" {{ trim($compra->comprobante) == 'FACTURA' ? 'selected' : '' }}>FACTURA</option>
+                                        <option value="RECIBO" {{ trim($compra->comprobante) == 'RECIBO' ? 'selected' : '' }}>RECIBO</option>
+                                    </select>
                                 </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">Total</label>
+                                    <input type="text" class="form-control text-center bg-gradient-danger text-white fw-bold fs-5" name="precio_total" value="{{ number_format($total_compra, 2) }}" readonly>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">Actualizar Compra</button>
+                                </div>
+                                <a href="{{url('/admin/compras')}}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-1"></i> Volver
+                    </a>
                             </div>
                         </div>
-
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary">Actualizar compra</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </form>
+
         </div>
     </div>
 </div>
@@ -304,21 +276,29 @@
 <script>
 $(document).ready(function() {
     // Seleccionar laboratorio
-    $(document).on('click', '.seleccionar-btn-laboratorio', function() {
-        const id_laboratorio = $(this).data('id');
-        const nombre = $(this).data('nombre');
-        $('#nombre_laboratorio').val(nombre);
-        $('#id_laboratorio').val(id_laboratorio);
-        $('#labModal').modal('hide');
-    });
+$(document).on('click', '.seleccionar-btn-laboratorio', function() {
+    const id_laboratorio = $(this).data('id');
+    const nombre = $(this).data('nombre');
+    $('#nombre_laboratorio').val(nombre);
+    $('#id_laboratorio').val(id_laboratorio);
+    $('#labModal').modal('hide');
 
-    // Seleccionar producto
-    $(document).on('click', '.seleccionar-btn', function() {
-        const id_producto = $(this).data('id');
-        $('#codigo').val(id_producto);
-        $('#verModal').modal('hide');
-        $('#codigo').focus();
-    });
+    // Eliminar manualmente el backdrop si persiste
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open'); // Asegura que se pueda hacer scroll nuevamente
+});
+
+   // Seleccionar producto
+$(document).on('click', '.seleccionar-btn', function() {
+    const id_producto = $(this).data('id');
+    $('#codigo').val(id_producto);
+    $('#verModal').modal('hide');
+    $('#codigo').focus();
+
+    // Eliminar manualmente el backdrop si persiste
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open');
+});
 
     // Eliminar producto
     $(document).on('click', '.delete-btn', function() {

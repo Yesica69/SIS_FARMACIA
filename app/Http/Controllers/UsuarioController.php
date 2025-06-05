@@ -11,31 +11,40 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+
 class UsuarioController extends Controller
 {
 
     public function index()
     {
-        $sucursal_id = Auth::check() ? Auth::user()->sucursal_id : redirect()->route('login')->send();
-        $usuarios = User::all()->map(function ($usuario) {
-            $sucursal = Sucursal::find($usuario->sucursal_id);
-            $usuario->sucursal_id = $sucursal->nombre;
-            return $usuario;
-        });
-
+        // Verificar autenticación
+        
+    
+        $sucursal_id = Auth::user()->sucursal_id;
+        
+        // Cargar usuarios con relaciones y filtrar por sucursal
+       
+        $usuarios = User::with(['roles', 'sucursal'])
+            ->where('sucursal_id', $sucursal_id)
+            ->get()
+            ->map(function ($usuario) {
+                // Accede al nombre de la sucursal a través de la relación ya cargada
+                $usuario->sucursal_nombre = $usuario->sucursal->nombre ?? 'N/A';
+                return $usuario;
+            });
+    
+        // Obtener datos adicionales
         $sucursales = Sucursal::all();
-        $roles = Role::all();    // Lista de roles
-
-        // Envía los datos a la vista
+        $roles = Role::all();
+    
         return view('admin.usuarios.index', compact('usuarios', 'roles', 'sucursales'));
-
-        $sucursal_id = Auth::user()->sucursal_id; // Obtener la sucursal del usuario autenticado
-        $usuarios = User::where('sucursal_id', $sucursal_id)->get(); // Obtener usuarios de la misma sucursal
-
-        return view('admin.usuarios.index', compact('usuarios'));
-
-
     }
+
+
+
 
     public function create()
     {
@@ -44,43 +53,7 @@ class UsuarioController extends Controller
         return view('admin.usuarios.create', compact('roles')); // Pasamos la variable roles a la vista
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-
-        // Validación de los datos de entrada
-        $request->validate([
-            'firstname' => 'required',
-            'email' => 'required|unique:users',
-
-        ]);
-
-        // Crear un nuevo usuario
-        $usuario = new User();
-        $usuario->firstname = $request->firstname;
-        $usuario->email = $request->email;
-        $usuario->ci = $request->ci;
-
-        $codigo = substr($request->firstname, 0, 3) . $request->ci;
-
-        $usuario->password = Hash::make($codigo);
-        $usuario->sucursal_id = $request->sucursal;
-
-        $usuario->save();
-
-        $usuario->assignRole($request->role);//asignar un rol
-
-        // Redirigir al índice con un mensaje de éxito
-        return redirect()->route('admin.usuarios.index')
-            ->with('mensaje', 'Usuario creado con éxito.')
-            ->with('icono', 'success');
-    }
-
-    /**
-     * Display the specified resource.
-     */
+ 
     public function show(string $id)
     {
         $usuario = User::findOrFail($id); // Buscar el usuario por id
@@ -91,47 +64,13 @@ class UsuarioController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
-    {
-        $usuario = User::findOrFail($id); // buscar el usuario por ID
-        $role = Role::all(); // Obtener todos los roles
-        return view('admin.usuarios.edit', compact('usuario', 'roles')); // retornar vista de edición
-    }
+{
+    $usuario = User::with('roles')->findOrFail($id);
+    $roles = Role::all();
+    return view('admin.usuarios.edit', compact('usuario', 'roles'));
+}
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        // Validación de los datos de entrada
-        $request->validate([
-            'firtsname' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id, // El correo debe ser único, excepto para el usuario actual
-            'password' => 'confirmed'
-        ]);
 
-        // Buscar el usuario por ID
-        $usuario = User::find($id);
-
-        // Actualizar los datos básicos
-        $usuario->firstname = $request->firstname;
-        $usuario->email = $request->email;
-        // Actualizar la contraseña s
-        if ($request->filled('password')) {
-            $usuario->password = Hash::make($request->password);
-        }
-
-        // Sincronizar el rol del usuario
-        $usuario->syncRoles($request->role);
-
-        // Guardar cambios
-        $usuario->save();
-
-        // Redirigir al índice con un mensaje de éxito
-        return redirect()->route('admin.usuarios.index')
-            ->with('mensaje', 'Se modifico el usuario')
-            ->with('icono', 'success');
-
-    }
     public function destroy(string $id)
     {
         User::destroy($id); // Buscar el usuario por ID
@@ -142,4 +81,161 @@ class UsuarioController extends Controller
             ->with('mensaje', 'Usuario eliminado con éxito.')
             ->with('icono', 'success');
     }
+
+    public function store(Request $request)
+{
+
+    
+    // Validación mejorada
+    $validated = $request->validate([
+        'firstname' => 'required|string|max:255',
+        'lastname' => 'required|string|max:255',
+        'email' => 'required|email|unique:users',
+        'username' => 'required|string|max:255|unique:users',
+        'role' => 'required|exists:roles,name',
+        'sucursal_id' => 'required|exists:sucursals,id',
+        'address' => 'nullable|string|max:255',
+        'celular' => 'nullable|string|max:20|regex:/^[0-9]+$/',
+        'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+    ], [
+        'email.unique' => 'El correo ya está registrado',
+        'username.unique' => 'El nombre de usuario ya existe',
+        'sucursal_id.required' => 'Seleccione una sucursal',
+        'celular.regex' => 'Solo números permitidos'
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        // Procesar imagen
+        $imagenPath = null;
+        if ($request->hasFile('imagen')) {
+            $imagenPath = $request->file('imagen')->store(
+                'usuarios',
+                'public'
+            );
+        }
+
+        // Crear usuario con contraseña igual al username
+        $usuario = User::create([
+            'firstname' => $validated['firstname'],
+            'lastname' => $validated['lastname'],
+            'email' => $validated['email'],
+            'username' => $validated['username'],
+            'password' => Hash::make($validated['username']), // Contraseña = username
+            'address' => $validated['address'],
+            'celular' => $validated['celular'],
+            'imagen' => $imagenPath,
+            'sucursal_id' => $validated['sucursal_id'],
+            'email_verified_at' => now()
+        ]);
+
+        // Asignar rol
+        $usuario->assignRole($validated['role']);
+
+        DB::commit();
+
+        // Respuesta para AJAX
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario creado exitosamente',
+                'redirect' => route('admin.usuarios.index')
+            ]);
+        }
+
+        return redirect()->route('admin.usuarios.index')
+            ->with('success', 'Usuario creado exitosamente');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        // Log detallado
+        Log::error('Error al crear usuario', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'input' => $request->except('password')
+        ]);
+
+        // Respuesta para AJAX
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear usuario: ' . $e->getMessage()
+            ], 500);
+        }
+
+        return back()->withInput()
+            ->with('error', 'Error al crear usuario: ' . $e->getMessage());
+    }
+}
+    
+    public function update(Request $request, string $id)
+    {
+         
+        // Validación de datos
+        $validated = $request->validate([
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$id,
+            'role' => 'required|exists:roles,name',
+            'password' => 'nullable|min:8|confirmed',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'username' => 'required|string|max:255|unique:users,username,'.$id,
+            'address' => 'nullable|string|max:255',
+            'celular' => 'nullable|string|max:20',
+            'remove_image' => 'nullable|boolean'
+        ]);
+    
+        try {
+            $usuario = User::findOrFail($id);
+    
+            // Manejo de imagen
+            if ($request->has('remove_image') && $request->remove_image) {
+                // Eliminar imagen actual si existe
+                if ($usuario->imagen) {
+                    $oldImage = str_replace('storage/', 'public/', $usuario->imagen);
+                    Storage::delete($oldImage);
+                }
+                $validated['imagen'] = null;
+            } elseif ($request->hasFile('imagen')) {
+                // Eliminar imagen anterior si existe
+                if ($usuario->imagen) {
+                    $oldImage = str_replace('storage/', 'public/', $usuario->imagen);
+                    Storage::delete($oldImage);
+                }
+                
+                // Guardar nueva imagen
+                $path = $request->file('imagen')->store('public/usuarios');
+                $validated['imagen'] = str_replace('public/', 'storage/', $path);
+            } else {
+                // Mantener la imagen existente si no se sube una nueva
+                unset($validated['imagen']);
+            }
+    
+            // Actualizar datos básicos
+            $usuario->update($validated);
+    
+            // Actualizar contraseña si se proporcionó
+            if ($request->filled('password')) {
+                $usuario->update([
+                    'password' => Hash::make($request->password)
+                ]);
+            }
+    
+            // Sincronizar roles
+            $usuario->syncRoles($request->role);
+    
+            return redirect()->route('admin.usuarios.index')
+                ->with('success', 'Usuario actualizado correctamente');
+    
+        } catch (\Exception $e) {
+            \Log::error('Error al actualizar usuario: ' . $e->getMessage());
+            
+            return back()->withInput()
+                ->with('error', 'Error al actualizar el usuario: ' . $e->getMessage());
+        }
+    }
+
+    
 }

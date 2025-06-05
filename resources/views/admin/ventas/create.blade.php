@@ -4,169 +4,145 @@
 @include('layouts.navbars.auth.topnav', ['title' => 'Nueva venta'])
 <div class="container-fluid mt--6">
     <div class="row">
-        <div class="col">
-            <div class="card">
-                <!-- Card header -->
-                <div class="card-header border-0">
-                    <div class="row align-items-center">
-                        <div class="col-8">
-                            <h3 class="mb-0">Ingrese los datos</h3>
+        <!-- Card 1: Registro de Productos -->
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-boxes me-2"></i>Registro de Productos</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Formulario de búsqueda -->
+                    <div class="row mb-4">
+                        <div class="col-md-2">
+                            <label for="cantidad" class="form-label">Cantidad</label>
+                            <input type="number" class="form-control form-control-lg" id="cantidad" value="1" min="1" required>
                         </div>
-                        <div class="col-4 text-right">
-                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#collapseCard">
-                                <i class="fas fa-minus"></i>
-                            </button>
+                        <div class="col-md-6">
+                            <label for="codigo" class="form-label">Código</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white"><i class="fas fa-barcode"></i></span>
+                                <input id="codigo" type="text" class="form-control form-control-lg" name="codigo" placeholder="Escanear código" autofocus>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <div class="d-flex gap-2 w-100">
+                                <button type="button" class="btn btn-primary flex-grow-1" data-bs-toggle="modal" data-bs-target="#verModal">
+                                    <i class="fas fa-search me-2"></i>Buscar
+                                </button>
+                                <a href="{{url('/admin/productos/create')}}" class="btn btn-success flex-grow-1">
+                                    <i class="fas fa-plus me-2"></i>Nuevo
+                                </a>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Tabla de productos -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                            <tr>
+                <th class="text-center px-1" style="width: 3%;">#</th>
+                <th class="text-center px-1" style="width: 10%;">Código</th>
+                <th class="text-center px-1" style="width: 5%;">Cant.</th>
+                <th class="px-1" style="width: 40%;">Nombre</th>
+                <th class="text-end px-1" style="width: 12%;">Unit.</th>
+                <th class="text-end px-1" style="width: 15%;">Subtotal</th>
+                <th class="text-center px-1" style="width: 5%;"></th>
+            </tr>
+                            </thead>
+                            <tbody>
+                                <?php $cont = 1; $total_cantidad = 0; $total_venta = 0;?>
+                                @foreach($tmp_ventas as $tmp_venta)
+                                <tr>
+                                    <td class="text-center">{{$cont++}}</td>
+                                    <td class="text-center">{{$tmp_venta->producto->codigo}}</td>
+                                    <td class="text-center">{{$tmp_venta->cantidad}}</td>
+                                    <td>{{$tmp_venta->producto->nombre}}</td>
+                                    <td class="text-center">${{number_format($tmp_venta->producto->precio_venta, 2)}}</td>
+                                    <td class="text-center">${{number_format($costo = $tmp_venta->cantidad * $tmp_venta->producto->precio_venta, 2)}}</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="{{$tmp_venta->id}}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                @php
+                                $total_cantidad += $tmp_venta->cantidad;
+                                $total_venta += $costo;
+                                @endphp
+                                @endforeach
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="2" class="text-end">TOTAL</th>
+                                    <th class="text-center">{{$total_cantidad}}</th>
+                                    <th colspan="2" class="text-end">TOTAL VENTA</th>
+                                    <th class="text-center text-primary">${{number_format($total_venta, 2)}}</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
-                
-                <!-- Card body -->
+            </div>
+        </div>
+
+        <!-- Card 2: Datos del Cliente y Venta -->
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-user-tag me-2"></i>Datos del Cliente</h3>
+                </div>
                 <div class="card-body">
                     <form action="{{ route('admin.ventas.create') }}" id="form_venta" method="POST">
                         @csrf
-
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="row">
-                                    <!-- Cantidad -->
-                                    <div class="col-md-2">
-                                        <div class="form-group">
-                                            <label for="cantidad" class="form-control-label">Cantidad</label>
-                                            <input type="number" class="form-control" id="cantidad" value="1" required>
-                                            @error('cantidad')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <!-- Código -->
-                                    <div class="col-md-6">
-                                        <label for="codigo" class="form-control-label">Código</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-barcode"></i></span>
-                                            <input id="codigo" type="text" class="form-control" name="codigo">
-                                        </div>
-                                    </div>
-
-                                    <!-- Botones -->
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label class="form-control-label" style="visibility: hidden;">Buscar</label>
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verModal">
-                                                <i class="fas fa-search"></i>
-                                            </button>
-                                            <a href="{{url('/admin/productos/create')}}" class="btn btn-success">
-                                                <i class="fas fa-plus"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Tabla de productos -->
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-striped table-bordered table-hover">
-                                        <thead class="thead-light">
-                                            <tr>
-                                                <th>Nro</th>
-                                                <th>Código</th>
-                                                <th>Cantidad</th>
-                                                <th>Nombre</th>
-                                                <th>Precio</th>
-                                                <th>Total</th>
-                                                <th>Acción</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php $cont = 1; $total_cantidad = 0; $total_venta = 0;?>
-                                            @foreach($tmp_ventas as $tmp_venta)
-                                            <tr>
-                                                <td style="text-align: center">{{$cont++}}</td>
-                                                <td style="text-align: center">{{$tmp_venta->producto->codigo}}</td>
-                                                <td style="text-align: center">{{$tmp_venta->cantidad}}</td>
-                                                <td>{{$tmp_venta->producto->nombre}}</td>
-                                                <td style="text-align: center">{{$tmp_venta->producto->precio_venta}}</td>
-                                                <td style="text-align: center">{{$costo = $tmp_venta->cantidad * $tmp_venta->producto->precio_venta}}</td>
-                                                <td style="text-align: center">
-                                                    <button type="button" class="btn btn-sm btn-icon btn-danger delete-btn" data-id="{{$tmp_venta->id}}">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            @php
-                                            $total_cantidad += $tmp_venta->cantidad;
-                                            $total_venta += $costo;
-                                            @endphp
-                                            @endforeach
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="2" class="text-end">Total</td>
-                                                <td style="text-align: center"><b>{{$total_cantidad}}</b></td>
-                                                <td colspan="2" class="text-end">Total venta</td>
-                                                <td style="text-align: center"><b>{{$total_venta}}</b></td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
+                        
+                        <!-- Buscador de Cliente -->
+                        <div class="mb-4">
+                            <label class="form-label">Seleccionar Cliente</label>
+                            <div class="d-flex gap-2 mb-3">
+                                <button type="button" class="btn btn-primary flex-grow-1" data-bs-toggle="modal" data-bs-target="#clienteModal">
+                                    <i class="fas fa-search me-2"></i>Buscar Cliente
+                                </button>
+                                <button type="button" class="btn btn-success flex-grow-1" data-bs-toggle="modal" data-bs-target="#clientecrearModal">
+                                    <i class="fas fa-plus me-2"></i>Nuevo
+                                </button>
                             </div>
-
-                            <!-- Columna derecha -->
-                            <div class="col-md-4">
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#clienteModal">
-                                            <i class="fas fa-search"></i> Cliente
-                                        </button>
-                                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#clientecrearModal">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                    <div class="col-12 mt-2">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label>Nombre del cliente</label>
-                                                <input type="text" class="form-control" id="nombre_cliente_select" value="S/N" disabled>
-                                                <input type="hidden" class="form-control" id="id_cliente" name="cliente_id">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label>NIT/CI del cliente</label>
-                                                <input type="text" class="form-control" id="nit_cliente_select" value="0" disabled>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <hr>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="fecha" class="form-control-label">Fecha de venta</label>
-                                            <input type="date" class="form-control" name="fecha" value="{{ old('fecha',date('Y-m-d')) }}">
-                                            @error('fecha')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Total -->
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label for="precio_total" class="form-control-label">Total</label>
-                                            <input type="text" style="text-align: center; background-color: #f8d7da" class="form-control" name="precio_total" value="{{$total_venta}}" readonly>
-                                            @error('precio_total')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Cliente</label>
+                                <input type="text" class="form-control" id="nombre_cliente_select" value="S/N" disabled>
+                                <input type="hidden" id="id_cliente" name="cliente_id">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">NIT/CI</label>
+                                <input type="text" class="form-control" id="nit_cliente_select" value="0" disabled>
                             </div>
                         </div>
 
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary">Registrar venta</button>
+                        <!-- Fecha -->
+                        <div class="mb-4">
+                            <label for="fecha" class="form-label">Fecha de Venta</label>
+                            <input type="date" class="form-control" name="fecha" value="{{ old('fecha',date('Y-m-d')) }}" required>
+                            @error('fecha')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                        <!-- Total -->
+                        <div class="mb-4">
+                            <label class="form-label">Total a Pagar</label>
+                            <input type="text" class="form-control form-control-lg text-center fw-bold text-white bg-success" 
+                                   value="${{number_format($total_venta, 2)}}" readonly>
+                            <input type="hidden" name="precio_total" value="{{$total_venta}}">
+                        </div>
+
+                        <!-- Botón Registrar -->
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg py-3">
+                                <i class="fas fa-save me-2"></i>REGISTRAR VENTA
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -175,108 +151,148 @@
     </div>
 </div>
 
+
 <!-- Modal Productos -->
-<div class="modal fade" id="verModal" tabindex="-1" aria-labelledby="verModalLabel" aria-hidden="true">
+<!-- Modal de Productos - Diseño Mejorado -->
+<div class="modal fade" id="verModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="verModalLabel">Listado de productos</h5>
-                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow-lg">
+            <!-- Encabezado del Modal -->
+            <div class="modal-header bg-gradient-primary text-white border-bottom-0">
+                <div class="d-flex align-items-center">
+                    <div class="icon icon-shape bg-white text-primary rounded-circle shadow me-3">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <h5 class="modal-title mb-0">Listado de Productos</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <table id="mitabla" class="table table-striped table-bordered table-hover">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>Nro</th>
-                            <th>Acción</th>
-                            <th>Código</th>
-                            <th>Nombre</th>
-                            <th>Descripción</th>
-                            <th>Stock</th>
-                            <th>Precio</th>
-                            <th>Fecha Venc.</th>
-                            <th>Imagen</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $contador = 1; ?>
-                        @foreach($productos as $producto)
-                        <tr>
-                            <td>{{ $contador++ }}</td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-info seleccionar-btn" data-id="{{$producto->codigo}}">
-                                    Seleccionar
-                                </button>
-                            </td>
-                            <td>{{ $producto->codigo }}</td>
-                            <td><strong>{{ $producto->nombre }}</strong></td>
-                            <td>{{ $producto->descripcion }}</td>
-                            <td style="color: red; font-weight: bold;">{{ $producto->stock }}</td>
-                            <td style="color: red; font-weight: bold;">{{ $producto->precio_venta }}</td>
-                            <td style="color: red; font-weight: bold;">{{ $producto->fecha_vencimiento }}</td>
-                            <td class="text-center">
-                                @if($producto->imagen)
-                                    <img src="{{ asset('storage/' . $producto->imagen) }}" width="80" height="80" alt="Imagen">
-                                @else
-                                    <p>Sin imagen</p>
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            
+            <!-- Cuerpo del Modal -->
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table id="mitabla" class="table table-hover align-items-center mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xs font-weight-bolder ps-4">#</th>
+                                <th class="text-uppercase text-secondary text-xs font-weight-bolder text-center">Acción</th>
+                                <th class="text-uppercase text-secondary text-xs font-weight-bolder">Código</th>
+                                <th class="text-uppercase text-secondary text-xs font-weight-bolder">Nombre</th>
+                                <th class="text-uppercase text-secondary text-xs font-weight-bolder text-center">Stock</th>
+                                <th class="text-uppercase text-secondary text-xs font-weight-bolder text-end">Precio</th>
+                                <th class="text-uppercase text-secondary text-xs font-weight-bolder">Fecha Venc.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($productos as $producto)
+                            <tr>
+                                <td class="text-xs font-weight-normal ps-4">{{ $loop->iteration }}</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-primary seleccionar-btn" 
+                                            data-id="{{$producto->codigo}}">
+                                        <i class="fas fa-check-circle me-1"></i> 
+                                    </button>
+                                </td>
+                                <td class="text-xs font-weight-normal">
+                                    <span class="badge bg-gray-200 text-dark">{{ $producto->codigo }}</span>
+                                </td>
+                                <td class="text-xs font-weight-normal">
+                                    <strong>{{ $producto->nombre }}</strong>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge @if($producto->stock <= 5) bg-gradient-danger @else bg-gradient-success @endif">
+                                        {{ $producto->stock }}
+                                    </span>
+                                </td>
+                                <td class="text-end text-xs font-weight-bold text-primary">
+                                    ${{ number_format($producto->precio_venta, 2) }}
+                                </td>
+                                <td class="text-xs font-weight-normal">
+                                    @if($producto->fecha_vencimiento)
+                                        <span class="badge @if(\Carbon\Carbon::parse($producto->fecha_vencimiento)->isPast()) bg-gradient-danger @else bg-gradient-info @endif">
+                                            {{ \Carbon\Carbon::parse($producto->fecha_vencimiento)->format('d/m/Y') }}
+                                        </span>
+                                    @else
+                                        <span class="badge bg-gray-200">N/A</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            
+            <!-- Pie del Modal -->
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Cerrar
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal Clientes -->
-<div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="clienteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="clienteModalLabel">Listado de clientes</h5>
-                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Modal Clientes - Versión Mejorada -->
+<div class="modal fade" id="clienteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog ">
+        <div class="modal-content border-0 shadow-lg">
+            <!-- Encabezado del Modal -->
+            <div class="modal-header bg-gradient-primary text-white border-bottom-0">
+                <div class="d-flex align-items-center">
+                    <div class="icon icon-shape bg-white text-primary rounded-circle shadow me-3">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h5 class="modal-title mb-0">Listado de Clientes</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <table id="mitabla2" class="table table-striped table-bordered table-hover">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>Nro</th>
-                            <th>Acción</th>
-                            <th>Nombre</th>
-                            <th>NIT/CI</th>
-                            <th>Celular</th>
-                            <th>Correo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $contador = 1; ?>
-                        @foreach($clientes as $cliente)
-                        <tr>
-                            <td>{{ $contador++ }}</td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-info seleccionar-btn-cliente" 
-                                        data-id="{{$cliente->id}}" 
-                                        data-nit="{{$cliente->nit_ci}}" 
-                                        data-nombre_cliente="{{$cliente->nombre_cliente}}">
-                                    Seleccionar
-                                </button>
-                            </td>
-                            <td><strong>{{ $cliente->nombre_cliente }}</strong></td>
-                            <td><strong>{{ $cliente->nit_ci }}</strong></td>
-                            <td><strong>{{ $cliente->celular }}</strong></td>
-                            <td><strong>{{ $cliente->email }}</strong></td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            
+            <!-- Cuerpo del Modal -->
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table id="mitabla2" class="table table-hover align-items-center mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xs font-weight-bolder">#</th>
+                                <th class="text-uppercase text-secondary text-xs font-weight-bolder">Acción</th>
+                                <th class="text-uppercase text-secondary text-xs font-weight-bolder">Nombre</th>
+                                <th class="text-uppercase text-secondary text-xs font-weight-bolder">NIT/CI</th>
+                               
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($clientes as $cliente)
+                            <tr>
+                                <td class="text-xs font-weight-normal ps-4">{{ $loop->iteration }}</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-primary seleccionar-btn-cliente" 
+                                            data-id="{{$cliente->id}}" 
+                                            data-nit="{{$cliente->nit_ci}}" 
+                                            data-nombre_cliente="{{$cliente->nombre_cliente}}">
+                                        <i class="fas fa-check me-1"></i> 
+                                    </button>
+                                </td>
+                                <td class="text-xs font-weight-normal">
+                                    <strong>{{ $cliente->nombre_cliente }}</strong>
+                                </td>
+                                <td class="text-xs font-weight-normal">
+                                    <span class="badge bg-gray-200 text-dark">{{ $cliente->nit_ci }}</span>
+                                </td>
+                                
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            
+            <!-- Pie del Modal -->
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Cerrar
+                </button>
             </div>
         </div>
     </div>
@@ -346,7 +362,43 @@
 
 @section('css')
 <style>
-    .btn-icon {
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+    }
+    
+    .card-header {
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(87deg, #2dce89 0, #2dcecc 100%) !important;
+    }
+    
+    .table th {
+        border-top: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+    
+    .form-control-lg {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .btn-lg {
+        padding: 0.8rem 1.5rem;
+        font-size: 1.05rem;
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+    }
+    
+    .delete-btn {
         width: 32px;
         height: 32px;
         display: inline-flex;
@@ -382,8 +434,9 @@ function guardar_cliente(){
                     title: "Se agregó el cliente",
                     showConfirmButton: false,
                     timer: 1500
+                }).then(() => {
+                    location.reload();
                 });
-                location.reload();
             } else {
                 Swal.fire('Error', 'No se pudo registrar el cliente', 'error');
             }
@@ -394,7 +447,7 @@ function guardar_cliente(){
     });
 }
 
-// Seleccionar cliente
+// Seleccionar cliente - VERSIÓN CORREGIDA
 $(document).on('click', '.seleccionar-btn-cliente', function(){
     const id_cliente = $(this).data('id');
     const nombre_cliente = $(this).data('nombre_cliente');
@@ -404,24 +457,32 @@ $(document).on('click', '.seleccionar-btn-cliente', function(){
     $('#nit_cliente_select').val(nit_ci);
     $('#id_cliente').val(id_cliente);
     
-    // Cerrar modal
-    const clienteModal = bootstrap.Modal.getInstance(document.getElementById('clienteModal'));
+    // Cerrar modal - FORMA COMPATIBLE CON BOOTSTRAP 5
+    const clienteModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('clienteModal'));
     clienteModal.hide();
+    
+    // Limpiar posibles overlays
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open');
 });
 
-// Seleccionar producto
+// Seleccionar producto - VERSIÓN CORREGIDA
 $(document).on('click', '.seleccionar-btn', function(){
     const id_producto = $(this).data('id');
     $('#codigo').val(id_producto);
     
-    // Cerrar modal
-    const verModal = bootstrap.Modal.getInstance(document.getElementById('verModal'));
+    // Cerrar modal - FORMA COMPATIBLE CON BOOTSTRAP 5
+    const verModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('verModal'));
     verModal.hide();
+    
+    // Limpiar posibles overlays
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open');
     
     $('#codigo').focus();
 });
 
-// Eliminar producto de la venta temporal
+// Eliminar producto de la venta temporal - VERSIÓN MEJORADA
 $(document).on('click', '.delete-btn', function() {
     const id = $(this).data('id');
     if (id) {
@@ -432,7 +493,8 @@ $(document).on('click', '.delete-btn', function() {
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, eliminar'
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
@@ -442,16 +504,21 @@ $(document).on('click', '.delete-btn', function() {
                         _token: '{{ csrf_token() }}',
                         _method: 'DELETE'
                     },
+                    beforeSend: function() {
+                        // Mostrar loader
+                        Swal.showLoading();
+                    },
                     success: function(response) {
                         if (response.success) {
                             Swal.fire({
-                                position: "top-end",
+                                position: "center",
                                 icon: "success",
                                 title: "Producto eliminado",
                                 showConfirmButton: false,
-                                timer: 1500
+                                timer: 1000
+                            }).then(() => {
+                                location.reload();
                             });
-                            location.reload();
                         } else {
                             Swal.fire('Error', response.message || 'Error al eliminar', 'error');
                         }
@@ -465,20 +532,31 @@ $(document).on('click', '.delete-btn', function() {
     }
 });
 
-// Buscar producto por código (Enter)
-$('#codigo').focus();
-$('#form_venta').on('keypress', function(e) {
-    if(e.keyCode === 13) {   
-        e.preventDefault();
-    }
-});
+// Buscar producto por código (Enter) - VERSIÓN MEJORADA
+$(document).ready(function() {
+    $('#codigo').focus();
+    
+    $('#form_venta').on('keypress', function(e) {
+        if(e.keyCode === 13) {   
+            e.preventDefault();
+        }
+    });
 
-$('#codigo').on('keyup', function(e) {
-    if (e.which === 13) {
-        const codigo = $(this).val();
-        const cantidad = $('#cantidad').val();
+    $('#codigo').on('keyup', function(e) {
+        if (e.which === 13) {
+            const codigo = $(this).val().trim();
+            const cantidad = $('#cantidad').val();
+            
+            if(!codigo) {
+                Swal.fire('Error', 'Por favor ingrese un código', 'warning');
+                return;
+            }
 
-        if(codigo.length > 0) {
+            if(cantidad <= 0) {
+                Swal.fire('Error', 'La cantidad debe ser mayor a cero', 'warning');
+                return;
+            }
+
             $.ajax({
                 url: "{{ route('admin.ventas.tmp_ventas') }}",
                 method: 'POST',
@@ -487,32 +565,39 @@ $('#codigo').on('keyup', function(e) {
                     codigo: codigo,
                     cantidad: cantidad
                 },
+                beforeSend: function() {
+                    Swal.showLoading();
+                },
                 success: function(response) {
                     if(response.success) {
                         Swal.fire({
-                            position: "top-end",
+                            position: "center",
                             icon: "success",
                             title: "Producto agregado",
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 1000
+                        }).then(() => {
+                            location.reload();
                         });
-                        location.reload();
                     } else {
                         Swal.fire('Error', response.message || 'Error al agregar', 'error');
                     }
                 },
-                error: function() {
-                    Swal.fire('Error', 'Error en la conexión', 'error');
+                error: function(xhr) {
+                    let errorMsg = 'Error en la conexión';
+                    if(xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error', errorMsg, 'error');
                 }
             });
         }
-    }
-});
+    });
 
-// DataTables
-$(document).ready(function() {
+    // DataTables - CONFIGURACIÓN MEJORADA
     $('#mitabla').DataTable({
         "pageLength": 5,
+        "responsive": true,
         "language": {
             "lengthMenu": "Mostrar _MENU_ registros por página",
             "zeroRecords": "No se encontraron resultados",
@@ -526,11 +611,13 @@ $(document).ready(function() {
                 "next": "Siguiente",
                 "previous": "Anterior"
             }
-        }
+        },
+        "dom": '<"top"f>rt<"bottom"lip><"clear">'
     });
 
     $('#mitabla2').DataTable({
         "pageLength": 5,
+        "responsive": true,
         "language": {
             "lengthMenu": "Mostrar _MENU_ registros por página",
             "zeroRecords": "No se encontraron resultados",
@@ -544,7 +631,8 @@ $(document).ready(function() {
                 "next": "Siguiente",
                 "previous": "Anterior"
             }
-        }
+        },
+        "dom": '<"top"f>rt<"bottom"lip><"clear">'
     });
 });
 </script>

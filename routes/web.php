@@ -73,6 +73,28 @@ Route::get('/admin/roles/reporte', [App\Http\Controllers\RoleController::class, 
 //ruta apara asignar prmiso
 Route::get('/admin/roles/{id}/asignar', [App\Http\Controllers\RoleController::class, 'asignar'])->name('admin.roles.asignar')->middleware('auth');
 Route::put('/admin/roles/asignar/{id}', [App\Http\Controllers\RoleController::class, 'update_asignar'])->name('admin.roles.update_asignar')->middleware('auth');
+// Rutas para USUARIOS
+Route::get('/management', [App\Http\Controllers\UserProfileController::class, 'index'])
+     ->name('management.index')->middleware('auth');
+
+Route::get('/management/create', [App\Http\Controllers\UserProfileController::class, 'create'])
+     ->name('management.create')->middleware('auth');
+
+Route::post('/management/create', [App\Http\Controllers\UserProfileController::class, 'store'])
+     ->name('management.store')->middleware('auth');
+
+Route::get('/management/{id}', [App\Http\Controllers\UserProfileController::class, 'show'])
+     ->name('management.show')->middleware('auth');
+
+Route::get('/management/{id}/edit', [App\Http\Controllers\UserProfileController::class, 'edit'])
+     ->name('management.edit')->middleware('auth');  // Corregido a 'management.edit'
+
+Route::put('/management/{id}', [App\Http\Controllers\UserProfileController::class, 'update'])
+     ->name('management.update')->middleware('auth');
+
+Route::delete('/management/{id}', [App\Http\Controllers\UserProfileController::class, 'destroy'])
+     ->name('management.destroy')->middleware('auth');
+
 //rutas para USUARIOS
 
 Route::get('/admin/usuarios', [App\Http\Controllers\UsuarioController::class, 'index'])->name('admin.usuarios.index')->middleware('auth');
@@ -82,6 +104,8 @@ Route::get('/admin/usuarios/{id}', [App\Http\Controllers\UsuarioController::clas
 Route::get('/admin/usuarios/{id}/edit', [App\Http\Controllers\UsuarioController::class, 'edit'])->name('admin.usuarios.edit')->middleware('auth');
 Route::put('/admin/usuarios/{id}', [App\Http\Controllers\UsuarioController::class, 'update'])->name('admin.usuarios.update')->middleware('auth');
 Route::delete('/admin/usuarios/{id}', [App\Http\Controllers\UsuarioController::class, 'destroy'])->name('admin.usuarios.destroy')->middleware('auth');
+
+
 
 
 //rutas para CATEGORIAS
@@ -117,6 +141,13 @@ Route::delete('/admin/laboratorios/{id}', [App\Http\Controllers\LaboratorioContr
     Route::delete('/admin/productos/{id}', [App\Http\Controllers\ProductoController::class, 'destroy'])->name('admin.productos.destroy')->middleware('auth');
 
 
+
+
+     Route::get('/admin/productos/reporte/{tipo}', [App\Http\Controllers\ProductoController::class, 'generarReporte'])
+     ->where('tipo', 'pdf|excel|csv')
+     ->name('admin.productos.reporte');
+
+
     //RUTAS PARA PROVEEDOR
 
     Route::get('/admin/proveedores', [App\Http\Controllers\ProveedorController::class, 'index'])->name('admin.proveedores.index')->middleware('auth');
@@ -138,6 +169,10 @@ Route::delete('/admin/laboratorios/{id}', [App\Http\Controllers\LaboratorioContr
        Route::put('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'update'])->name('admin.compras.update')->middleware('auth');
        Route::delete('/admin/compras/{id}', [App\Http\Controllers\CompraController::class, 'destroy'])->name('admin.compras.destroy')->middleware('auth');
    
+  Route::get('/admin/compras/reporte/{tipo}', [App\Http\Controllers\CompraController::class, 'reporte'])
+     ->where('tipo', 'pdf|excel|csv')
+     ->name('admin.compras.reporte');
+
        //tmp
        Route::post('/admin/compras/create/tmp', [App\Http\Controllers\TmpCompraController::class, 'tmp_compras'])->name('admin.compras.tmp_compras')->middleware('auth');
        Route::delete('/admin/compras/create/tmp/{id}', [App\Http\Controllers\TmpCompraController::class, 'destroy'])->name('admin.compras.tmp_compras.destroy')->middleware('auth');
@@ -146,6 +181,9 @@ Route::delete('/admin/laboratorios/{id}', [App\Http\Controllers\LaboratorioContr
        //ruta para detalles de la compra
        Route::post('/admin/compras/detalle/create', [App\Http\Controllers\DetalleCompraController::class, 'store'])->name('admin.detalle.compras.store')->middleware('auth');
        Route::delete('/admin/compras/detalle/{id}', [App\Http\Controllers\DetalleCompraController::class, 'destroy'])->name('admin.detalle.compras.destroy')->middleware('auth');
+
+
+      
 
  //RUTAS PARA CLIENTES
 
@@ -171,6 +209,11 @@ Route::get('/admin/ventas/pdf/{id}', [App\Http\Controllers\VentaController::clas
          Route::delete('/admin/ventas/{id}', [App\Http\Controllers\VentaController::class, 'destroy'])->name('admin.ventas.destroy')->middleware('auth');  
          //ruta para crear al cliente
          Route::post('/admin/ventas/cliente/create', [App\Http\Controllers\VentaController::class, 'cliente_store'])->name('admin.ventas.cliente.store')->middleware('auth');
+
+
+          Route::get('/admin/ventas/reporte/{tipo}', [App\Http\Controllers\VentaController::class, 'reporte'])
+     ->where('tipo', 'pdf|excel|csv')
+     ->name('admin.ventas.reporte');
      
          //tmp ventas
       Route::post('/admin/ventas/create/tmp', [App\Http\Controllers\TmpVentaController::class, 'tmp_ventas'])->name('admin.ventas.tmp_ventas')->middleware('auth');
@@ -191,6 +234,11 @@ Route::get('/admin/ventas/pdf/{id}', [App\Http\Controllers\VentaController::clas
     Route::put('/admin/cajas/{id}', [App\Http\Controllers\CajaController::class, 'update'])->name('admin.cajas.update')->middleware('auth');
     Route::delete('/admin/cajas/{id}', [App\Http\Controllers\CajaController::class, 'destroy'])->name('admin.cajas.destroy')->middleware('auth');
   
+ Route::get('/admin/cajas/reporte/{tipo}', [App\Http\Controllers\CajaController::class, 'reportecaja'])
+     ->where('tipo', 'pdf|excel|csv')
+     ->name('admin.cajas.reporte');
+
+
      // ruta de ingreso
      Route::get('/admin/cajas/{id}/ingreso-egreso', [App\Http\Controllers\CajaController::class, 'ingresoegreso'])->name('admin.cajas.ingresoegreso')->middleware('auth');
      Route::post('/admin/cajas/create_ingresos_egresos', [App\Http\Controllers\CajaController::class, 'store_ingresos_egresos'])->name('admin.cajas.storeingresosegresos')->middleware('auth');
@@ -220,7 +268,39 @@ Route::put('/admin/permisos/{id}', [App\Http\Controllers\PermisoController::clas
 Route::delete('/admin/permisos/{id}', [App\Http\Controllers\PermisoController::class, 'destroy'])->name('admin.permisos.destroy')->middleware('auth');
 Route::get('/admin/permisos/reporte', [App\Http\Controllers\PermisoController::class, 'reporte'])->name('admin.permisos.reporte');
 
-Route::get('/productos/buscar', [App\Http\Controllers\ProductoController::class, 'buscar'])->name('admin.productos.buscar');
-Route::get('/laboratorios/listar', [App\Http\Controllers\LaboratorioController::class, 'listar'])->name('admin.laboratorios.listar');
-Route::post('/compras/tmp', [App\Http\Controllers\CompraController::class, 'agregarTemporal'])->name('admin.compras.tmp_compras');
-Route::delete('/compras/tmp/{id}', [App\Http\Controllers\CompraController::class, 'eliminarTemporal']);
+Route::get('/admin/productos/buscar', [App\Http\Controllers\ProductoController::class, 'buscar'])->name('admin.productos.buscar');
+Route::get('/admin/productos/get/{id}', [App\Http\Controllers\ProductoController::class, 'get'])->name('admin.productos.get');
+Route::get('/admin/laboratorios/buscar', [App\Http\Controllers\LaboratorioController::class, 'buscar'])->name('admin.laboratorios.buscar');
+
+
+Route::post('/compras/agregar-tmp', [App\Http\Controllers\CompraController::class, 'agregarTmp'])->name('admin.compras.agregar-tmp');
+Route::post('/compras/eliminar-tmp', [App\Http\Controllers\CompraController::class, 'eliminarTmp'])->name('admin.compras.eliminar-tmp');
+Route::post('/compras/actualizar-tmp', [App\Http\Controllers\CompraController::class, 'actualizarTmp'])->name('admin.compras.actualizar-tmp');
+
+
+
+
+
+// Catálogo público
+Route::get('/admin/catalogo', [App\Http\Controllers\CatalogController::class, 'index'])->name('admin.catalogo.index');
+Route::get('/admin/catalogo/{producto}', [App\Http\Controllers\CatalogController::class, 'show'])->name('admin.catalogo.show');
+
+
+Route::get('/admin/catalogo', [App\Http\Controllers\CatalogController::class, 'index'])->name('admin.catalogo.index');
+Route::get('/admin/catalogo/{id}', [App\Http\Controllers\CatalogController::class, 'show'])->name('admin.catalogo.show');
+
+
+
+Route::get('/admin/catalogo/categoria/{categoria}', [App\Http\Controllers\CatalogController::class, 'ver'])->name('admin.catalogo.categoria');
+
+
+
+
+
+     // Ruta para el formulario de búsqueda (GET)
+Route::get('/admin/buscar-productos', [App\Http\Controllers\CatalogController::class, 'buscar'])
+->name('admin.catalogo.buscar');
+
+// Ruta para el autocompletado (AJAX)
+Route::get('/admin/buscar-autocomplete', [App\Http\Controllers\CatalogController::class, 'search'])
+->name('admin.catalogo.search');

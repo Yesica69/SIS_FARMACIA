@@ -1,186 +1,329 @@
-@extends('layouts.app', ['title' => 'Gestión '])
+@extends('layouts.app', ['title' => 'Historial de Ventas'])
 
 @section('content')
-@include('layouts.navbars.auth.topnav', ['title' => 'Gestión '])
+@include('layouts.navbars.auth.topnav', ['title' => 'Ventas'])
 <div class="container-fluid mt--6">
-    <!-- Header -->
-    <div class="header bg-gradient-primary pb-6 pt-5 pt-md-6">
-        <div class="container-fluid">
-            <div class="header-body">
-                <div class="row align-items-center py-4">
-                    <div class="col-lg-6 col-7">
-                        <h6 class="h2 text-white d-inline-block mb-0">
-                            <i class="fas fa-cash-register mr-2"></i> Gestión de Ventas
-                        </h6>
-                    </div>
-
-                </div>
-            </div>
+    <!-- Card Superior - Encabezado y Estadísticas -->
+    <div class="row mb-4">
+    <div class="col">
+        <!-- Tarjeta principal con sombra más suave y bordes redondeados -->
+        <div class="card shadow-lg rounded-3 border-0 overflow-hidden">
+            <!-- Encabezado con gradiente profesional -->
+            <div class="card-header bg-gradient-primary text-white py-3">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center">
+                            
+                            <div>
+                                <h3 class="mb-0 text-white">Panel de Ventas</h3>
+                                <p class="text-white text-opacity-75 mb-0">Resumen estadístico de tus ventas</p>
+                            </div>
+                            <!-- Barra de acciones -->
+                <div class="d-flex gap-2 align-items-center">
+    <button class="btn btn-sm btn-outline-secondary" id="refreshTable">
+        <i class="fas fa-sync-alt me-1"></i> Actualizar
+    </button>
+    <div class="position-relative"> <!-- Contenedor relativo importante -->
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-download me-1"></i> Exportar
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg" 
+                style="z-index: 1060; position: absolute;"
+                aria-labelledby="exportDropdown">
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" 
+                       href="{{ route('admin.ventas.reporte', ['tipo' => 'pdf']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}"
+                       target="_blank">
+                        <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" 
+                       href="{{ route('admin.ventas.reporte', ['tipo' => 'excel']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
+                        <i class="fas fa-file-excel text-success me-2"></i> Excel
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" 
+                       href="{{ route('admin.ventas.reporte', ['tipo' => 'csv']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
+                        <i class="fas fa-file-csv text-info me-2"></i> CSV
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
+</div>
+                        </div>
 
-    <!-- Content -->
-    <div class="container-fluid mt--6">
-        <div class="row">
-            <div class="col">
-                <div class="card">
-                    <!-- Card header -->
-                    <div class="card-header border-0">
-                        <div class="row align-items-center">
-                            <div class="col-8">
-                                <h3 class="mb-0">
-                                    <i class="fas fa-history mr-2"></i> Historial de Ventas
-                                </h3>
-                            </div>
-                            <div class="col-4 text-end">
-                        <div class="col-md-6 text-md-right">
-                @if(isset($cajaAbierto) && $cajaAbierto)
-                    <a href="{{ url('/admin/ventas/create') }}" 
-                       class="btn btn-success btn-lg"
-                       style="border-radius: 50px; padding: 8px 20px;">
-                       <i class="fas fa-plus-circle"></i> REGISTRAR Venta
-                    </a>
-                @else
-                    <a href="{{ url('/admin/cajas/create') }}" 
-                       class="btn btn-danger btn-lg"
-                       style="border-radius: 50px; padding: 8px 20px;">
-                       <i class="fas fa-lock-open"></i> ABRIR CAJA
-                    </a>
-                @endif
+
+                        
+                    </div>
+                    
+                    <div class="col-md-4 text-end">
+    @if(isset($cajaAbierto) && $cajaAbierto)
+        <!-- Botón NUEVA VENTA - Verde con efecto hover -->
+        <a href="{{ url('/admin/ventas/create') }}" 
+           class="btn btn-sm rounded-pill px-3 shadow-sm border-0"
+           style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white; transition: all 0.3s;"
+           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(40, 167, 69, 0.3)'"
+           onmouseout="this.style.transform='none'; this.style.boxShadow='none'">
+           <i class="fas fa-plus-circle me-1"></i> NUEVA VENTA
+        </a>
+    @else
+        <!-- Botón ABRIR CAJA - Rojo con efecto hover -->
+        <a href="{{ url('/admin/cajas/create') }}" 
+           class="btn btn-sm rounded-pill px-3 shadow-sm border-0"
+           style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; transition: all 0.3s;"
+           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(220, 53, 69, 0.3)'"
+           onmouseout="this.style.transform='none'; this.style.boxShadow='none'">
+           <i class="fas fa-lock-open me-1"></i> ABRIR CAJA
+        </a>
+    @endif
+</div>
+                </div>
             </div>
-                        </div>
+
+            <!-- Cuerpo de la tarjeta -->
+            <div class="card-body bg-soft-light">
+                <!-- Estadísticas en formato moderno -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-3 h-100 hover-scale">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                                        <i class="fas fa-receipt fs-2"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-uppercase text-muted mb-1 fs-7">Total Ventas</h6>
+                                        <h2 class="mb-0 text-dark">{{ count($ventas) }}</h2>
+                                        <p class="text-success mb-0 fs-8">
+                                            <i class="fas fa-arrow-up me-1"></i> Resumen general
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    
-                    <!-- Card body -->
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="ventasTable" class="table align-items-center table-flush">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th class="text-center">#</th>
-                                        <th class="text-center">Detalles</th>
-                                        <th class="text-center">Fecha/Hora</th>
-                                        <th class="text-center">Total</th>
-                                        <th class="text-center">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($ventas as $index => $venta)
-                                    <tr>
-                                        <td class="text-center align-middle">{{ $index + 1 }}</td>
-                                        <td class="align-middle">
-                                            <button class="btn btn-sm btn-info" data-bs-toggle="collapse" 
-                                                    data-bs-target="#details-{{ $venta->id }}" 
-                                                    aria-expanded="false">
-                                                <i class="fas fa-chevron-down mr-1"></i>
-                                                Ver productos ({{ count($venta->detallesVenta) }})
-                                            </button>
-                                            <div id="details-{{ $venta->id }}" class="collapse">
-                                                <div class="mt-3">
-                                                    <table class="table table-sm table-hover">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Producto</th>
-                                                                <th class="text-center">Cantidad</th>
-                                                                <th class="text-end">Subtotal</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @foreach($venta->detallesVenta as $detalle)
-                                                            <tr>
-                                                                <td>{{ $detalle->producto->nombre }}</td>
-                                                                <td class="text-center">{{ $detalle->cantidad }}</td>
-                                                                <td class="text-end">Bs{{ number_format($detalle->cantidad * $detalle->precio_unitario, 2) }}</td>
-                                                            </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="align-middle">{{ \Carbon\Carbon::parse($venta->fecha)->format('d/m/Y H:i') }}</td>
-                                        <td class="align-middle text-success fw-bold">Bs{{ number_format($venta->precio_total, 2) }}</td>
-                                        <td class="text-center align-middle">
-                                            <div class="d-flex justify-content-center">
-                                                <!-- Botón PDF -->
-                                                <a href="{{ url('/admin/ventas/pdf/' . $venta->id) }}" 
-                                                   target="_blank" 
-                                                   class="btn btn-sm btn-danger mx-1" 
-                                                   title="Imprimir PDF">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                </a>
-                                                
-                                                <!-- Botón Ver -->
-                                                <a href="{{ url('/admin/ventas', $venta->id) }}" 
-                                                   class="btn btn-sm btn-primary mx-1" 
-                                                   title="Ver detalles"
-                                                   >
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
 
-                                               
-                                                
-                                                <!-- Botón Editar -->
-                                                <a href="{{ url('/admin/ventas/'.$venta->id.'/edit') }}" 
-                                                   class="btn btn-sm btn-warning mx-1" 
-                                                   title="Editar">
-                                                    <i class="fas fa-pencil-alt"></i>
-                                                </a>
-                                                
-                                                <!-- Botón Eliminar -->
-                                                <form action="{{ url('/admin/ventas', $venta->id) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" 
-                                                            class="btn btn-sm btn-danger mx-1" 
-                                                            title="Eliminar"
-                                                            onclick="return confirm('¿Confirmas eliminar esta venta?')">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    
-                                    @endforeach
-                                </tbody>
-                            </table>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-3 h-100 hover-scale">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-shape bg-success bg-opacity-10 text-success rounded-3 p-3 me-3">
+                                        <i class="fas fa-money-bill-wave fs-2"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-uppercase text-muted mb-1 fs-7">Ingresos Hoy</h6>
+                                        <h2 class="mb-0 text-dark">
+                                            Bs{{ number_format($ventas->filter(function($venta) {
+                                                return \Carbon\Carbon::parse($venta->fecha)->isToday();
+                                            })->sum('precio_total'), 2) }}
+                                        </h2>
+                                        
+                                        <p class="text-success mb-0 fs-8">
+                                            <i class="fas fa-calendar-day me-1"></i> Hoy
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    
-                    <!-- Card footer -->
-                    <div class="card-footer py-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge bg-primary">
-                                <i class="fas fa-database mr-1"></i>
-                                Total registros: {{ count($ventas) }}
-                            </span>
+
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-3 h-100 hover-scale">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-shape bg-info bg-opacity-10 text-info rounded-3 p-3 me-3">
+                                        <i class="fas fa-calendar-alt fs-2"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-uppercase text-muted mb-1 fs-7">Mes Actual</h6>
+                                        <h2 class="mb-0 text-dark">Bs{{ number_format($ventas->whereBetween('fecha',
+                                             [now()->startOfMonth(), now()->endOfMonth()])->sum('precio_total'), 2) }}</h2>
+                                       
+                                        <p class="text-primary mb-0 fs-8">
+                                            <i class="fas fa-calendar me-1"></i> 
+                                            {{ now()->locale('es')->isoFormat('MMMM YYYY') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Efectos adicionales */
+    .hover-scale {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-scale:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+    }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg,rgb(221, 166, 121) 0%,rgb(240, 133, 72) 100%);
+    }
+    .bg-soft-light {
+        background-color: #f8fafc;
+    }
+    .rounded-3 {
+        border-radius: 0.75rem !important;
+    }
+    .fs-7 {
+        font-size: 0.75rem !important;
+    }
+    .fs-8 {
+        font-size: 0.65rem !important;
+    }
+</style>
+
+    <!-- Card Inferior - Tabla de Ventas -->
+    <div class="row">
+        <div class="col">
+            <div class="card shadow">
+                <div class="card-header bg-white border-0">
+                    <h3 class="mb-0">
+                        <i class="fas fa-history text-primary mr-2"></i>Detalle de Ventas
+                    </h3>
+                </div>
+                <div class="card-body px-0">
+                    <div class="table-responsive">
+                        <table id="ventasTabla" class="table align-items-center table-flush table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th class="text-center">Detalles</th>
+                                    <th class="text-center">Fecha</th>
+                                    <th class="text-center">Total</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($ventas as $index => $venta)
+                                <tr>
+                                    <td class="text-center align-middle">{{ $index + 1 }}</td>
+                                    <td class="align-middle">
+                                        <button class="btn btn-sm btn-outline-primary toggle-details" 
+                                                data-target="#details-{{ $venta->id }}">
+                                            <i class="fas fa-chevron-down mr-1"></i>
+                                            Productos ({{ count($venta->detallesVenta) }})
+                                        </button>
+                                        <div id="details-{{ $venta->id }}" class="details-content bg-light rounded mt-2 p-3" style="display: none;">
+                                            <table class="table table-sm table-hover mb-0">
+                                                <thead>
+                                                    <tr class="bg-gradient-primary text-white">
+                                                        <th>Producto</th>
+                                                        <th class="text-center">Cantidad</th>
+                                                        
+                                                        
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($venta->detallesVenta as $detalle)
+                                                    <tr>
+                                                        <td>{{ $detalle->producto->nombre }}</td>
+                                                        <td class="text-center">{{ $detalle->cantidad }}</td>
+                                                      
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">{{ \Carbon\Carbon::parse($venta->fecha)->format('d/m/Y') }}</td>
+                                    <td class="align-middle text-success font-weight-bold">Bs{{ number_format($venta->precio_total, 2) }}</td>
+                                    <td class="text-center align-middle">
+                                        <div class="d-flex justify-content-center">
+                                            <!--<a href="{{ url('/admin/ventas/pdf/' . $venta->id) }}" 
+                                               target="_blank" 
+                                               class="btn btn-sm btn-danger mx-1" 
+                                               title="PDF"
+                                               data-toggle="tooltip">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>-->
+                                            
+                                            <a href="{{ url('/admin/ventas', $venta->id) }}" 
+                                               class="btn btn-sm btn-primary mx-1" 
+                                               title="Ver"
+                                               data-toggle="tooltip">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            
+                                           
+                                            
+                                            <form action="{{ url('/admin/ventas', $venta->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" 
+                                                        class="btn btn-sm btn-dark mx-1" 
+                                                        title="Eliminar"
+                                                        data-toggle="tooltip"
+                                                        onclick="return confirm('¿Confirmas eliminar esta venta?')">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 @endsection
 
 @section('css')
 <style>
-    /* Estilos personalizados para Argon */
+    .card-stats {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-stats:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    .details-content {
+        transition: all 0.3s ease;
+    }
+    .toggle-details .fa-chevron-down {
+        transition: transform 0.3s ease;
+    }
+    .toggle-details.collapsed .fa-chevron-down {
+        transform: rotate(-90deg);
+    }
     .table thead th {
         background-color: #f8f9fa;
         font-weight: 600;
         text-transform: uppercase;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         letter-spacing: 0.5px;
+        border-top: none;
     }
-    
     .table-hover tbody tr:hover {
         background-color: rgba(59, 130, 246, 0.05);
     }
-    
     .btn-sm {
         width: 32px;
         height: 32px;
@@ -188,18 +331,16 @@
         align-items: center;
         justify-content: center;
     }
-    
-    .modal-xl {
-        max-width: 1140px;
-    }
 </style>
 @endsection
 
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
 <script>
     $(document).ready(function() {
-        $('#ventasTable').DataTable({
+        // Inicializar DataTable
+        $('#ventasTabla').DataTable({
             "pageLength": 10,
             "responsive": true,
             "autoWidth": false,
@@ -218,16 +359,51 @@
                 }
             },
             "columnDefs": [
+                { "orderable": false, "targets": [1, 4] },
                 { "responsivePriority": 1, "targets": 0 },
-                { "responsivePriority": 2, "targets": -1 },
-                { "responsivePriority": 3, "targets": 2 }
+                { "responsivePriority": 2, "targets": -1 }
             ]
         });
 
-        // Rotar icono de chevron al expandir detalles
-        $('[data-bs-toggle="collapse"]').on('click', function() {
-            $(this).find('.fa-chevron-down').toggleClass('rotate-180');
+        // Manejar el clic en los botones de detalles
+        $('.toggle-details').click(function() {
+            const target = $(this).data('target');
+            const content = $(target);
+            
+            // Cerrar todos los demás detalles abiertos
+            $('.details-content').not(content).slideUp();
+            $('.toggle-details').not(this).removeClass('collapsed');
+            
+            // Alternar el contenido actual
+            content.slideToggle();
+            $(this).toggleClass('collapsed');
         });
+
+        // Inicializar tooltips
+        $('[data-toggle="tooltip"]').tooltip();
     });
 </script>
+
+
 @endsection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                       
+                    

@@ -123,114 +123,125 @@
     <!-- Segunda Fila: Alertas y Gráficos -->
     <div class="row">
         <!-- Columna de Alertas de Inventario -->
-        <div class="col-lg-7 mb-4">
-            @if($lowStockProducts->count() > 0)
-            <div class="card shadow-lg border-0 alert-card">
-                <!-- Encabezado -->
-                <div class="card-header bg-gradient-danger text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-exclamation-triangle mr-3"></i>
-                            <div>
-                                <h5 class="mb-0">ALERTA DE INVENTARIO</h5>
-                              
-                            </div>
-                        </div>
-                        <span class="badge badge-light-danger">
-                            {{ $lowStockProducts->count() }} PRODUCTOS
-                        </span>
-                    </div>
-                </div>
 
-                <!-- Cuerpo -->
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-items-center">
-                            <thead class="bg-gradient-danger-light">
-                                <tr>
-                                    <th class="ps-4">PRODUCTO</th>
-                                    <th class="text-center">STOCK</th>
-                                    <th class="text-center">ESTADO</th>
-                                    <th class="text-center pe-4">ACCIONES</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($lowStockProducts->take(5) as $product)
-                                <tr class="{{ $product->stock < 3 ? 'bg-danger-soft' : ($product->stock < 5 ? 'bg-warning-soft' : 'bg-info-soft') }}">
-                                    <th class="ps-4">
-                                        <div class="media align-items-center">
-                                            <div class="avatar bg-danger-light text-danger rounded-circle mr-3">
-                                                <i class="fas fa-box"></i>
-                                            </div>
-                                            <div class="media-body">
-                                                <span class="mb-0 font-weight-bold">{{ $product->nombre }}</span>
-                                                <small class="d-block text-muted">Código: {{ $product->codigo ?? 'N/A' }}</small>
-                                            </div>
+
+        <div class="row">
+    <!-- Columna de Alertas de Inventario -->
+    <div class="col-lg-7 mb-3"> <!-- Cambiado mb-4 a mb-3 -->
+        @if($lowStockProducts->count() > 0)
+        <div class="card shadow-sm border-0 alert-card"> <!-- Cambiado shadow-lg a shadow-sm -->
+            <!-- Encabezado más compacto -->
+            <div class="card-header bg-gradient-danger text-white py-2"> <!-- Añadido py-2 -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle mr-2 fs-6"></i> <!-- Añadido fs-6 -->
+                        <div>
+                            <h6 class="mb-0">ALERTA DE INVENTARIO</h6> <!-- Cambiado h5 a h6 -->
+                        </div>
+                    </div>
+                    <span class="badge badge-light badge-sm"> <!-- Añadido badge-sm -->
+                        {{ $lowStockProducts->count() }} PRODUCTOS
+                    </span>
+                </div>
+            </div>
+
+            <!-- Cuerpo más compacto -->
+            <div class="card-body p-2"> <!-- Cambiado p-0 a p-2 -->
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle"> <!-- Añadido table-sm y align-middle -->
+                        <thead class="bg-gradient-danger-light">
+                            <tr>
+                                <th class="ps-3" style="font-size: 0.6rem;">PRODUCTO</th> <!-- Añadido style -->
+                                <th class="text-center" style="font-size: 0.6rem;">STOCK</th>
+                                <th class="text-center" style="font-size: 0.6rem;">ESTADO</th>
+                                <th class="text-center pe-3" style="font-size: 0.6rem;">ACCIONES</th> <!-- Cambiado pe-4 a pe-3 -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($lowStockProducts->take(4) as $product)
+                            <tr class="{{ $product->stock < 3 ? 'bg-danger-soft' : ($product->stock < 5 ? 'bg-warning-soft' : 'bg-info-soft') }}">
+                                <td class="ps-3"> <!-- Cambiado th a td y ps-4 a ps-3 -->
+                                    <div class="media align-items-center">
+                                        <div class="avatar bg-danger-light text-danger rounded-circle mr-2" style="width: 24px; height: 24px;"> <!-- Reducido tamaño -->
+                                            <i class="fas fa-box fs-6"></i> <!-- Añadido fs-6 -->
                                         </div>
-                                    </th>
-                                    <td class="text-center">
-                                        <span class="font-weight-bold text-{{ $product->stock < 3 ? 'danger' : ($product->stock < 5 ? 'warning' : 'info') }}">
-                                            {{ $product->stock }}
-                                        </span>
-                                        <small class="text-muted"> unidades</small>
-                                    </td>
-                                    <td class="text-center">
-                                        @if($product->stock < 3)
-                                            <span class="badge bg-danger">CRÍTICO</span>
-                                        @elseif($product->stock < 5)
-                                            <span class="badge bg-warning">BAJO</span>
-                                        @else
-                                            <span class="badge bg-info">PRECAUCIÓN</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center pe-4">
+                                        <div class="media-body">
+                                            <span class="mb-0" style="font-size: 0.85rem; font-weight: 500;">{{ $product->nombre }}</span> <!-- Reducido tamaño -->
+                                            <small class="d-block text-muted" style="font-size: 0.7rem;">Código: {{ $product->codigo ?? 'N/A' }}</small> <!-- Reducido tamaño -->
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="font-weight-bold text-{{ $product->stock < 3 ? 'danger' : ($product->stock < 5 ? 'warning' : 'info') }}" style="font-size: 0.85rem;">
+                                        {{ $product->stock }}
+                                    </span>
+                                    <small class="text-muted" style="font-size: 0.7rem;">unid.</small> <!-- Reducido texto -->
+                                </td>
+                                <td class="text-center">
+    @if($product->stock < 3)
+        <span class="badge bg-danger py-1 px-2" style="font-size: 0.65rem;">CRÍTICO</span>
+    @elseif($product->stock < 5)
+        <span class="badge bg-warning py-1 px-2" style="font-size: 0.65rem;">BAJO</span>
+    @else
+        <span class="badge bg-info py-1 px-2" style="font-size: 0.65rem;">PRECAUCIÓN</span>
+    @endif
+</td>
+                                <td class="text-center pe-4">
                                         <a href="{{ route('admin.productos.index', $product->id) }}" 
-                                           class="btn btn-sm btn-danger shadow-sm"
+                                           class="btn btn-sm btn-danger shadow-sm py-0 px-1"
                                            data-toggle="tooltip" 
                                            title="Reabastecer">
-                                            <i class="fas fa-warehouse"></i>
+                                            <i class="fas fa-warehouse fa-sm"></i>
                                         </a>
                                     </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
 
-                <!-- Pie -->
-                <div class="card-footer bg-danger-light">
-                    
-                    <div id="stockExplanation" class="collapse mt-3">
-                        <div class="alert alert-light mb-0">
-                            <ul class="mb-0">
-                                <li class="mb-2">
-                                    <span class="badge bg-danger mr-2">CRÍTICO</span>
-                                    Menos de 3 unidades en stock
-                                </li>
-                                <li class="mb-2">
-                                    <span class="badge bg-warning mr-2">BAJO</span>
-                                    Entre 3 y 5 unidades en stock
-                                </li>
-                                <li>
-                                    <span class="badge bg-info mr-2">PRECAUCIÓN</span>
-                                    Menos de 10 unidades en stock
-                                </li>
-                            </ul>
-                        </div>
+                                    
+                             </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pie más compacto -->
+            <div class="card-footer bg-danger-light py-2"> <!-- Añadido py-2 -->
+                <div id="stockExplanation" class="collapse mt-2"> <!-- Cambiado mt-3 a mt-2 -->
+                    <div class="alert alert-light mb-0 p-2"> <!-- Añadido p-2 -->
+                        <ul class="mb-0" style="font-size: 0.8rem;"> <!-- Reducido tamaño -->
+                            <li class="mb-1"> <!-- Cambiado mb-2 a mb-1 -->
+                                <span class="badge bg-danger badge-sm mr-1">CRÍTICO</span> <!-- Añadido badge-sm -->
+                                Menos de 3 unidades
+                            </li>
+                            <li class="mb-1">
+                                <span class="badge bg-warning badge-sm mr-1">BAJO</span>
+                                3-5 unidades
+                            </li>
+                            <li>
+                                <span class="badge bg-info badge-sm mr-1">PRECAUCIÓN</span>
+                                Menos de 10 unidades
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            @else
-            <div class="card shadow border-0 success-card">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-check-circle text-success fa-4x mb-4"></i>
-                    <h4 class="mb-3 text-success">Inventario en buen estado</h4>
-                    <p class="mb-0 text-muted">Todos los productos tienen niveles adecuados</p>
-                </div>
-            </div>
-            @endif
         </div>
+        @else
+        <div class="card shadow border-0 success-card">
+            <div class="card-body text-center p-3"> <!-- Cambiado py-5 a p-3 -->
+                <i class="fas fa-check-circle text-success fa-3x mb-2"></i> <!-- Reducido fa-4x a fa-3x -->
+                <h6 class="mb-2 text-success">Inventario en buen estado</h6> <!-- Cambiado h4 a h6 -->
+                <p class="mb-0 text-muted" style="font-size: 0.85rem;">Todos los productos tienen niveles adecuados</p> <!-- Reducido tamaño -->
+            </div>
+        </div>
+        @endif
+    </div>
+
+    
+
+
+
+
+       
 
         <!-- Columna de Gráfico de Productos Más Vendidos -->
         <div class="col-lg-5 mb-4">

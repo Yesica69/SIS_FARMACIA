@@ -94,6 +94,7 @@ class SucursalController extends Controller
         $request->validate([
             'nombre' => 'required',
             'direccion' => 'required',
+            'email' => 'required',
             'telefono' => 'required',
 
         ]);
@@ -102,6 +103,7 @@ class SucursalController extends Controller
         $sucursal = Sucursal::find($id);
         $sucursal->nombre = $request->nombre;
         $sucursal->direccion = $request->direccion;
+        $sucursal->email = $request->email;
         $sucursal->telefono = $request->telefono;
         //SI HAY UNA IMAGEN Q 
         if ($request->hasFile('imagen')) {

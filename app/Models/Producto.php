@@ -26,4 +26,10 @@ class Producto extends Model
      {
          return $this->hasMany(Compras::class);
      }
+
+
+       protected $casts = [
+        'fecha_ingreso' => 'datetime',
+        'fecha_vencimiento' => 'datetime',
+    ];
 }

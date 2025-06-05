@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->date('fecha');
             $table->string('comprobante');
-            $table->decimal('precio_total',8,2);
+            $table->decimal('precio_total',10,2);
             
 
         $table->unsignedBigInteger('sucursal_id');

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Sucursal;
 use App\Models\Compra;
 use App\Models\DetalleCompra;
 use App\Models\Producto;
@@ -12,6 +12,20 @@ use App\Models\Proveedor;
 use App\Models\Laboratorio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // Importar Auth
+use Illuminate\Support\Facades\DB; // ¡Este es el import que faltaba!
+use Illuminate\Support\Facades\Log; 
+use Illuminate\Support\Facades\Storage;
+
+use Maatwebsite\Excel\Facades\Excel;
+
+use Carbon\Carbon;
+
+use DatePeriod; // Importación añadida
+use DateInterval; // Importación añadida
+use DateTime; // Importación añadida
+// Asegúrate de tener este modelo para acceder a los datos de ingresos
+use PDF; 
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CompraController extends Controller
 {
@@ -22,9 +36,9 @@ class CompraController extends Controller
     {
         $cajaAbierto = Caja::whereNull('fecha_cierre')->first();
         $compras = Compra::with(['detalles','laboratorio'])->get();
-
+        $sucursals = Sucursal::all();
         
-        return view('admin.compras.index', compact('compras','cajaAbierto'));
+        return view('admin.compras.index', compact('compras','cajaAbierto','sucursals'));
     }
 
     /**
@@ -76,6 +90,8 @@ class CompraController extends Controller
         $movimiento->tipo = "EGRESO";
         $movimiento->monto = $request->precio_total;
         $movimiento->descripcion = "Compra de productos";
+       
+        $movimiento->fecha_movimiento = $request->fecha_movimiento ?? now();
         $movimiento->caja_id = $caja_id->id;// Ahora podemos estar más seguros de que no será null
         $movimiento->save(); 
         //
@@ -177,20 +193,193 @@ class CompraController extends Controller
      */
     public function destroy($id)
     {
-        //
-
-        $compra = Compra::find($id);
-        foreach ($compra->detalles as $detalle){
-            $producto = Producto::find($detalle->producto_id);
-            $producto->stock -= $detalle->cantidad;
-            $producto->save();
+        DB::beginTransaction();
+        try {
+            $compra = Compra::with('detalles.producto')->findOrFail($id);
+            
+            // 1. Buscar el movimiento de caja relacionado (2 métodos alternativos)
+            $movimiento = MovimientoCaja::where('descripcion', 'like', '%Compra de productos - ID: '.$compra->id.'%')
+                                      ->orWhere('descripcion', 'like', '%Compra ID: '.$compra->id.'%')
+                                      ->first();
+            
+            // Alternativa si lo anterior no funciona:
+            if (!$movimiento) {
+                $movimiento = MovimientoCaja::where('monto', $compra->precio_total)
+                                          ->whereDate('created_at', $compra->created_at->toDateString())
+                                          ->where('tipo', 'EGRESO')
+                                          ->first();
+            }
+            
+            // 2. Revertir stock de productos
+            foreach ($compra->detalles as $detalle) {
+                $producto = $detalle->producto;
+                $producto->stock = max(0, $producto->stock - $detalle->cantidad); // Evita negativos
+                $producto->save();
+            }
+            
+            // 3. Eliminar en este orden
+            if ($movimiento) {
+                $movimiento->delete(); // Primero el movimiento
+            }
+            
+            $compra->detalles()->delete(); // Luego los detalles
+            $compra->delete(); // Finalmente la compra
+            
+            DB::commit();
+            
+            return redirect()->route('admin.compras.index')
+                ->with('mensaje', 'Compra y movimiento de caja eliminados correctamente')
+                ->with('icono', 'success');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('mensaje', 'Error al eliminar: '.$e->getMessage())
+                ->with('icono', 'error');
         }
-        $compra->detalles()->delete();
-        Compra::destroy($id);
+    }
+    public function agregarTmp(Request $request)
+{
+    $request->validate([
+        'producto_id' => 'required|exists:productos,id',
+        'cantidad' => 'required|numeric|min:1'
+    ]);
 
-        return redirect()->route('admin.compras.index')
-        ->with('mensaje', 'Se elimino la compra correctamente')
-        ->with('icono','success');
+    // Verificar si ya existe
+    $tmp = TmpCompra::where('user_id', auth()->id())
+                   ->where('producto_id', $request->producto_id)
+                   ->first();
 
+    if ($tmp) {
+        $tmp->cantidad += $request->cantidad;
+        $tmp->save();
+    } else {
+        TmpCompra::create([
+            'user_id' => auth()->id(),
+            'producto_id' => $request->producto_id,
+            'cantidad' => $request->cantidad
+        ]);
+    }
+
+    return response()->json(['success' => true]);
+}
+
+public function eliminarTmp(Request $request)
+{
+    $request->validate([
+        'producto_id' => 'required|exists:productos,id'
+    ]);
+
+    TmpCompra::where('user_id', auth()->id())
+             ->where('producto_id', $request->producto_id)
+             ->delete();
+
+    return response()->json(['success' => true]);
+}
+
+public function actualizarTmp(Request $request)
+{
+    $request->validate([
+        'producto_id' => 'required|exists:productos,id',
+        'cantidad' => 'required|numeric|min:1'
+    ]);
+
+    TmpCompra::where('user_id', auth()->id())
+             ->where('producto_id', $request->producto_id)
+             ->update(['cantidad' => $request->cantidad]);
+
+    return response()->json(['success' => true]);
+}
+
+
+public function reporte($tipo, Request $request)
+{
+    // Validar el tipo de reporte
+    if (!in_array($tipo, ['pdf', 'excel', 'csv'])) {
+        abort(400, 'Tipo de reporte no válido');
+    }
+
+    // Obtener filtros
+    $fecha_inicio = $request->input('fecha_inicio');
+    $fecha_fin = $request->input('fecha_fin');
+    $laboratorio_id = $request->input('laboratorio_id');
+
+    // Consulta base
+    $query = Compra::with(['detalles', 'laboratorio'])
+                  ->where('sucursal_id', Auth::user()->sucursal_id);
+
+    // Aplicar filtros
+    if ($fecha_inicio && $fecha_fin) {
+        $query->whereBetween('fecha', [$fecha_inicio, $fecha_fin]);
+    }
+
+    if ($laboratorio_id) {
+        $query->where('laboratorio_id', $laboratorio_id);
+    }
+
+    $compras = $query->get();
+
+    // Verificar si hay datos
+    if ($compras->isEmpty()) {
+        return back()->with('error', 'No hay compras con los filtros seleccionados');
+    }
+
+    switch ($tipo) {
+        case 'pdf':
+            return $this->generarPDF($compras);
+        case 'excel':
+            return $this->generarExcel($compras);
+        case 'csv':
+            return $this->generarCSV($compras);
     }
 }
+
+private function generarPDF($compras)
+{
+    $pdf = PDF::loadView('admin.compras.reporte', [
+        'compras' => $compras,
+        'fecha_generacion' => now()->format('d/m/Y H:i:s')
+    ])->setPaper('a4', 'landscape');
+    
+    return $pdf->download('reporte_compras_'.now()->format('YmdHis').'.pdf');
+}
+
+private function generarExcel($compras)
+{
+    $data = $compras->map(function ($compra) {
+        return [
+            'Fecha' => $compra->fecha,
+            'Comprobante' => $compra->comprobante,
+            'Laboratorio' => $compra->laboratorio->nombre,
+            'Total' => $compra->precio_total,
+            'Productos' => $compra->detalles->count(),
+            'Cantidad Total' => $compra->detalles->sum('cantidad')
+        ];
+    });
+
+    return Excel::download(
+        new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection {
+            private $data;
+            public function __construct($data) { $this->data = $data; }
+            public function collection() { return $this->data; }
+        },
+        'reporte_compras_'.now()->format('YmdHis').'.xlsx'
+    );
+}
+
+private function generarCSV($compras): BinaryFileResponse
+{
+    return $this->generarExcel($compras)
+        ->setContentDisposition('attachment', 'reporte_compras_'.now()->format('YmdHis').'.csv');
+}
+}
+
+
+
+
+
+
+
+
+
+

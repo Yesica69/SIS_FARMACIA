@@ -37,6 +37,9 @@ class UserProfileController extends Controller
         ? $request->file('imagen')->store('imagen', 'public') 
         : auth()->user()->imagen
         ]);
-        return back()->with('succes', 'Profile succesfully updated');
+        return back()->with('succes', 'Modificacion exitosa');
     }
+
+
+   
 }

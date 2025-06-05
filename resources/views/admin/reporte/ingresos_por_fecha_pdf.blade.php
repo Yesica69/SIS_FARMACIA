@@ -57,6 +57,22 @@
         }
     </style>
 </head>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Ingresos</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { color: #2c3e50; font-size: 24px; }
+        .fecha-rango { margin: 10px 0; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background-color: #3498db; color: white; text-align: left; padding: 8px; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+        .total { margin-top: 20px; text-align: right; font-weight: bold; font-size: 16px; }
+        .text-right { text-align: right; }
+    </style>
+</head>
 <body>
     <header>
         <h1>Reporte de Ingresos</h1>
@@ -72,23 +88,30 @@
                 <tr>
                     <th>Fecha</th>
                     <th>Descripción</th>
-                    <th>Monto (Bs)</th>
+                    <th class="text-right">Monto (Bs)</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($ingresos as $ingreso)
+                @forelse ($ingresos as $ingreso)
                     <tr>
-                        <td>{{ $ingreso->created_at->format('Y-m-d') }}</td>
+                        <td>{{ $ingreso->created_at->format('d/m/Y') }}</td>
                         <td>{{ $ingreso->descripcion }}</td>
-                        <td>{{ number_format($ingreso->monto, 2) }}</td>
+                        <td class="text-right">{{ number_format($ingreso->monto, 2) }}</td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="3" style="text-align: center;">No se encontraron ingresos en este período</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
 
-        <div class="total">
-            Total Ingresos: Bs {{ number_format($total, 2) }}
-        </div>
+        @if($ingresos->count() > 0)
+            <div class="total">
+                Total Ingresos: Bs {{ number_format($total, 2) }}
+            </div>
+        @endif
     </main>
 </body>
+
 </html>

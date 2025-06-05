@@ -2,203 +2,304 @@
 
 @section('content')
 @include('layouts.navbars.auth.topnav', ['title' => 'Productos'])
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-0"><i class="ni ni-box-2 text-primary mr-2"></i>Gestión de Productos</h2>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb bg-transparent p-0 mb-0">
-                    <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Inicio</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url('/admin/productos') }}">Productos</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Nuevo</li>
-                </ol>
-            </nav>
-        </div>
-        <a href="{{ url('/admin/productos') }}" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-arrow-left mr-1"></i> Volver
-        </a>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header border-0">
-                    <h3 class="mb-0"><i class="ni ni-fat-add text-primary mr-2"></i>Nuevo Producto</h3>
+<div class="container-fluid py-3">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-12">
+            <div class="card shadow-sm">
+                <!-- Card Header -->
+                <div class="card-header bg-gradient-primary border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 text-white">
+                            <i class="ni ni-fat-add mr-2"></i>Nuevo Producto
+                        </h4>
+                        <a href="{{ url()->previous() }}" class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-arrow-left mr-1"></i> Volver
+                        </a>
+                    </div>
                 </div>
                 
-                <div class="card-body">
+                <!-- Card Body -->
+                <div class="card-body px-3 py-3">
                     <form action="{{ url('/admin/productos/create') }}" method="post" enctype="multipart/form-data" id="productForm">
                         @csrf
                         
                         <div class="row">
-                            <!-- Sección principal del formulario -->
-                            <div class="col-md-8">
-                                <!-- Primera fila - Categoría y Laboratorio -->
-                                <div class="form-row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-control-label">Categoría</label>
-                                        <select name="categoria_id" class="form-control" required>
-                                            <option value="">Seleccionar una categoría</option>
-                                            @foreach($categorias as $categoria)
-                                                <option value="{{$categoria->id}}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
-                                                    {{$categoria->nombre}}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('categoria_id')
-                                            <small class="text-danger">{{$message}}</small>
-                                        @enderror
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-control-label">Laboratorio</label>
-                                        <select name="laboratorio_id" class="form-control" required>
-                                            <option value="">Seleccionar un laboratorio</option>
-                                            @foreach($laboratorios as $laboratorio)
-                                                <option value="{{ $laboratorio->id }}" {{ old('laboratorio_id') == $laboratorio->id ? 'selected' : '' }}>
-                                                    {{ $laboratorio->nombre }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('laboratorio_id')
-                                            <small class="text-danger">{{$message}}</small>
-                                        @enderror
-                                    </div>
-                                </div>
-                                
-                                <!-- Segunda fila - Código y Nombre -->
-                                <div class="form-row">
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-control-label">Código</label>
+                            <!-- Main Form Section -->
+                            <div class="col-lg-8">
+                                <!-- Basic Info -->
+                                <div class="form-row d-flex align-items-end"> <!-- align-items-end para alinear los labels -->
+                                <div class="flex-grow-1 mr-2 mb-4"> 
+                                        <label class="form-control-label">Código <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" name="codigo" value="{{ old('codigo') }}" required>
                                         @error('codigo')
-                                            <small class="text-danger">{{$message}}</small>
+                                            <div class="invalid-feedback d-block">{{$message}}</div>
                                         @enderror
                                     </div>
+                                    <div class="col-auto px-2 mb-3 d-flex align-items-center">
+        <span class="text-muted"></span>
+    </div>
+    
                                     
-                                    <div class="col-md-9 mb-3">
-                                        <label class="form-control-label">Nombre del Producto</label>
-                                        <input type="text" class="form-control" name="nombre" value="{{ old('nombre') }}" placeholder="Ingrese el nombre del producto" required>
+                                    <div class="flex-grow-1 mb-4"> 
+                                        <label class="form-control-label">Nombre <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="nombre" value="{{ old('nombre') }}" required>
                                         @error('nombre')
-                                            <small class="text-danger">{{$message}}</small>
+                                            <div class="invalid-feedback d-block">{{$message}}</div>
                                         @enderror
                                     </div>
                                 </div>
                                 
-                                <!-- Descripción -->
+                                <div class="form-row d-flex align-items-end"> <!-- align-items-end para alinear los labels -->
+    <div class="flex-grow-1 mr-2 mb-4"> <!-- flex-grow-1 para que ocupen el espacio disponible -->
+        <label class="form-control-label font-weight-bold">Categoría <span class="text-danger">*</span></label>
+        <select name="categoria_id" class="form-control form-control-lg" required>
+            <option value="">Seleccionar categoría</option>
+            @foreach($categorias as $categoria)
+                <option value="{{$categoria->id}}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
+                    {{$categoria->nombre}}
+                </option>
+            @endforeach
+        </select>
+        @error('categoria_id')
+            <div class="invalid-feedback d-block">{{$message}}</div>
+        @enderror
+    </div>
+    <div class="col-auto px-2 mb-3 d-flex align-items-center">
+        <span class="text-muted"></span>
+    </div>
+    
+    <div class="flex-grow-1 mb-4"> <!-- flex-grow-1 para que ocupen el mismo ancho -->
+        <label class="form-control-label font-weight-bold">Laboratorio <span class="text-danger">*</span></label>
+        <select name="laboratorio_id" class="form-control form-control-lg" required>
+            <option value="">Seleccionar laboratorio</option>
+            @foreach($laboratorios as $laboratorio)
+                <option value="{{ $laboratorio->id }}" {{ old('laboratorio_id') == $laboratorio->id ? 'selected' : '' }}>
+                    {{ $laboratorio->nombre }}
+                </option>
+            @endforeach
+        </select>
+        @error('laboratorio_id')
+            <div class="invalid-feedback d-block">{{$message}}</div>
+        @enderror
+    </div>
+</div>
+                                
+                                <!-- Dates Row - Diseño Rectangular Compacto -->
+                                <div class="form-row d-flex align-items-end"> <!-- align-items-end para alinear los labels -->
+                                <div class="flex-grow-1 mr-2 mb-4"> <!-- flex-grow-1 para que ocupen el espacio disponible -->
+        <label class="form-control-label">Fecha Ingreso <span class="text-danger">*</span></label>
+        <input type="date" class="form-control" name="fecha_ingreso" value="{{ old('fecha_ingreso') }}" required>
+        @error('fecha_ingreso')
+            <div class="invalid-feedback d-block">{{$message}}</div>
+        @enderror
+    </div>
+    
+    <div class="col-auto px-2 mb-3 d-flex align-items-center">
+        <span class="text-muted"></span>
+    </div>
+    
+    
+    <div class="flex-grow-1 mb-4">
+        <label class="form-control-label">Fecha Vencimiento</label>
+        <input type="date" class="form-control" name="fecha_vencimiento" value="{{ old('fecha_vencimiento') }}">
+        @error('fecha_vencimiento')
+            <div class="invalid-feedback d-block">{{$message}}</div>
+        @enderror
+    </div>
+</div>
+                                
+                                <!-- Description -->
                                 <div class="mb-3">
                                     <label class="form-control-label">Descripción</label>
                                     <textarea class="form-control" name="descripcion" rows="2">{{ old('descripcion') }}</textarea>
                                     @error('descripcion')
-                                        <small class="text-danger">{{$message}}</small>
+                                        <div class="invalid-feedback d-block">{{$message}}</div>
                                     @enderror
                                 </div>
                                 
-                                <!-- Tercera fila - Stock -->
-                                <div class="form-row">
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-control-label">Stock Actual</label>
-                                        <input type="number" class="form-control" name="stock" value="{{ old('stock', 0) }}" required>
-                                        @error('stock')
-                                            <small class="text-danger">{{$message}}</small>
-                                        @enderror
-                                    </div>
-                                    
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-control-label">Stock Mínimo</label>
-                                        <input type="number" class="form-control" name="stock_minimo" value="{{ old('stock_minimo', 0) }}" required>
-                                        @error('stock_minimo')
-                                            <small class="text-danger">{{$message}}</small>
-                                        @enderror
-                                    </div>
-                                    
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-control-label">Stock Máximo</label>
-                                        <input type="number" class="form-control" name="stock_maximo" value="{{ old('stock_maximo', 0) }}" required>
-                                        @error('stock_maximo')
-                                            <small class="text-danger">{{$message}}</small>
-                                        @enderror
-                                    </div>
-                                </div>
-                                
-                                <!-- Cuarta fila - Precios -->
-                                <div class="form-row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-control-label">Precio de Compra</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text">Bs</span>
+                                <!-- Inventory and Pricing Cards Side by Side -->
+                                <div class="row">
+                                    <div class="col-md-6 pr-md-2">
+                                        <div class="card border-0 shadow-sm mb-3 h-100">
+                                            <div class="card-header bg-light py-2">
+                                                <h6 class="mb-0">Control de Inventario</h6>
                                             </div>
-                                            <input type="text" class="form-control" name="precio_compra" value="{{ old('precio_compra') }}" required>
-                                        </div>
-                                        @error('precio_compra')
-                                            <small class="text-danger">{{$message}}</small>
-                                        @enderror
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-control-label">Precio de Venta</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text">Bs</span>
+                                            <div class="card-body p-2">
+                                                <div class="form-group mb-2">
+                                                    <label class="form-control-label">Stock Actual</label>
+                                                    <input type="number" class="form-control" name="stock" value="{{ old('stock', 0) }}" required>
+                                                </div>
+                                                
+                                                <div class="form-group mb-2">
+                                                    <label class="form-control-label">Stock Mínimo</label>
+                                                    <input type="number" class="form-control" name="stock_minimo" value="{{ old('stock_minimo', 0) }}" required>
+                                                </div>
+                                                
+                                                <div class="form-group mb-2">
+                                                    <label class="form-control-label">Stock Máximo</label>
+                                                    <input type="number" class="form-control" name="stock_maximo" value="{{ old('stock_maximo', 0) }}" required>
+                                                </div>
                                             </div>
-                                            <input type="text" class="form-control" name="precio_venta" value="{{ old('precio_venta') }}" required>
                                         </div>
-                                        @error('precio_venta')
-                                            <small class="text-danger">{{$message}}</small>
-                                        @enderror
-                                    </div>
-                                </div>
-                                
-                                <!-- Quinta fila - Fechas -->
-                                <div class="form-row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-control-label">Fecha de Ingreso</label>
-                                        <input type="date" class="form-control" name="fecha_ingreso" value="{{ old('fecha_ingreso') }}" required>
-                                        @error('fecha_ingreso')
-                                            <small class="text-danger">{{$message}}</small>
-                                        @enderror
                                     </div>
                                     
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-control-label">Fecha de Vencimiento</label>
-                                        <input type="date" class="form-control" name="fecha_vencimiento" value="{{ old('fecha_vencimiento') }}">
-                                        @error('fecha_vencimiento')
-                                            <small class="text-danger">{{$message}}</small>
-                                        @enderror
+                                    <div class="col-md-6 pl-md-2">
+                                        <div class="card border-0 shadow-sm mb-3 h-100">
+                                            <div class="card-header bg-light py-2">
+                                                <h6 class="mb-0">Información de Precios</h6>
+                                            </div>
+                                            <div class="card-body p-3">
+                                                <div class="form-group mb-3">
+                                                    <label class="form-control-label">Precio Compra</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">Bs.</span>
+                                                        </div>
+                                                        <input type="text" class="form-control" name="precio_compra" value="{{ old('precio_compra') }}" required>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="form-group mb-3">
+                                                    <label class="form-control-label">Precio Venta</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">Bs.</span>
+                                                        </div>
+                                                        <input type="text" class="form-control" name="precio_venta" value="{{ old('precio_venta') }}" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Sección de imagen -->
-                            <div class="col-md-4">
-                                <div class="card h-100">
-                                    <div class="card-body text-center">
-                                        <label class="form-control-label">Imagen del Producto</label>
-                                        <div class="custom-file mt-2">
-                                            <input type="file" class="custom-file-input" id="file" name="imagen" accept=".jpg, .jpeg, .png">
-                                            <label class="custom-file-label" for="file">Seleccionar imagen</label>
-                                        </div>
-                                        
-                                        <div class="mt-4">
-                                            <img id="preview" class="img-fluid rounded shadow" style="max-height: 200px; display: none;">
-                                            <div id="no-image" class="bg-gradient-light rounded p-3">
-                                                <i class="ni ni-box-2 text-muted fa-3x"></i>
-                                                <p class="text-xs text-muted mt-2 mb-0">No hay imagen seleccionada</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Image Section -->
+                            <div class="col-lg-4">
+    <div class="card h-100 border-0 shadow-hover">
+        <div class="card-header bg-white border-bottom py-3">
+            <h6 class="mb-0 font-weight-bold text-primary">
+                <i class="fas fa-camera-retro mr-2"></i> Imagen del Producto
+            </h6>
+        </div>
+        <div class="card-body p-4">
+            <!-- Upload Area -->
+            <div class="upload-area border-2 border-dashed rounded-lg p-4 mb-4 text-center">
+                <div class="file-upload-wrapper">
+                    <input type="file" id="file" name="imagen" accept=".jpg, .jpeg, .png" class="file-upload-input" 
+                           onchange="previewImage(this)">
+                    <label for="file" class="file-upload-label btn btn-sm btn-primary px-4">
+                        <i class="fas fa-cloud-upload-alt mr-2"></i> Seleccionar imagen
+                    </label>
+                    <p class="small text-muted mt-2 mb-0">Formatos: JPG, PNG (Máx. 2MB)</p>
+                </div>
+            </div>
+            
+            <!-- Preview Area -->
+            <div class="preview-container border rounded-lg overflow-hidden bg-white">
+                <div id="no-image" class="empty-state text-center p-4">
+                    <div class="icon-container bg-light-primary rounded-circle p-3 mb-3 d-inline-block">
+                        <i class="fas fa-image text-primary fa-2x"></i>
+                    </div>
+                    <h6 class="text-muted mb-1">Vista previa</h6>
+                    <p class="small text-muted mb-0">La imagen seleccionada aparecerá aquí</p>
+                </div>
+                <img id="preview" class="img-fluid w-100" style="display: none; max-height: 220px; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .shadow-hover {
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .shadow-hover:hover {
+        box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .border-2 {
+        border-width: 2px !important;
+    }
+    
+    .border-dashed {
+        border-style: dashed !important;
+    }
+    
+    .upload-area {
+        border-color: #d1d3e2;
+        background-color: #f8f9fe;
+        transition: all 0.3s;
+    }
+    
+    .upload-area:hover {
+        border-color: #b7b9cc;
+        background-color: #f0f2f7;
+    }
+    
+    .file-upload-input {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
+    }
+    
+    .file-upload-label {
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .preview-container {
+        min-height: 200px;
+        position: relative;
+    }
+    
+    .empty-state {
+        transition: all 0.3s;
+    }
+    
+    .bg-light-primary {
+        background-color: rgba(78, 115, 223, 0.1);
+    }
+</style>
+
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('preview');
+    const noImage = document.getElementById('no-image');
+    const file = input.files[0];
+    
+    if (file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            noImage.style.display = 'none';
+        }
+        
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+        noImage.style.display = 'block';
+    }
+}
+</script>
                         </div>
                         
+                        <!-- Form Actions -->
                         <div class="row mt-4">
-                            <div class="col-md-12 text-right">
+                            <div class="col-12 text-right">
                                 <button type="reset" class="btn btn-outline-secondary mr-2">
                                     <i class="fas fa-undo mr-1"></i> Limpiar
                                 </button>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save mr-1"></i> Guardar Producto
+                                    <i class="fas fa-save mr-1"></i> Guardar
                                 </button>
                             </div>
                         </div>
@@ -212,7 +313,7 @@
 
 @push('js')
 <script>
-    // Script para vista previa de imagen
+    // Image Preview Script
     document.getElementById('file').addEventListener('change', function(e) {
         const preview = document.getElementById('preview');
         const noImage = document.getElementById('no-image');
@@ -234,15 +335,69 @@
             }
         } else {
             preview.style.display = 'none';
-            noImage.style.display = 'block';
+            noImage.style.display = 'flex';
         }
     });
 
-    // Actualizar nombre del archivo seleccionado
+    // Update filename display
     document.querySelector('.custom-file-input').addEventListener('change', function(e) {
         const fileName = e.target.files.length > 0 ? e.target.files[0].name : 'Seleccionar imagen';
         const label = this.nextElementSibling;
         label.textContent = fileName;
     });
+
+    // Format currency inputs
+    document.querySelectorAll('input[name="precio_compra"], input[name="precio_venta"]').forEach(input => {
+        input.addEventListener('blur', function() {
+            const value = parseFloat(this.value.replace(/,/g, ''));
+            if (!isNaN(value)) {
+                this.value = value.toFixed(2);
+            }
+        });
+    });
 </script>
+@endpush
+
+@push('css')
+<style>
+    .card-header.bg-gradient-primary {
+        background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%) !important;
+    }
+    
+    .image-preview-container {
+        min-height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .custom-file-label::after {
+        content: "Examinar";
+    }
+    
+    .invalid-feedback.d-block {
+        display: block !important;
+        font-size: 0.85rem;
+    }
+    
+    .form-control-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .card-header h6 {
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+    
+    /* Ajustes para las tarjetas lado a lado */
+    @media (min-width: 768px) {
+        .pr-md-2 {
+            padding-right: 0.5rem !important;
+        }
+        .pl-md-2 {
+            padding-left: 0.5rem !important;
+        }
+    }
+</style>
 @endpush

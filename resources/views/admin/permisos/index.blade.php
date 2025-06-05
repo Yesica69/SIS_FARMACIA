@@ -5,23 +5,23 @@
 <div class="container-fluid py-4">
     <!-- Header Principal -->
     <div class="card shadow-lg mb-4 border-0">
-        <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-user-shield fa-2x me-3 text-white"></i>
-                <h2 class="mb-0 text-white"><strong>GESTIÓN DE PERMISOS</strong></h2>
-            </div>
-            <div class="d-flex">
-                <button type="button" class="btn btn-light bg-gradient-info text-white me-2 shadow-sm" 
-                        data-bs-toggle="modal" data-bs-target="#modalCrear">
-                    <i class="fas fa-plus-circle me-1"></i> Nuevo Permiso
-                </button>
-                <a href="{{ url('/admin/roles/reporte') }}" target="_blank" 
-                   class="btn bg-gradient-danger text-white shadow-sm">
-                    <i class="fas fa-file-pdf me-1"></i> Generar Reporte
-                </a>
-            </div>
+    <div class="card-header bg-white d-flex justify-content-between align-items-center"> <!-- Cambiado a bg-white -->
+        <div class="d-flex align-items-center">
+            <i class="fas fa-user-shield fa-2x me-3 text-primary"></i> <!-- Cambiado a text-primary (o usa text-warning para naranja) -->
+            <h2 class="mb-0 text-warning"><strong>GESTIÓN DE PERMISOS</strong></h2> <!-- Cambiado a text-warning -->
+        </div>
+        <div class="d-flex">
+            <button type="button" class="btn btn-light bg-gradient-info text-white me-2 shadow-sm" 
+                    data-bs-toggle="modal" data-bs-target="#modalCrear">
+                <i class="fas fa-plus-circle me-1"></i> Nuevo Permiso
+            </button>
+            <a href="{{ url('/admin/roles/reporte') }}" target="_blank" 
+               class="btn bg-gradient-danger text-white shadow-sm">
+                <i class="fas fa-file-pdf me-1"></i> Generar Reporte
+            </a>
         </div>
     </div>
+</div>
 
     <div id="alert">
         @include('components.alert')
@@ -40,7 +40,7 @@
 
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table id="mitabla" class="table table-hover align-items-center mb-0">
+                <table id="mitabla1" class="table table-hover align-items-center mb-0">
                     <thead class="bg-gray-100">
                         <tr>
                             <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">#</th>
@@ -72,15 +72,249 @@
                                     </button>
                                     
                                     <!-- Botón Eliminar - Rojo -->
-                                    <form action="{{ url('/admin/permisos', $permiso->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm bg-gradient-danger text-white rounded-end px-3"
-                                                onclick="return confirm('¿Está seguro de eliminar este permiso?')"
-                                                title="Eliminar permiso">
-                                            <i class="fas fa-trash-can me-1"></i> Eliminar
-                                        </button>
-                                    </form>
+                                    
+
+
+                                    <form action="{{ route('admin.permisos.destroy', $permiso->id) }}" 
+      method="POST" 
+      class="d-inline"
+      data-permiso='{"nombre":"{{ $permiso->nombre }}"}'>
+        @csrf
+        @method('DELETE')
+        <button type="button" 
+                class="btn btn-sm bg-gradient-danger text-white rounded-end shadow-sm px-3 btn-eliminar-permiso"
+                title="Eliminar permiso"
+                data-bs-toggle="tooltip">
+            <span class="btn-inner--icon me-1">
+                <i class="fas fa-trash-alt"></i>
+            </span>
+            <span class="btn-inner--text">Eliminar</span>
+        </button>
+    </form>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function confirmarEliminacionSucursal(event) {
+    event.preventDefault();
+    const form = event.target.closest('form');
+    const permiso = JSON.parse(form.dataset.permiso || '{}');
+    
+    Swal.fire({
+        title: `<span class="swal2-title">Confirmar Eliminación</span>`,
+        html: `<div class="swal2-content-container">
+                 
+                 <div class="swal2-text-content">
+                     <h3 class="swal2-subtitle">¿Eliminar permiso permanentemente?</h3>
+                     <div class="swal2-user-info mt-3">
+                         <i></i> ${permiso.nombre || 'Esta permiso'}
+                     </div>
+                     <div class="swal2-warning-text">
+                         <i class="fas fa-exclamation-triangle me-2"></i>
+                         Esta acción no se puede deshacer
+                     </div>
+                 </div>
+               </div>`,
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonText: `<i class="fas fa-trash-alt me-2"></i> Confirmar Eliminación`,
+        cancelButtonText: `<i class="fas fa-times me-2"></i> Cancelar`,
+        buttonsStyling: false,
+        customClass: {
+            popup: 'swal2-container-premium',
+            confirmButton: 'swal2-confirm-btn-premium',
+            cancelButton: 'swal2-cancel-btn-premium',
+            actions: 'swal2-actions-premium'
+        },
+        background: 'rgba(255,255,255,0.98)',
+        showClass: {
+            popup: 'animate__animated animate__zoomIn animate__faster'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__zoomOut animate__faster'
+        },
+        allowOutsideClick: false,
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Procesando...',
+                html: `<div class="swal2-loader-container">
+                         <div class="swal2-loader-circle"></div>
+                         <div class="swal2-loader-bar-container">
+                             <div class="swal2-loader-bar"></div>
+                         </div>
+                       </div>`,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    const loaderBar = document.querySelector('.swal2-loader-bar');
+                    loaderBar.style.width = '100%';
+                    loaderBar.style.transition = 'width 1s ease-in-out';
+                }
+            });
+            
+            setTimeout(() => {
+                form.submit();
+            }, 1200);
+        }
+    });
+}
+
+document.querySelectorAll('.btn-eliminar-permiso').forEach(button => {
+    button.addEventListener('click', confirmarEliminacionSucursal);
+});
+</script>
+
+<style>
+    /* Estilos Premium */
+    .swal2-container-premium {
+        border-radius: 18px !important;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        max-width: 480px !important;
+        padding: 2.5rem !important;
+    }
+
+    .swal2-icon-wrapper {
+        text-align: center;
+        margin: 1.5rem 0;
+    }
+
+    .swal2-icon-svg {
+        width: 72px;
+        height: 72px;
+        opacity: 0.9;
+    }
+
+    .swal2-content-container {
+        text-align: center;
+        padding: 0 1.5rem;
+    }
+
+    .swal2-title {
+        font-size: 1.8rem !important;
+        font-weight: 600 !important;
+        color: #2f3542 !important;
+        letter-spacing: -0.5px;
+        margin-bottom: 0 !important;
+    }
+
+    .swal2-subtitle {
+        font-size: 1.25rem;
+        color: #57606f;
+        font-weight: 500;
+        margin: 1rem 0;
+    }
+
+    .swal2-user-info {
+        background: #f8f9fa;
+        padding: 0.75rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        color: #2f3542;
+        border-left: 4px solid #ff4757;
+    }
+
+    .swal2-warning-text {
+        font-size: 0.95rem;
+        color: #ff6b81;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px dashed #dfe4ea;
+    }
+
+    .swal2-confirm-btn-premium {
+        background: linear-gradient(135deg, #ff4757, #ff6b81) !important;
+        border: none !important;
+        padding: 12px 28px !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        border-radius: 10px !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(255, 71, 87, 0.25) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .swal2-confirm-btn-premium:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(255, 71, 87, 0.3) !important;
+    }
+
+    .swal2-cancel-btn-premium {
+        background: white !important;
+        border: 1px solid #dfe4ea !important;
+        padding: 12px 28px !important;
+        font-weight: 500 !important;
+        font-size: 1rem !important;
+        border-radius: 10px !important;
+        color: #57606f !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .swal2-cancel-btn-premium:hover {
+        background: #f8f9fa !important;
+        border-color: #ced6e0 !important;
+    }
+
+    .swal2-actions-premium {
+        margin: 2rem 0 0 0 !important;
+        gap: 1rem !important;
+    }
+
+    /* Loader premium */
+    .swal2-loader-container {
+        width: 100%;
+        padding: 1.5rem 0;
+    }
+
+    .swal2-loader-circle {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 71, 87, 0.2);
+        border-top-color: #ff4757;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        animation: swal2-spin 1s linear infinite;
+    }
+
+    .swal2-loader-bar-container {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 71, 87, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .swal2-loader-bar {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, #ff4757, #ff6b81);
+        border-radius: 3px;
+    }
+
+    @keyframes swal2-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                 </div>
                             </td>
                         </tr>
@@ -180,7 +414,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Configuración de DataTables
-    $('#mitabla').DataTable({
+    $('#mitabla1').DataTable({
         "pageLength": 10,
         "language": {
             "lengthMenu": "Mostrar _MENU_ registros por página",
