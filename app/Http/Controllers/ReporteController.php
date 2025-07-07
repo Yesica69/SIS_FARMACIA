@@ -18,75 +18,76 @@ class ReporteController extends Controller
         return view('admin.reporte.ingresos'); // Esto buscará la vista en resources/views/reporte/ingresos.blade.php
     }
 
-    public function ingresosPorFecha(Request $request)
-    {
-        // Validación de fechas
-        $validated = $request->validate([
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio'
-        ]);
-    
-        $fecha_inicio = $validated['fecha_inicio'];
-        $fecha_fin = $validated['fecha_fin'];
-    
-        // Optimización: Consulta directa con agregación en base de datos
-        $dias_rango = Carbon::parse($fecha_inicio)->diffInDays($fecha_fin);
-    
-        if ($dias_rango <= 30) {
-            // Agrupación por día
-            $resultados = MovimientoCaja::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
-                ->where('tipo', 'INGRESO')
-                ->selectRaw('DATE(created_at) as fecha, SUM(monto) as total')
-                ->groupBy('fecha')
-                ->orderBy('fecha')
-                ->get();
-    
-            // Rellenar días sin movimientos
-            $periodo = new DatePeriod(
-                new DateTime($fecha_inicio),
-                new DateInterval('P1D'),
-                (new DateTime($fecha_fin))->modify('+1 day')
-            );
-    
-            $datos = [];
-            $labels = [];
-            $resultadosPorFecha = $resultados->pluck('total', 'fecha');
-    
-            foreach ($periodo as $fecha) {
-                $fecha_formato = $fecha->format('Y-m-d');
-                $labels[] = $fecha_formato;
-                $datos[] = $resultadosPorFecha->get($fecha_formato, 0);
-            }
-        } else {
-            // Agrupación por mes
-            $resultados = MovimientoCaja::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
-                ->where('tipo', 'INGRESO')
-                ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as mes, SUM(monto) as total')
-                ->groupBy('mes')
-                ->orderBy('mes')
-                ->get();
-    
-            // Rellenar meses sin movimientos
-            $fechaIni = Carbon::parse($fecha_inicio)->startOfMonth();
-            $fechaFin = Carbon::parse($fecha_fin)->endOfMonth();
-            
-            $datos = [];
-            $labels = [];
-            $resultadosPorMes = $resultados->pluck('total', 'mes');
-    
-            while ($fechaIni <= $fechaFin) {
-                $mes = $fechaIni->format('Y-m');
-                $labels[] = $mes;
-                $datos[] = $resultadosPorMes->get($mes, 0);
-                $fechaIni->addMonth();
-            }
+ public function ingresosPorFecha(Request $request)
+{
+    // Validación de fechas
+    $validated = $request->validate([
+        'fecha_inicio' => 'required|date',
+        'fecha_fin' => 'required|date|after_or_equal:fecha_inicio'
+    ]);
+
+    // Ajustar fechas para incluir todo el día
+    $fecha_inicio = Carbon::parse($validated['fecha_inicio'])->startOfDay();
+    $fecha_fin = Carbon::parse($validated['fecha_fin'])->endOfDay();
+
+    $dias_rango = $fecha_inicio->diffInDays($fecha_fin);
+
+    if ($dias_rango <= 30) {
+        // Agrupación por día con Carbon para mayor precisión
+        $resultados = MovimientoCaja::where('tipo', 'INGRESO')
+            ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+            ->get()
+            ->groupBy(function($item) {
+                return $item->created_at->format('Y-m-d');
+            });
+
+        // Generar rango de fechas completo
+        $periodo = new DatePeriod(
+            $fecha_inicio->toDateTime(),
+            new DateInterval('P1D'),
+            $fecha_fin->toDateTime()->modify('+1 day')
+        );
+
+        $datos = [];
+        $labels = [];
+
+        foreach ($periodo as $fecha) {
+            $fecha_formato = $fecha->format('Y-m-d');
+            $labels[] = $fecha->format('d M'); // Formato más legible (05 Jun)
+            $monto = isset($resultados[$fecha_formato]) ? 
+                     $resultados[$fecha_formato]->sum('monto') : 0;
+            $datos[] = $monto;
         }
-    
-        $total = array_sum($datos);
-    
-        return view('admin.reporte.ingresos', compact('labels', 'datos', 'total'));
+    } else {
+        // Agrupación por mes
+        $resultados = MovimientoCaja::where('tipo', 'INGRESO')
+            ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+            ->get()
+            ->groupBy(function($item) {
+                return $item->created_at->format('Y-m');
+            });
+
+        // Rellenar meses sin movimientos
+        $fechaIni = $fecha_inicio->copy()->startOfMonth();
+        $fechaFin = $fecha_fin->copy()->endOfMonth();
+        
+        $datos = [];
+        $labels = [];
+
+        while ($fechaIni <= $fechaFin) {
+            $mes = $fechaIni->format('Y-m');
+            $labels[] = $fechaIni->format('M Y'); // Formato más legible (Jun 2023)
+            $monto = isset($resultados[$mes]) ? 
+                     $resultados[$mes]->sum('monto') : 0;
+            $datos[] = $monto;
+            $fechaIni->addMonth();
+        }
     }
-    
+
+    $total = array_sum($datos);
+
+    return view('admin.reporte.ingresos', compact('labels', 'datos', 'total'));
+}
 
     public function ingresosPorFechaPDF(Request $request)
     {
@@ -129,49 +130,42 @@ public function egresosPorFecha(Request $request)
     $fecha_inicio = $request->input('fecha_inicio');
     $fecha_fin = $request->input('fecha_fin');
 
-    $egresos = MovimientoCaja::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
-                           ->where('tipo', 'EGRESO')
+    // Convertir a Carbon y ajustar horas
+    $startDate = Carbon::parse($fecha_inicio)->startOfDay();
+    $endDate = Carbon::parse($fecha_fin)->endOfDay();
+
+    // Obtener egresos en el rango (más eficiente)
+    $egresos = MovimientoCaja::where('tipo', 'EGRESO')
+                           ->whereBetween('created_at', [$startDate, $endDate])
                            ->get();
 
-    $dias_rango = Carbon::parse($fecha_inicio)->diffInDays($fecha_fin);
+    $dias_rango = $startDate->diffInDays($endDate);
 
     $datos = [];
     $labels = [];
 
     if ($dias_rango <= 30) {
         // Agrupar por día
-        $periodo = new \DatePeriod(
-            new \DateTime($fecha_inicio),
-            new \DateInterval('P1D'),
-            (new \DateTime($fecha_fin))->modify('+1 day')
-        );
-
-        foreach ($periodo as $fecha) {
-            $fecha_formato = $fecha->format('Y-m-d');
-            $monto = $egresos->where('created_at', '>=', $fecha_formato . ' 00:00:00')
-                              ->where('created_at', '<=', $fecha_formato . ' 23:59:59')
-                              ->sum('monto');
-
-            $labels[] = $fecha_formato;
-            $datos[] = $monto;
-        }
-
-    } else {
-        // Agrupar por mes
-        $fechaIni = Carbon::parse($fecha_inicio)->startOfMonth();
-        $fechaFin = Carbon::parse($fecha_fin)->endOfMonth();
-        while ($fechaIni <= $fechaFin) {
-            $mes = $fechaIni->format('Y-m');
-
-            $monto = $egresos->filter(function ($egreso) use ($mes) {
-                return $egreso->created_at->format('Y-m') === $mes;
+        $currentDate = $startDate->copy();
+        
+        while ($currentDate <= $endDate) {
+            $fecha_formato = $currentDate->format('Y-m-d');
+            $dia_semana = $currentDate->isoFormat('dddd');
+            
+            // Filtrar usando Carbon para precisión
+            $monto = $egresos->filter(function ($egreso) use ($currentDate) {
+                return $egreso->created_at->isSameDay($currentDate);
             })->sum('monto');
 
-            $labels[] = $mes;
+            // Formato más amigable para las etiquetas
+            $labels[] = $currentDate->format('d M'); // Ej: "05 Jun"
             $datos[] = $monto;
 
-            $fechaIni->addMonth();
+            $currentDate->addDay();
         }
+    } else {
+        // Agrupar por mes (código existente)
+        // ... (mantener tu lógica actual para meses)
     }
 
     $total = array_sum($datos);

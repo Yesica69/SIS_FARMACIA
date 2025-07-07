@@ -13,9 +13,14 @@
                             <h3 class="mb-0"><i class="fas fa-shopping-cart me-2"></i> <strong>Detalle de la Compra</strong></h3>
                         </div>
                         <div class="col-4 text-end">
-                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#collapseCard">
-                                <i class="fas fa-minus"></i>
-                            </button>
+                            <div>
+                        <a href="{{ url('/admin/compras') }}" class="btn btn-sm btn-outline-secondary me-2">
+                            <i class="ni ni-bold-left me-1"></i> Volver al listado
+                        </a>
+                        <a href="{{ url('/admin/compras/pdf/' . $compra->id) }}" target="_blank" class="btn btn-sm btn-danger">
+                            <i class="ni ni-single-copy-04 me-1"></i> Exportar PDF
+                        </a>
+                    </div>
                         </div>
                     </div>
                 </div>

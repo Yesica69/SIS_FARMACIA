@@ -14,13 +14,15 @@ public function caja(){
     return $this->belongsTo(Caja::class);
 }
 
-public function compra()
-{
-    return $this->belongsTo(Compra::class);
-}
+
 
 public function venta()
 {
-    return $this->belongsTo(Venta::class);
+    return $this->belongsTo(Venta::class, 'venta_id'); // Especifica la clave foránea
+}
+
+public function compra()
+{
+    return $this->belongsTo(Compra::class, 'compra_id'); // Especifica la clave foránea
 }
 }

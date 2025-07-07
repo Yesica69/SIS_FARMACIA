@@ -27,7 +27,10 @@ class Producto extends Model
          return $this->hasMany(Compras::class);
      }
 
-
+public function proveedors()
+{
+    return $this->belongsToMany(Proveedor::class, 'producto_proveedors')->withTimestamps();
+}
        protected $casts = [
         'fecha_ingreso' => 'datetime',
         'fecha_vencimiento' => 'datetime',

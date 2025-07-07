@@ -1,17 +1,28 @@
-@extends('layouts.app') {{-- Usualmente layouts.app es el layout principal en Argon --}}
 
-@section('title', 'Egresos por Fecha')
+
+@extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-<div class="header bg-primary pb-6">
-    <div class="container-fluid">
-        <div class="header-body">
-            <h1 class="text-white">Buscar Egresos por Fecha</h1>
-        </div>
-    </div>
-</div>
+    @include('layouts.navbars.auth.topnav', ['title' => 'Egresos por fecha'])
 
-<div class="container-fluid mt--6">
+    <div class="container-fluid mt--6">
+            <div class="col-12">
+                <div class="card border-radius-lg shadow-sm" style="border-left: 4px solid #5e72e4;">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">
+                                <i class="ni ni-delivery-fast me-2 text-primary"></i>
+                                <strong>Buscar Egresos por Fecha</strong>
+                            </h5>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+     </div>
+<hr>
+
+ <div class="container-fluid mt--6">
     <div class="card">
         <div class="card-body">
             <form action="{{ route('admin.reporte.egresos_por_fecha') }}" method="GET">

@@ -1,0 +1,6 @@
+body {
+    background-image: url('/assets/img/fondo.jpg'); /* cambia esta ruta */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}

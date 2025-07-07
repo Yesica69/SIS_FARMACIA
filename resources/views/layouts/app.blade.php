@@ -7,6 +7,11 @@
   <title>@yield('title', 'Dashboard')</title>
 
 <!-- Asegúrate de tener estas dependencias en tu head -->
+ 
+<!-- Font Awesome para los iconos -->
+ <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
 integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
@@ -43,9 +48,14 @@ crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- Favicon -->
   <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-icon.png">
   <link rel="icon" type="image/png" href="/img/favicon.png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body class="{{ $class ?? '' }}">
+
+
+
+<body style="background-image: url('{{ asset('assets/img/fondo.jpg') }}'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed;">
+
 
   @guest
     @yield('content')
@@ -56,12 +66,15 @@ crossorigin="anonymous" referrerpolicy="no-referrer" />
       @yield('content')
     @else
       @if (!in_array(request()->route()->getName(), ['profile', 'profile-static']))
-        <div class="min-height-300 bg-primary position-absolute w-100"></div>
-      @else
-        <div class="position-absolute w-100 min-height-300 top-0"
+  <div class="custom-bg-section" 
+       style="background-image: url('{{ asset('assets/img/fondo.jpg') }}')">
+    <div class="custom-bg-overlay w-100 h-100"></div>
+  </div>
+@else
+        <!--<div class="position-absolute w-100 min-height-300 top-0"
              style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/profile-layout-header.jpg'); background-position-y: 50%;">
-          <span class="mask bg-primary opacity-6"></span>
-        </div>
+          <span class="mask bg-success opacity-6"></span>
+        </div>-->
       @endif
 
       @include('layouts.navbars.auth.sidenav')
@@ -73,6 +86,8 @@ crossorigin="anonymous" referrerpolicy="no-referrer" />
   @endauth
 
   <!-- Scripts JS principales -->
+   <!-- Bootstrap Bundle JS -->
+  
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>

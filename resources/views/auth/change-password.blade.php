@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid mt--6">
     <div class="row">
         <!-- Menú Lateral -->
         @include('layouts.navbars.auth.sidenav')
         
         <!-- Contenido principal -->
-        <main class="main-content col-lg-10 col-md-9 col-sm-12 p-0 offset-lg-2 offset-md-3 bg-gray-soft">
+        <main class="main-content col-lg-10 col-md-9 col-sm-6 p-0 offset-lg-2 offset-md-3 bg-gray-soft">
             <!-- Barra superior de navegación -->
             @include('layouts.navbars.auth.topnav', ['title' => 'Cambiar Contraseña'])
             
-            <div class="container-fluid py-4">
+            <div class="container-fluid mt--6">
                 <div class="row justify-content-center">
                     <div class="col-lg-11">
                         <div class="card shadow-lg border-0 rounded-3">

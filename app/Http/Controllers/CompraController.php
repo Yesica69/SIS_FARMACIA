@@ -8,6 +8,9 @@ use App\Models\Producto;
 use App\Models\Caja;
 use App\Models\MovimientoCaja;
 use App\Models\TmpCompra;
+use NumberToWords\NumberToWords;
+
+use NumberFormatter;
 use App\Models\Proveedor;
 use App\Models\Laboratorio;
 use Illuminate\Http\Request;
@@ -371,6 +374,53 @@ private function generarCSV($compras): BinaryFileResponse
 {
     return $this->generarExcel($compras)
         ->setContentDisposition('attachment', 'reporte_compras_'.now()->format('YmdHis').'.csv');
+}
+
+
+
+public function pdf($id) 
+{
+    try {
+        // 1. Obtener datos básicos
+        $id_sucursal = Auth::user()->sucursal_id;
+        $sucursal = Sucursal::findOrFail($id_sucursal);
+        
+        // 2. Obtener la compra con relaciones (ajustado a tu estructura)
+        $compra = Compra::with([
+                'detalles.producto',  // Asegura la relación con productos
+                'laboratorio'        // Relación con laboratorio
+            ])
+            ->where('sucursal_id', $id_sucursal)
+            ->findOrFail($id);
+
+        // 3. Convertir total a letras
+        $literal = $this->numerosALetrasConDecimales($compra->precio_total);
+
+        // 4. Generar PDF con datos específicos
+        $pdf = PDF::loadView('admin.compras.pdf', [
+            'sucursal' => $sucursal,
+            'compra' => $compra,
+            'literal' => $literal,
+            'fecha_generacion' => now()->format('d/m/Y H:i') // Nuevo dato útil
+        ])->setPaper([0, 0, 250.77, 600], 'portrait');
+
+        // 5. Nombre descriptivo del archivo
+        return $pdf->stream("compra-{$compra->comprobante}.pdf");
+
+    } catch (\Exception $e) {
+        Log::error("Error al generar PDF de compra: " . $e->getMessage());
+        return redirect()->route('admin.compras.index')
+            ->with('error', 'No se pudo generar el reporte: ' . $e->getMessage());
+    }
+}
+
+// Función separada (puede estar en un trait o helper)
+private function numerosALetrasConDecimales($numero) {
+    $formatter = new NumberFormatter("es", NumberFormatter::SPELLOUT);
+    $partes = explode('.', number_format($numero, 2, '.', ''));
+    $entero = $formatter->format($partes[0]);
+    $decimal = $formatter->format($partes[1]);
+    return ucfirst("$entero con $decimal/100");
 }
 }
 

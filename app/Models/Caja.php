@@ -23,4 +23,10 @@ class Caja extends Model
         return $this->belongsTo(Sucursal::class);
     }
   
+    protected $casts = [
+    'fecha_apertura' => 'datetime',
+    'fecha_cierre' => 'datetime',
+    'created_at' => 'datetime',
+    'updated_at' => 'datetime'
+];
 }

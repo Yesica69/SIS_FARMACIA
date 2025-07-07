@@ -260,126 +260,349 @@
 </div>
 
 <!-- Modal Ver -->
+<!-- Modal Ver -->
+
 <div class="modal fade" id="verModal{{$caja->id}}" tabindex="-1" aria-labelledby="verModalLabel{{$caja->id}}" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="verModalLabel{{$caja->id}}">Detalles de Caja</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <!-- Encabezado mejorado -->
+            <div class="modal-header bg-gradient-primary text-white">
+                <div class="d-flex align-items-center">
+                    <i class="ni ni-money-coins fs-3 me-2"></i>
+                    <h5 class="modal-title mb-0" id="verModalLabel{{$caja->id}}">Reporte de Caja #{{$caja->id}}</h5>
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-{{$caja->fecha_cierre ? 'success' : 'warning'}} me-2 fs-6">
+                        {{$caja->fecha_cierre ? 'CERRADA' : 'ABIERTA'}}
+                    </span>
+                    <a href="{{ url('/admin/cajas/pdf/' . $caja->id) }}" target="_blank" class="btn btn-sm btn-danger shadow-sm">
+                        <i class="ni ni-single-copy-04 me-1"></i> Exportar PDF
+                    </a>
+                    <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
             </div>
-            <div class="modal-body">
-                <div class="row">
-                    <!-- Datos de Caja -->
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                <h6>Datos de Caja</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label class="form-label">Fecha Apertura</label>
-                                    <input type="text" class="form-control" value="{{$caja->fecha_apertura}}" disabled>
+            
+            <div class="modal-body p-0">
+                <div class="row g-0">
+                    <!-- Panel izquierdo - Datos de Caja -->
+                    <div class="col-lg-4 border-end">
+                        <div class="p-3">
+                            <div class="card border-0 shadow-none">
+                                <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0 fw-bold text-primary">
+                                        <i class="ni ni-collection me-1"></i> Información de Caja
+                                    </h6>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Monto Inicial</label>
-                                    <input type="text" class="form-control" value="{{$caja->monto_inicial}}" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Fecha Cierre</label>
-                                    <input type="text" class="form-control" value="{{$caja->fecha_cierre ?? 'No cerrada'}}" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Monto Final</label>
-                                    <input type="text" class="form-control" value="{{$caja->monto_final ?? 'No cerrada'}}" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Descripción</label>
-                                    <input type="text" class="form-control" value="{{$caja->descripcion}}" disabled>
+                                <div class="card-body">
+                                    <div class="timeline timeline-one-side">
+                                        <!-- Item de línea de tiempo para apertura -->
+                                        <div class="timeline-block mb-3">
+                                            <span class="timeline-step bg-primary">
+                                                <i class="ni ni-check-bold text-white"></i>
+                                            </span>
+                                            <div class="timeline-content">
+                                                <h6 class="text-sm text-muted mb-0">Apertura</h6>
+                                                <p class="text-sm fw-bold mb-0">{{$caja->fecha_apertura->format('d/m/Y H:i')}}</p>
+                                                <p class="text-sm mt-1 mb-0">
+                                                    <span class="badge bg-primary bg-opacity-10 text-white">Bs / {{number_format($caja->monto_inicial, 2)}}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Item de línea de tiempo para cierre (si existe) -->
+                                        @if($caja->fecha_cierre)
+                                        <div class="timeline-block mb-3">
+                                            <span class="timeline-step bg-success">
+                                                <i class="ni ni-lock-circle-open text-white"></i>
+                                            </span>
+                                            <div class="timeline-content">
+                                                <h6 class="text-sm text-muted mb-0">Cierre</h6>
+                                                <p class="text-sm fw-bold mb-0">{{$caja->fecha_cierre->format('d/m/Y H:i')}}</p>
+                                                <p class="text-sm mt-1 mb-0">
+                                                    <span class="badge bg-success bg-opacity-10 text-white">Bs / {{number_format($caja->monto_final, 2)}}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        @endif
+                                        
+                                        <!-- Resumen rápido -->
+                                        <div class="timeline-block">
+                                            <span class="timeline-step bg-info">
+                                                <i class="ni ni-chart-bar-32 text-white"></i>
+                                            </span>
+                                            <div class="timeline-content">
+                                                <h6 class="text-sm text-muted mb-0">Balance</h6>
+                                                <p class="text-sm fw-bold mb-1">
+                                                    @php
+                                                        $totalIngresos = $caja->movimientos->where('tipo', 'INGRESO')->sum('monto');
+                                                        $totalEgresos = $caja->movimientos->where('tipo', 'EGRESO')->sum('monto');
+                                                        $saldoFinal = $caja->monto_inicial + $totalIngresos - $totalEgresos;
+                                                    @endphp
+                                                    <span class="badge bg-success bg-opacity-10 text-white me-1">
+                                                        +Bs/ {{number_format($totalIngresos, 2)}}
+                                                    </span>
+                                                    <span class="badge bg-danger bg-opacity-10 text-white me-1">
+                                                        -Bs/ {{number_format($totalEgresos, 2)}}
+                                                    </span>
+                                                </p>
+                                                <p class="text-sm fw-bold mb-0">
+                                                    <span class="badge bg-dark bg-opacity-10 text-white">
+                                                        Total: Bs/ {{number_format($saldoFinal, 2)}}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Descripción -->
+                                    <div class="mt-4">
+                                        <label class="form-label fw-bold">Notas</label>
+                                        <div class="border rounded p-3 bg-light">
+                                            {{$caja->descripcion ?: 'Sin observaciones'}}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Ingresos -->
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                <h6>Ingresos</h6>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr class="text-center">
-                                            <th>N°</th>
-                                            <th>Detalle</th>
-                                            <th>Monto</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @php $i = 1; @endphp
-                                        @foreach($caja->movimientos->where('tipo', 'INGRESO') as $ingreso)
-                                        <tr>
-                                            <td class="text-center">{{$i++}}</td>
-                                            <td>{{$ingreso->descripcion}}</td>
-                                            <td>{{number_format($ingreso->monto, 2, '.', '.')}}</td>
-                                        </tr>
+                    <!-- Panel derecho - Detalles de movimientos -->
+                    <div class="col-lg-8">
+                        <div class="p-3">
+                            <!-- Pestañas mejoradas -->
+                            <ul class="nav nav-pills nav-fill mb-4" id="cajaTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active d-flex align-items-center justify-content-center"
+            id="ingresos-tab" data-bs-toggle="pill" data-bs-target="#ingresos{{$caja->id}}"
+            type="button" role="tab">
+            <i class="ni ni-bold-up me-2"></i> Ingresos
+            <span class="badge bg-success ms-2">{{$caja->movimientos->where('tipo', 'INGRESO')->count()}}</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link d-flex align-items-center justify-content-center"
+            id="egresos-tab" data-bs-toggle="pill" data-bs-target="#egresos{{$caja->id}}"
+            type="button" role="tab">
+            <i class="ni ni-bold-down me-2"></i> Egresos
+            <span class="badge bg-danger ms-2">{{$caja->movimientos->where('tipo', 'EGRESO')->count()}}</span>
+        </button>
+    </li>
+    
+        </ul>
+                            
+                            <!-- Contenido de pestañas -->
+                            <div class="tab-content" id="cajaTabContent">
+                                <!-- Pestaña de Ingresos -->
+                                <div class="tab-pane fade show active" id="ingresos{{$caja->id}}" role="tabpanel">
+                                    @if($caja->movimientos->where('tipo', 'INGRESO')->count() > 0)
+                                    <div class="accordion" id="ingresosAccordion{{$caja->id}}">
+                                        @foreach($caja->movimientos->where('tipo', 'INGRESO')->groupBy('descripcion') as $descripcion => $ingresos)
+                                        <div class="accordion-item border-0 shadow-sm mb-3">
+                                            <h2 class="accordion-header" id="headingIngreso{{$loop->index}}{{$caja->id}}">
+                                                <button class="accordion-button collapsed shadow-none bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIngreso{{$loop->index}}{{$caja->id}}">
+                                                    <div class="d-flex justify-content-between w-100 align-items-center">
+                                                        <div>
+                                                            <span class="fw-bold">{{$descripcion}}</span>
+                                                            <span class="badge bg-primary bg-opacity-10 text-white ms-2">{{count($ingresos)}}</span>
+                                                        </div>
+                                                        <span class="badge bg-success">Bs/ {{number_format($ingresos->sum('monto'), 2)}}</span>
+                                                    </div>
+                                                </button>
+                                            </h2>
+                                            <div id="collapseIngreso{{$loop->index}}{{$caja->id}}" class="accordion-collapse collapse" data-bs-parent="#ingresosAccordion{{$caja->id}}">
+                                                <div class="accordion-body p-0">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover align-items-center mb-0">
+                                                            <thead class="bg-light">
+                                                                <tr>
+                                                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Hora</th>
+                                                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Detalle</th>
+                                                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Monto</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach($ingresos as $ingreso)
+                                                                <tr>
+                                                                    <td class="ps-4">
+                                                                        <p class="text-xs font-weight-bold mb-0">{{$ingreso->created_at->format('H:i')}}</p>
+                                                                    </td>
+                                                                    <td>
+                                                                        @if($ingreso->venta_id)
+                                                                            <a href="{{route('admin.ventas.show', $ingreso->venta_id)}}" class="text-primary text-sm font-weight-bold">
+                                                                                <i class="ni ni-cart me-1"></i> Venta #{{$ingreso->venta_id}}
+                                                                            </a>
+                                                                        @else
+                                                                            <p class="text-sm font-weight-bold mb-0">{{$ingreso->descripcion}}</p>
+                                                                        @endif
+                                                                    </td>
+                                                                    <td class="pe-4 text-end">
+                                                                        <span class="text-success text-sm font-weight-bold">Bs/ {{number_format($ingreso->monto, 2)}}</span>
+                                                                    </td>
+                                                                </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         @endforeach
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="2" class="text-center"><b>Total</b></td>
-                                            <td><b>{{number_format($caja->movimientos->where('tipo', 'INGRESO')->sum('monto'), 2, '.', '.')}}</b></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Egresos -->
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                <h6>Egresos</h6>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr class="text-center">
-                                            <th>N°</th>
-                                            <th>Detalle</th>
-                                            <th>Monto</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @php $e = 1; @endphp
-                                        @foreach($caja->movimientos->where('tipo', 'EGRESO') as $egreso)
-                                        <tr>
-                                            <td class="text-center">{{$e++}}</td>
-                                            <td>{{$egreso->descripcion}}</td>
-                                            <td>{{ number_format($egreso->monto, 0, '.', '.') }}</td>
-                                        </tr>
+                                    </div>
+                                    @else
+                                    <div class="text-center py-5">
+                                        <i class="ni ni-money-coins fs-1 text-muted opacity-5"></i>
+                                        <h6 class="mt-3 text-muted">No hay ingresos registrados</h6>
+                                    </div>
+                                    @endif
+                                </div>
+                                
+                                <!-- Pestaña de Egresos -->
+                                <div class="tab-pane fade" id="egresos{{$caja->id}}" role="tabpanel">
+                                    @if($caja->movimientos->where('tipo', 'EGRESO')->count() > 0)
+                                    <div class="accordion" id="egresosAccordion{{$caja->id}}">
+                                        @foreach($caja->movimientos->where('tipo', 'EGRESO')->groupBy('descripcion') as $descripcion => $egresos)
+                                        <div class="accordion-item border-0 shadow-sm mb-3">
+                                            <h2 class="accordion-header" id="headingEgreso{{$loop->index}}{{$caja->id}}">
+                                                <button class="accordion-button collapsed shadow-none bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEgreso{{$loop->index}}{{$caja->id}}">
+                                                    <div class="d-flex justify-content-between w-100 align-items-center">
+                                                        <div>
+                                                            <span class="fw-bold">{{$descripcion}}</span>
+                                                            <span class="badge bg-primary bg-opacity-10 text-white ms-2">{{count($egresos)}}</span>
+                                                        </div>
+                                                        <span class="badge bg-danger">Bs/ {{number_format($egresos->sum('monto'), 2)}}</span>
+                                                    </div>
+                                                </button>
+                                            </h2>
+                                            <div id="collapseEgreso{{$loop->index}}{{$caja->id}}" class="accordion-collapse collapse" data-bs-parent="#egresosAccordion{{$caja->id}}">
+                                                <div class="accordion-body p-0">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover align-items-center mb-0">
+                                                            <thead class="bg-light">
+                                                                <tr>
+                                                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Hora</th>
+                                                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Detalle</th>
+                                                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Monto</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach($egresos as $egreso)
+                                                                <tr>
+                                                                    <td class="ps-4">
+                                                                        <p class="text-xs font-weight-bold mb-0">{{$egreso->created_at->format('H:i')}}</p>
+                                                                    </td>
+                                                                    <td>
+                                                                        @if($egreso->compra_id)
+                                                                            <a href="{{route('admin.compras.show', $egreso->compra_id)}}" class="text-primary text-sm font-weight-bold">
+                                                                                <i class="ni ni-box-2 me-1"></i> Compra #{{$egreso->compra_id}}
+                                                                            </a>
+                                                                        @else
+                                                                            <p class="text-sm font-weight-bold mb-0">{{$egreso->descripcion}}</p>
+                                                                        @endif
+                                                                    </td>
+                                                                    <td class="pe-4 text-end">
+                                                                        <span class="text-danger text-sm font-weight-bold">Bs/ {{number_format($egreso->monto, 2)}}</span>
+                                                                    </td>
+                                                                </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         @endforeach
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="2" class="text-center"><b>Total</b></td>
-                                            <td><b>{{number_format($caja->movimientos->where('tipo', 'EGRESO')->sum('monto'), 2, '.', '.')}}</b></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
+                                    </div>
+                                    @else
+                                    <div class="text-center py-5">
+                                        <i class="ni ni-money-coins fs-1 text-muted opacity-5"></i>
+                                        <h6 class="mt-3 text-muted">No hay egresos registrados</h6>
+                                    </div>
+                                    @endif
+                                </div>
+                                
+                                
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
+            
+            
         </div>
     </div>
 </div>
 
+
+
+@push('js')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Verifica que los elementos canvas existan
+    const ingresosCanvas = document.getElementById('ingresosChart{{$caja->id}}');
+    const egresosCanvas = document.getElementById('egresosChart{{$caja->id}}');
+    
+    if (!ingresosCanvas || !egresosCanvas) {
+        console.error('No se encontraron los elementos canvas');
+        return;
+    }
+
+    // Datos para debugging
+    console.log('Datos ingresos:', {!! json_encode($caja->movimientos->where('tipo', 'INGRESO')->groupBy('descripcion')->keys()) !!});
+    console.log('Valores ingresos:', {!! json_encode($caja->movimientos->where('tipo', 'INGRESO')->groupBy('descripcion')->map->sum('monto')->values()) !!});
+
+    // Gráfico de Ingresos
+    try {
+        new Chart(ingresosCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: {!! json_encode($caja->movimientos->where('tipo', 'INGRESO')->groupBy('descripcion')->keys()) !!},
+                datasets: [{
+                    data: {!! json_encode($caja->movimientos->where('tipo', 'INGRESO')->groupBy('descripcion')->map->sum('monto')->values()) !!},
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error al crear gráfico de ingresos:', error);
+    }
+
+    // Gráfico de Egresos
+    try {
+        new Chart(egresosCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: {!! json_encode($caja->movimientos->where('tipo', 'EGRESO')->groupBy('descripcion')->keys()) !!},
+                datasets: [{
+                    data: {!! json_encode($caja->movimientos->where('tipo', 'EGRESO')->groupBy('descripcion')->map->sum('monto')->values()) !!},
+                    backgroundColor: ['#e74a3b', '#f6c23e', '#858796', '#5a5c69']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error al crear gráfico de egresos:', error);
+    }
+});
+</script>
+@endpush
 <!-- Modal Editar -->
 <div class="modal fade" id="editarModal{{$caja->id}}" tabindex="-1" aria-labelledby="editarModalLabel{{$caja->id}}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

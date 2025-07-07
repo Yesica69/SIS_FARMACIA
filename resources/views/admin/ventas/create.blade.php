@@ -58,8 +58,8 @@
                                     <td class="text-center">{{$tmp_venta->producto->codigo}}</td>
                                     <td class="text-center">{{$tmp_venta->cantidad}}</td>
                                     <td>{{$tmp_venta->producto->nombre}}</td>
-                                    <td class="text-center">${{number_format($tmp_venta->producto->precio_venta, 2)}}</td>
-                                    <td class="text-center">${{number_format($costo = $tmp_venta->cantidad * $tmp_venta->producto->precio_venta, 2)}}</td>
+                                    <td class="text-center">Bs {{number_format($tmp_venta->producto->precio_venta, 2)}}</td>
+                                    <td class="text-center">Bs {{number_format($costo = $tmp_venta->cantidad * $tmp_venta->producto->precio_venta, 2)}}</td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="{{$tmp_venta->id}}">
                                             <i class="fas fa-trash"></i>
@@ -77,7 +77,7 @@
                                     <th colspan="2" class="text-end">TOTAL</th>
                                     <th class="text-center">{{$total_cantidad}}</th>
                                     <th colspan="2" class="text-end">TOTAL VENTA</th>
-                                    <th class="text-center text-primary">${{number_format($total_venta, 2)}}</th>
+                                    <th class="text-center text-primary">Bs {{number_format($total_venta, 2)}}</th>
                                     <th></th>
                                 </tr>
                             </tfoot>
@@ -134,7 +134,7 @@
                         <div class="mb-4">
                             <label class="form-label">Total a Pagar</label>
                             <input type="text" class="form-control form-control-lg text-center fw-bold text-white bg-success" 
-                                   value="${{number_format($total_venta, 2)}}" readonly>
+                                   value="Bs {{number_format($total_venta, 2)}}" readonly>
                             <input type="hidden" name="precio_total" value="{{$total_venta}}">
                         </div>
 

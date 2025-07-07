@@ -173,6 +173,8 @@ Route::delete('/admin/laboratorios/{id}', [App\Http\Controllers\LaboratorioContr
      ->where('tipo', 'pdf|excel|csv')
      ->name('admin.compras.reporte');
 
+
+     Route::get('/admin/compras/pdf/{id}', [App\Http\Controllers\CompraController::class, 'pdf'])->name('admin.compras.pdf')->middleware('auth');
        //tmp
        Route::post('/admin/compras/create/tmp', [App\Http\Controllers\TmpCompraController::class, 'tmp_compras'])->name('admin.compras.tmp_compras')->middleware('auth');
        Route::delete('/admin/compras/create/tmp/{id}', [App\Http\Controllers\TmpCompraController::class, 'destroy'])->name('admin.compras.tmp_compras.destroy')->middleware('auth');
@@ -237,6 +239,11 @@ Route::get('/admin/ventas/pdf/{id}', [App\Http\Controllers\VentaController::clas
  Route::get('/admin/cajas/reporte/{tipo}', [App\Http\Controllers\CajaController::class, 'reportecaja'])
      ->where('tipo', 'pdf|excel|csv')
      ->name('admin.cajas.reporte');
+
+     
+     Route::get('/admin/cajas/pdf/{id}', [App\Http\Controllers\CajaController::class, 'pdf'])
+     ->name('admin.cajas.pdf')
+     ->middleware('auth');
 
 
      // ruta de ingreso

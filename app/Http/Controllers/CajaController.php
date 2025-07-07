@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Caja;
-use Barryvdh\DomPDF\Facade\Pdf; 
+
+use PDF; 
 use App\Models\Sucursal;
 use App\Models\MovimientoCaja;
 
@@ -19,6 +20,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 use Maatwebsite\Excel\Facades\Excel;
+use NumberToWords\NumberToWords;
+
+use NumberFormatter;
 
 use Carbon\Carbon;
 
@@ -82,21 +86,29 @@ class CajaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+public function show($id)
 {
-    // Obtener la caja por el id
-    $caja = Caja::find($id); // 'find' ya devuelve un único modelo, no necesitas usar 'first()'
+    $caja = Caja::with([
+        'movimientos.venta.detalles.producto', // Cambié detalleventa a detalles
+        'movimientos.venta.cliente',
+        'movimientos.compra.detalles.producto', // Cambié detallecompra a detalles
+        'movimientos.compra.proveedor',
+        'sucursal'
+    ])->findOrFail($id);
 
-    // Obtener los movimientos asociados a esa caja
-    $movimientos = MovimientoCaja::where('caja_id', $id)->get();
+    // Debug adicional para verificar datos
+    logger('Detalles de ventas cargados:', [
+        'ventas' => $caja->movimientos->where('tipo', 'INGRESO')
+                      ->pluck('venta')->filter()->pluck('detalles')
+    ]);
 
-    // Retornar la vista con los datos de la caja y los movimientos
-    return view('admin.cajas.show', compact('caja', 'movimientos')); // Se pasa 'movimientos'
+    return view('admin.cajas.show', [
+        'caja' => $caja,
+        'totalIngresos' => $caja->movimientos->where('tipo', 'INGRESO')->sum('monto'),
+        'totalEgresos' => $caja->movimientos->where('tipo', 'EGRESO')->sum('monto')
+    ]);
 }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
+    
     public function edit(Caja $caja, $id)
     {
         //
@@ -392,5 +404,59 @@ class CajaController extends Controller
     }
 
  
+public function pdf($id) 
+{
+    try {
+        // 1. Obtener la caja con sus relaciones
+        $caja = Caja::with(['movimientos', 'sucursal'])->findOrFail($id);
 
+      
+    
+    // Convertir fechas a Carbon
+    $caja->fecha_apertura = \Carbon\Carbon::parse($caja->fecha_apertura);
+    if ($caja->fecha_cierre) {
+        $caja->fecha_cierre = \Carbon\Carbon::parse($caja->fecha_cierre);
+    }
+        
+        // 2. Obtener la sucursal desde la relación de la caja
+        $sucursal = $caja->sucursal;
+        
+        // Verificar si existe la sucursal
+        if (!$sucursal) {
+            throw new \Exception("No se encontró la sucursal asociada a esta caja");
+        }
+
+        // 3. Calcular totales
+        $totalIngresos = $caja->movimientos->where('tipo', 'INGRESO')->sum('monto');
+        $totalEgresos = $caja->movimientos->where('tipo', 'EGRESO')->sum('monto');
+        $saldoFinal = ($caja->monto_inicial + $totalIngresos) - $totalEgresos;
+
+        // 4. Generar PDF
+        $pdf = PDF::loadView('admin.cajas.pdf', [
+            'sucursal' => $sucursal, // Asegúrate de pasar la variable
+            'caja' => $caja,
+            'totalIngresos' => $totalIngresos,
+            'totalEgresos' => $totalEgresos,
+            'saldoFinal' => $saldoFinal,
+            'movimientos' => $caja->movimientos,
+            'fecha_generacion' => now()->format('d/m/Y H:i')
+        ]);
+
+        return $pdf->stream("reporte-caja-{$id}.pdf");
+
+    } catch (\Exception $e) {
+        Log::error("Error al generar PDF de caja: " . $e->getMessage());
+        return redirect()->route('admin.cajas.show', $id)
+            ->with('error', 'Error al generar PDF: ' . $e->getMessage());
+    }
+}
+
+// Función separada (puede estar en un trait o helper)
+private function numerosALetrasConDecimales($numero) {
+    $formatter = new NumberFormatter("es", NumberFormatter::SPELLOUT);
+    $partes = explode('.', number_format($numero, 2, '.', ''));
+    $entero = $formatter->format($partes[0]);
+    $decimal = $formatter->format($partes[1]);
+    return ucfirst("$entero con $decimal/100");
+}
 }
