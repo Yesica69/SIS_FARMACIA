@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('lotes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('producto_id');
+            
+             $table->foreignId('producto_id')->nullable()->change();  // ⬅️ Hace el campo opcional
             $table->string('numero_lote');
             $table->date('fecha_ingreso')->nullable();
            

@@ -1,186 +1,165 @@
 <?php
 
+
+
 namespace App\Http\Controllers;
+
 use App\Models\Categoria;
-use App\Models\Laboratorio;  
+use App\Models\Laboratorio;
+use App\Models\Lote;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Producto;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-
 use Carbon\Carbon;
+use PDF;
 
-use DatePeriod; // Importación añadida
-use DateInterval; // Importación añadida
-use DateTime; // Importación añadida
-// Asegúrate de tener este modelo para acceder a los datos de ingresos
-use PDF; 
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class ProductoController extends Controller
 {
-  
     public function index()
     {
-        
-
-        $productos = Producto::with('categoria', 'laboratorio')->get();
-        $categorias = Categoria::all(); // Asegura que se pase a la vista correcta
+        $productos = Producto::with(['categoria', 'laboratorio', 'lotes'])->get();
+        $categorias = Categoria::all();
         $laboratorios = Laboratorio::all();
         
-        return view('admin.productos.index', compact('productos', 'categorias','laboratorios'));
-     
+        return view('admin.productos.index', compact('productos', 'categorias', 'laboratorios'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $laboratorios = Laboratorio::all();
-        $categorias = Categoria::all();  // Obtener todas las categorías
-        return view('admin.productos.create', compact('categorias','laboratorios'));
+        $categorias = Categoria::all();
+        return view('admin.productos.create', compact('categorias', 'laboratorios'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        // $datos = request()->all();
-        //return response()->json($datos);
-//VALIDACION DE LOS DATOS DE ENTRDAD
         $request->validate([
-            'codigo'=>'required|unique:productos,codigo',
-            'nombre'=>'required',
-            'stock'=>'required',
-            'stock_minimo'=>'required',
-            'stock_maximo'=>'required',
-            'precio_compra'=>'required',
-            'precio_venta'=>'required',
-            'descripcion'=>'required',
-            'fecha_ingreso'=>'required',
-            'fecha_vencimiento' => 'nullable|date', // No es obligatorio
-            
-            'imagen'=>'required|image|mimes:jpg, jpeg,png',
-            
+            'codigo' => 'required|unique:productos,codigo',
+            'nombre' => 'required',
+            'stock_minimo' => 'required',
+            'stock_maximo' => 'required',
+            'descripcion' => 'required',
+            'imagen' => 'required|image|mimes:jpg,jpeg,png',
         ]);
-        //nuevo procuctos
+
         $producto = new Producto();
         $producto->codigo = $request->codigo;
         $producto->nombre = $request->nombre;
         $producto->descripcion = $request->descripcion;
-        $producto->stock = $request->stock;
         $producto->stock_minimo = $request->stock_minimo;
         $producto->stock_maximo = $request->stock_maximo;
-        $producto->precio_compra = $request->precio_compra;
-        $producto->precio_venta = $request->precio_venta;
-        $producto->fecha_ingreso = $request->fecha_ingreso;
-        $producto->fecha_vencimiento = $request->fecha_vencimiento;
         $producto->categoria_id = $request->categoria_id;
         $producto->laboratorio_id = $request->laboratorio_id;
         $producto->sucursal_id = Auth::user()->sucursal_id;
-        //SI HAY UNA IMAGEN Q 
+
         if($request->hasFile('imagen')){
-            //SE ELIMINA DE LA CARPETA
             $producto->imagen = $request->file('imagen')->store('productos', 'public');
-            
         }
 
         $producto->save();
-        
-        return redirect()->route('admin.productos.index')
-        ->with('mensaje','Se registro el producto')
-        ->with('icono','success');
 
+        return redirect()->route('admin.productos.index')
+            ->with('mensaje', 'Se registró el producto')
+            ->with('icono', 'success');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        $producto = Producto::findOrFail($id); // Buscar el usuario por id
-        return view('admin.productos.show', compact('producto')); // retornar la vista para mostrar detalles del usuario
+        $producto = Producto::with('lotes')->findOrFail($id);
+        return view('admin.productos.show', compact('producto'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit( $id)
+    public function edit($id)
+    {
+        $producto = Producto::find($id);
+        $categorias = Categoria::all();
+        $laboratorios = Laboratorio::all();
+        return view('admin.productos.edit', compact('producto', 'categorias', 'laboratorios'));
+    }
+
+  public function update(Request $request, $id)
 {
-    $producto = Producto::find($id);
-    $categorias = Categoria::all(); // Esto obtiene todas las categorías
-    return view('admin.productos.edit', compact('producto', 'categorias')); // Se pasan ambas variables a la vista
+    $request->validate([
+        'codigo' => 'required|unique:productos,codigo,' . $id,
+        'nombre' => 'required',
+        'stock_minimo' => 'required|integer',
+        'stock_maximo' => 'required|integer',
+        'descripcion' => 'required',
+        'imagen' => 'nullable|image|mimes:jpg,jpeg,png',
+        'precio_compra' => 'required|numeric|min:0',
+        'precio_venta' => 'required|numeric|min:0',
+        'fecha_ingreso' => 'required|date',
+        'fecha_vencimiento' => 'nullable|date',
+        'cantidad' => 'required|integer|min:1'
+    ]);
+
+    // Actualizar el producto
+    $producto = Producto::findOrFail($id);
+
+    $producto->update([
+        'codigo' => $request->codigo,
+        'nombre' => $request->nombre,
+        'descripcion' => $request->descripcion,
+        'stock_minimo' => $request->stock_minimo,
+        'stock_maximo' => $request->stock_maximo,
+        'categoria_id' => $request->categoria_id,
+        'laboratorio_id' => $request->laboratorio_id
+    ]);
+
+    // Manejar la imagen si se subió una nueva
+    if ($request->hasFile('imagen')) {
+        // Eliminar imagen anterior si existe
+        if ($producto->imagen) {
+            Storage::delete('public/' . $producto->imagen);
+        }
+        
+        $producto->imagen = $request->file('imagen')->store('productos', 'public');
+        $producto->save();
+    }
+
+    // Manejar el lote del producto
+    $loteData = [
+        'precio_compra' => $request->precio_compra,
+        'precio_venta' => $request->precio_venta,
+        'fecha_ingreso' => $request->fecha_ingreso,
+        'fecha_vencimiento' => $request->fecha_vencimiento,
+        'cantidad' => $request->cantidad
+    ];
+
+    if ($request->has('lote_id') && $request->lote_id) {
+        // Actualizar lote existente
+        $lote = Lote::findOrFail($request->lote_id);
+        $lote->update($loteData);
+    } else {
+        // Crear nuevo lote
+        $loteData['producto_id'] = $producto->id;
+        $loteData['numero_lote'] = 'LOTE-' . strtoupper(Str::random(6));
+        Lote::create($loteData);
+    }
+
+    return redirect()->route('admin.productos.index')
+        ->with('mensaje', 'Producto actualizado correctamente')
+        ->with('icono', 'success');
 }
 
-    public function update(Request $request, $id)
-    {
-        // $datos = request()->all();
-        //return response()->json($datos);
-
-        //VALIDACION DE LOS DATOS DE ENTRDAD
-        $request->validate([
-            'codigo' => 'required|unique:productos,codigo,' . $id,
-            'nombre' => 'required',
-            'stock' => 'required|integer',
-            'stock_minimo' => 'required|integer',
-            'stock_maximo' => 'required|integer',
-            'precio_compra' => 'required|numeric',
-            'precio_venta' => 'required|numeric',
-            'descripcion' => 'required',
-            'fecha_ingreso' => 'required|date',
-            'fecha_vencimiento' => 'nullable|date', // No es obligatorio
-            'imagen' => 'nullable|image|mimes:jpg,jpeg,png', // Hacer la imagen opcional
-        ]);
-        
-
-
-        //reemplazar procuctos
-        $producto = Producto::find($id);
-        $producto->codigo = $request->codigo;
-        $producto->nombre = $request->nombre;
-        $producto->descripcion = $request->descripcion;
-        $producto->stock = $request->stock;
-        $producto->stock_minimo = $request->stock_minimo;
-        $producto->stock_maximo = $request->stock_maximo;
-        $producto->precio_compra = $request->precio_compra;
-        $producto->precio_venta = $request->precio_venta;
-        $producto->fecha_ingreso = $request->fecha_ingreso;
-        $producto->fecha_vencimiento = $request->fecha_vencimiento;
-        $producto->categoria_id = $request->categoria_id;
-        $producto->laboratorio_id = $request->laboratorio_id;
-
-     //SI HAY UNA IMAGEN Q 
-     if($request->hasFile('imagen')){
-        //SE ELIMINA DE LA CARPETA
-        Storage::delete('public/'.$producto->imagen);
-
-    $producto->imagen = $request->file('imagen')->store('productos', 'public');
-    }
-
-        $producto->save();
-        
-        return redirect()->route('admin.productos.index')
-        ->with('mensaje','Se actualizo el producto')
-        ->with('icono','success');
-
-    }
-
-  
     public function destroy($id)
     {
         $producto = Producto::find($id);
         Storage::delete('public/'.$producto->imagen);
-        Producto::destroy($id); // Buscar el usuario por ID
+        
+        // Eliminar los lotes asociados primero
+        $producto->lotes()->delete();
+        $producto->delete();
 
-      
-
-        // Redirigir al índice con un mensaje de éxito
         return redirect()->route('admin.productos.index')
-            ->with('mensaje', 'Se elimino con éxito.')
+            ->with('mensaje', 'Se eliminó con éxito.')
             ->with('icono', 'success');
     }
+
+
+
     public function buscar(Request $request)
     {
         $term = $request->input('term');
@@ -209,7 +188,7 @@ class ProductoController extends Controller
 }
 
 
- public function generarReporte($tipo, Request $request)
+    public function generarReporte($tipo, Request $request)
     {
         // Validación del tipo de reporte
         if (!in_array($tipo, ['pdf', 'excel', 'csv'])) {
@@ -300,35 +279,101 @@ class ProductoController extends Controller
         return $pdf->download('reporte_productos_'.now()->format('YmdHis').'.pdf');
     }
 
-    private function generarExcel($productos)
-    {
-        $data = $productos->map(function ($producto) {
+  private function generarExcel($productos)
+{
+    $data = $productos->map(function ($producto) {
+        // Si el producto tiene lotes, usamos los datos del primer lote
+        if ($producto->lotes->isNotEmpty()) {
+            $lote = $producto->lotes->first();
             return [
                 'Código' => $producto->codigo,
                 'Nombre' => $producto->nombre,
-                'Descripción' => $producto->descripcion,
-                'Categoría' => $producto->categoria->nombre,
-                'Laboratorio' => $producto->laboratorio->nombre,
-                'Stock' => $producto->stock,
+                'Descripción' => $producto->descripcion ?? 'N/A',
+                'Categoría' => $producto->categoria->nombre ?? 'N/A',
+                'Laboratorio' => $producto->laboratorio->nombre ?? 'N/A',
+                'Stock' => $producto->lotes->sum('cantidad'), // Suma de todos los lotes
                 'Stock Mínimo' => $producto->stock_minimo,
                 'Stock Máximo' => $producto->stock_maximo,
-                'Precio Compra' => $producto->precio_compra,
-                'Precio Venta' => $producto->precio_venta,
-                'Fecha Ingreso' => $producto->fecha_ingreso->format('d/m/Y'),
-                'Fecha Vencimiento' => $producto->fecha_vencimiento?->format('d/m/Y') ?? 'N/A',
-                
+                'Precio Compra' => $lote->precio_compra,
+                'Precio Venta' => $lote->precio_venta,
+                'Fecha Ingreso' => $lote->fecha_ingreso->format('d/m/Y'),
+                'Fecha Vencimiento' => $producto->lotes->pluck('fecha_vencimiento')
+                    ->filter()
+                    ->min()?->format('d/m/Y') ?? 'N/A' // Fecha más próxima a vencer
             ];
-        });
+        }
 
-        return Excel::download(
-            new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection {
-                private $data;
-                public function __construct($data) { $this->data = $data; }
-                public function collection() { return $this->data; }
-            },
-            'reporte_productos_'.now()->format('YmdHis').'.xlsx'
-        );
-    }
+        // Para productos sin lotes
+        return [
+            'Código' => $producto->codigo,
+            'Nombre' => $producto->nombre,
+            'Descripción' => $producto->descripcion ?? 'N/A',
+            'Categoría' => $producto->categoria->nombre ?? 'N/A',
+            'Laboratorio' => $producto->laboratorio->nombre ?? 'N/A',
+            'Stock' => 0,
+            'Stock Mínimo' => $producto->stock_minimo,
+            'Stock Máximo' => $producto->stock_maximo,
+            'Precio Compra' => 'N/A',
+            'Precio Venta' => 'N/A',
+            'Fecha Ingreso' => 'N/A',
+            'Fecha Vencimiento' => 'N/A'
+        ];
+    });
+
+    return Excel::download(
+        new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection,
+                               \Maatwebsite\Excel\Concerns\WithHeadings,
+                               \Maatwebsite\Excel\Concerns\WithStyles,
+                               \Maatwebsite\Excel\Concerns\ShouldAutoSize {
+            
+            private $data;
+            
+            public function __construct($data) {
+                $this->data = collect($data);
+            }
+            
+            public function collection() {
+                return $this->data;
+            }
+            
+            public function headings(): array {
+                return [
+                    'Código',
+                    'Nombre',
+                    'Descripción',
+                    'Categoría',
+                    'Laboratorio',
+                    'Stock',
+                    'Stock Mínimo',
+                    'Stock Máximo',
+                    'Precio Compra',
+                    'Precio Venta',
+                    'Fecha Ingreso',
+                    'Fecha Vencimiento'
+                ];
+            }
+            
+            public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet) {
+                return [
+                    // Estilo encabezados
+                    1 => [
+                        'font' => ['bold' => true],
+                        'alignment' => ['horizontal' => 'center']
+                    ],
+                    // Estilo cuerpo
+                    'A2:L' . $sheet->getHighestRow() => [
+                        'alignment' => ['vertical' => 'center']
+                    ],
+                    // Centrar datos numéricos
+                    'F2:L' . $sheet->getHighestRow() => [
+                        'alignment' => ['horizontal' => 'center']
+                    ]
+                ];
+            }
+        },
+        'reporte_productos_' . now()->format('YmdHis') . '.xlsx'
+    );
+}
 
     private function generarCSV($productos): BinaryFileResponse
     {

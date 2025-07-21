@@ -9,24 +9,55 @@
         <div class="col-12 mb-4">
             <div class="card shadow-sm border-0">
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center bg-white">
-                    <h6 class="mb-0">
-                        <i class="fas fa-users me-2 text-primary"></i>
-                        <strong>GESTIÓN DE USUARIOS</strong>
-                    </h6>
-                    <div>
-                        <span class="badge bg-primary bg-opacity-10 text-black me-3">
-                            <i class="fas fa-users me-1"></i> Total: {{ count($usuarios) }}
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-users fa-lg me-3 text-primary"></i>
+                        <h6 class="mb-0"><strong>GESTIÓN DE USUARIOS</strong></h6>
+                    </div>
+                    
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-gradient-info me-3">
+                            {{ count($usuarios) }} usuarios 
                         </span>
-                        <a href="{{ url('/admin/roles/reporte') }}" target="_blank" class="btn btn-sm btn-danger me-2">
-                            <i class="ni ni-single-copy-04 me-1"></i> Reporte
-                        </a>
+                        
+                        <div class="dropdown me-2">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                    title="Exportar reporte en diferentes formatos">
+                                <i class="fas fa-download me-1"></i> Exportar
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.usuarios.reporte', ['tipo' => 'pdf']) }}?rol={{ request('rol') }}&sucursal={{ request('sucursal') }}&estado={{ request('estado') }}"
+                                    title="Exportar a PDF" target="_blank">
+                                        <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.usuarios.reporte', ['tipo' => 'excel']) }}?rol={{ request('rol') }}&sucursal={{ request('sucursal') }}&estado={{ request('estado') }}"
+                                    title="Exportar a Excel">
+                                        <i class="fas fa-file-excel text-success me-2"></i> Excel
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.usuarios.reporte', ['tipo' => 'csv']) }}?rol={{ request('rol') }}&sucursal={{ request('sucursal') }}&estado={{ request('estado') }}"
+                                    title="Exportar a CSV">
+                                        <i class="fas fa-file-csv text-info me-2"></i> CSV
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                            </ul>
+                        </div>
+
                         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
-                            <i class="ni ni-fat-add me-1"></i> Nuevo
+                            <i class="fas fa-plus-circle me-1"></i> Nuevo
                         </button>
                     </div>
                 </div>
-            </div>
         </div>
+    </div>
 
         <!-- Cards de Usuarios -->
         @foreach($usuarios as $usuario)
@@ -73,17 +104,31 @@
                 </div>
                 <div class="card-footer bg-white border-0 pt-0 pb-3">
                     <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-sm btn-icon btn-outline-primary rounded-circle me-2" 
-                            data-bs-toggle="modal" data-bs-target="#verModal{{ $usuario->id }}"
-                            data-bs-toggle="tooltip" title="Ver detalles">
+                        <button 
+                            type="button" 
+                            class="btn btn-sm btn-icon btn-outline-info rounded-2 me-2" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#verModal{{ $usuario->id }}"
+                            data-bs-toggle="tooltip" 
+                            title="Ver detalles"
+                        >
                             <i class="fas fa-eye"></i>
                         </button>
+
                         
-                        <button type="button" class="btn btn-sm btn-icon btn-outline-success rounded-circle me-2" 
-                            data-bs-toggle="modal" data-bs-target="#editarModal{{ $usuario->id }}"
-                            data-bs-toggle="tooltip" title="Editar">
+                        
+                        
+                        <button 
+                        type="button" 
+                       class="btn btn-sm btn-icon btn-outline-success rounded-2 me-2" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editarModal{{ $usuario->id }}"
+                            data-bs-toggle="tooltip" 
+                            
+                            data-bs-toggle="tooltip" title="Eliminar">
                             <i class="fas fa-pencil-alt"></i>
                         </button>
+                        
                         
                         
                         <form action="{{ route('admin.usuarios.destroy', $usuario->id) }}" 
@@ -92,7 +137,7 @@
                             data-usuario='{"nombre":"{{ $usuario->full_name }}"}'>
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-icon btn-outline-danger rounded-circle btn-eliminar"
+                            <button type="submit" class="btn btn-sm btn-icon btn-outline-danger  btn-eliminar"
                                     data-bs-toggle="tooltip" title="Eliminar">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
@@ -327,20 +372,21 @@ document.querySelectorAll('.btn-eliminar').forEach(button => {
 </div>
 
 <!-- Modales para Ver Usuario -->
+<!-- Modales para Ver Usuario -->
 @foreach($usuarios as $usuario)
 <div class="modal fade" id="verModal{{ $usuario->id }}" tabindex="-1" aria-labelledby="verModalLabel{{ $usuario->id }}" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-gradient-primary text-white">
+            <div class="modal-header bg-gradient-info text-white">
                 <div class="d-flex align-items-center">
-                    <div class="avatar avatar-xl me-3">
+                    <div class="avatar avatar-xl me-2">
                         @if($usuario->imagen)
                             <img src="{{ asset('storage/'.$usuario->imagen) }}" 
                                 class="rounded-circle border border-3 border-white shadow" 
                                 alt="Foto de perfil">
                         @else
                             <div class="avatar-initials bg-white rounded-circle shadow d-flex align-items-center justify-content-center border border-3 border-white">
-                                <span class="text-primary fw-bold fs-4">{{ substr($usuario->firstname, 0, 1) }}{{ substr($usuario->lastname ?? '', 0, 1) }}</span>
+                                <span class="text-info fw-bold fs-4">{{ substr($usuario->firstname, 0, 1) }}{{ substr($usuario->lastname ?? '', 0, 1) }}</span>
                             </div>
                         @endif
                     </div>
@@ -358,28 +404,28 @@ document.querySelectorAll('.btn-eliminar').forEach(button => {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-4">
-                            <h6 class="text-uppercase text-primary mb-3">
+                            <h6 class="text-uppercase text-info mb-3">
                                 <i class="fas fa-id-card me-2"></i>Información Personal
                             </h6>
                             <div class="card border-0 shadow-none">
                                 <div class="card-body p-0">
                                     <ul class="list-group list-group-flush">
                                         <li class="list-group-item border-0 px-0 py-2 d-flex align-items-center">
-                                            <i class="fas fa-user-circle text-primary me-3"></i>
+                                            <i class="fas fa-user-circle text-info me-3"></i>
                                             <div>
                                                 <small class="text-muted">Usuario</small>
                                                 <p class="mb-0 fw-bold">{{ $usuario->username }}</p>
                                             </div>
                                         </li>
                                         <li class="list-group-item border-0 px-0 py-2 d-flex align-items-center">
-                                            <i class="fas fa-signature text-primary me-3"></i>
+                                            <i class="fas fa-signature text-info me-3"></i>
                                             <div>
                                                 <small class="text-muted">Nombre completo</small>
                                                 <p class="mb-0 fw-bold">{{ $usuario->firstname }} {{ $usuario->lastname }}</p>
                                             </div>
                                         </li>
                                         <li class="list-group-item border-0 px-0 py-2 d-flex align-items-center">
-                                            <i class="fas fa-calendar-alt text-primary me-3"></i>
+                                            <i class="fas fa-calendar-alt text-info me-3"></i>
                                             <div>
                                                 <small class="text-muted">Fecha de registro</small>
                                                 <p class="mb-0 fw-bold">{{ $usuario->created_at->format('d/m/Y H:i') }}</p>
@@ -393,28 +439,28 @@ document.querySelectorAll('.btn-eliminar').forEach(button => {
                     
                     <div class="col-md-6">
                         <div class="mb-4">
-                            <h6 class="text-uppercase text-primary mb-3">
+                            <h6 class="text-uppercase text-info mb-3">
                                 <i class="fas fa-address-book me-2"></i>Información de Contacto
                             </h6>
                             <div class="card border-0 shadow-none">
                                 <div class="card-body p-0">
                                     <ul class="list-group list-group-flush">
                                         <li class="list-group-item border-0 px-0 py-2 d-flex align-items-center">
-                                            <i class="fas fa-envelope text-primary me-3"></i>
+                                            <i class="fas fa-envelope text-info me-3"></i>
                                             <div>
                                                 <small class="text-muted">Correo electrónico</small>
                                                 <p class="mb-0 fw-bold">{{ $usuario->email }}</p>
                                             </div>
                                         </li>
                                         <li class="list-group-item border-0 px-0 py-2 d-flex align-items-center">
-                                            <i class="fas fa-mobile-alt text-primary me-3"></i>
+                                            <i class="fas fa-mobile-alt text-info me-3"></i>
                                             <div>
                                                 <small class="text-muted">Celular</small>
                                                 <p class="mb-0 fw-bold">{{ $usuario->celular ?? 'No especificado' }}</p>
                                             </div>
                                         </li>
                                         <li class="list-group-item border-0 px-0 py-2 d-flex align-items-center">
-                                            <i class="fas fa-map-marker-alt text-primary me-3"></i>
+                                            <i class="fas fa-map-marker-alt text-info me-3"></i>
                                             <div>
                                                 <small class="text-muted">Dirección</small>
                                                 <p class="mb-0 fw-bold">{{ $usuario->address ?? 'No especificada' }}</p>
@@ -424,8 +470,6 @@ document.querySelectorAll('.btn-eliminar').forEach(button => {
                                 </div>
                             </div>
                         </div>
-                        
-                        
                     </div>
                 </div>
             </div>
@@ -434,7 +478,7 @@ document.querySelectorAll('.btn-eliminar').forEach(button => {
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-2"></i>Cerrar
                 </button>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editarModal{{ $usuario->id }}" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#editarModal{{ $usuario->id }}" data-bs-dismiss="modal">
                     <i class="fas fa-edit me-2"></i>Editar Usuario
                 </button>
             </div>
@@ -594,13 +638,11 @@ document.querySelectorAll('.btn-eliminar').forEach(button => {
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-gradient-primary text-white">
                 <div class="d-flex align-items-center">
-                    <div class="avatar avatar-xl me-3 bg-white rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="fas fa-user-plus text-primary fs-4"></i>
+                    <div class="avatar avatar-sm me-3 bg-white rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="fas fa-user-plus text-primary fs-5"></i>
                     </div>
                     <div>
-                        <h5 class="modal-title mb-0" id="modalCrearLabel">
-                            <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
-                        </h5>
+                           <i class=" text-white"></i>Nuevo Usuario
                         <p class="text-white-50 small mb-0">Complete todos los campos requeridos</p>
                     </div>
                 </div>
@@ -725,6 +767,9 @@ document.querySelectorAll('.btn-eliminar').forEach(button => {
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection
 
 @push('css')

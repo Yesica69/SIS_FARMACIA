@@ -4,7 +4,14 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Caja;
-
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PDF; 
 use App\Models\Sucursal;
 use App\Models\MovimientoCaja;
@@ -13,9 +20,8 @@ use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Http\Request;
 
-// Para download()
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB; // ¡Este es el import que faltaba!
+use Illuminate\Support\Facades\DB; 
 use Illuminate\Support\Facades\Log; 
 use Illuminate\Support\Facades\Storage;
 
@@ -26,9 +32,9 @@ use NumberFormatter;
 
 use Carbon\Carbon;
 
-use DatePeriod; // Importación añadida
-use DateInterval; // Importación añadida
-use DateTime; // Importación añadida
+use DatePeriod; 
+use DateInterval; 
+use DateTime; 
 
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class CajaController extends Controller
@@ -314,25 +320,118 @@ public function show($id)
     /**
      * Genera el reporte en Excel
      */
-    protected function generateExcel(array $data): BinaryFileResponse
-    {
-        $exportData = $this->prepareExportData($data);
-        
-        return Excel::download(
-            new class($exportData) implements FromArray, WithHeadings {
-                public function __construct(private array $data) {}
-                
-                public function array(): array {
-                    return $this->data['rows'];
-                }
-                
-                public function headings(): array {
-                    return $this->data['headers'];
-                }
-            },
-            self::NOMBRE_ARCHIVO_EXCEL
-        );
-    }
+   protected function generateExcel(array $data): BinaryFileResponse
+{
+    $exportData = $this->prepareExportData($data);
+    
+    return Excel::download(
+        new class($exportData, $data) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize, WithTitle, WithEvents {
+            
+            public function __construct(
+                private array $exportData,
+                private array $reportData
+            ) {}
+            
+            public function collection()
+            {
+                return collect($this->exportData['rows']);
+            }
+            
+            public function headings(): array
+            {
+                return [
+                    ['REPORTE DE MOVIMIENTOS DE CAJA'],
+                    ['Farmacia Mariel'],
+                    [
+                        'Periodo: ' . $this->reportData['fechaInicio'] . ' al ' . $this->reportData['fechaFin'],
+                        '',
+                        '',
+                        'Total Ingresos: ' . number_format($this->reportData['totalGeneralIngresos'], 2),
+                        'Total Egresos: ' . number_format($this->reportData['totalGeneralEgresos'], 2),
+                        'Saldo Final: ' . number_format($this->reportData['saldoGeneral'], 2)
+                    ],
+                    $this->exportData['headers']
+                ];
+            }
+            
+            public function styles(Worksheet $sheet)
+            {
+                return [
+                    // Estilo título principal NO OLVIDA
+                    1 => [
+                        'font' => [
+                            'bold' => true,
+                            'size' => 16,
+                            'color' => ['rgb' => 'FFFFFF']
+                        ],
+                        'fill' => [
+                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => '2C3E50']
+                        ],
+                        'alignment' => ['horizontal' => 'center']
+                    ],
+                    // Estilo subtítulo
+                    2 => [
+                        'font' => ['italic' => true],
+                        'alignment' => ['horizontal' => 'center']
+                    ],
+                    // Estilo resumen financiero
+                    3 => [
+                        'font' => ['bold' => true],
+                        'fill' => [
+                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => 'F2F2F2']
+                        ]
+                    ],
+                    // Estilo encabezados de tabla
+                    4 => [
+                        'font' => [
+                            'bold' => true,
+                            'color' => ['rgb' => 'FFFFFF']
+                        ],
+                        'fill' => [
+                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => '3498DB']
+                        ]
+                    ],
+                    // Formato para montos
+                    'D:E' => [
+                        'numberFormat' => [
+                            'formatCode' => '#,##0.00'
+                        ]
+                    ]
+                ];
+            }
+            
+            public function title(): string
+            {
+                return 'Movimientos de Caja';
+            }
+            
+            public function registerEvents(): array
+            {
+                return [
+                    AfterSheet::class => function(AfterSheet $event) {
+                        // Combinar celdas para el título
+                        $event->sheet->mergeCells('A1:F1');
+                        $event->sheet->mergeCells('A2:F2');
+                        
+                        // Autoajustar columnas
+                        $columns = ['A', 'B', 'C', 'D', 'E', 'F'];
+                        foreach ($columns as $column) {
+                            $event->sheet->getColumnDimension($column)
+                                ->setAutoSize(true);
+                        }
+                        
+                        // Congelar encabezados
+                        $event->sheet->freezePane('A5');
+                    }
+                ];
+            }
+        },
+        'reporte_caja_' . now()->format('Ymd_His') . '.xlsx'
+    );
+}
 
     /**
      * Genera el reporte en CSV

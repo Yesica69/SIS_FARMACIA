@@ -23,4 +23,11 @@ public function laboratorio(){
         return $this->belongsTo(Producto::class);
 
     }
+
+    public function lote()
+{
+    return $this->belongsTo(Lote::class);
+}
+
+
 }

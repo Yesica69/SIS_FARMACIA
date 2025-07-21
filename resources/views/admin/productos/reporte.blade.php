@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Reporte de Productos </title>
+    <title>Reporte de Productos con Lotes</title>
     <style>
         @page {
             margin: 1cm;
@@ -96,24 +96,29 @@
             font-size: 8pt;
         }
         /* Anchuras específicas para columnas */
-        .col-code { width: 7%; }
+        .col-code { width: 6%; }
         .col-name { width: 12%; }
-        .col-desc { width: 15%; }
-        .col-cat { width: 10%; }
-        .col-lab { width: 10%; }
+        .col-desc { width: 14%; }
+        .col-cat { width: 8%; }
+        .col-lab { width: 8%; }
         .col-stock { width: 5%; }
         .col-min { width: 5%; }
         .col-max { width: 5%; }
+        .col-lote { width: 6%; }
         .col-price-buy { width: 7%; }
         .col-price-sell { width: 7%; }
         .col-date-in { width: 7%; }
         .col-date-out { width: 7%; }
+        .col-expired {
+            width: 5%;
+            background-color: #ffebee;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <img src="https://ejemplo.com/logo.png" alt="Logo Empresa" class="logo">
-        <h1>REPORTE DE INVENTARIO DE PRODUCTOS</h1>
+       
+        <h1>REPORTE DE INVENTARIO DE PRODUCTOS Y LOTES</h1>
         <p>Generado el: {{ now()->format('d/m/Y H:i:s') }}</p>
     </div>
 
@@ -134,34 +139,60 @@
                 <th class="col-stock text-right">Stock</th>
                 <th class="col-min text-right">Mín</th>
                 <th class="col-max text-right">Máx</th>
+                <th class="col-lote">Lote</th>
                 <th class="col-price-buy text-right">P. Compra</th>
                 <th class="col-price-sell text-right">P. Venta</th>
                 <th class="col-date-in text-center">Ingreso</th>
                 <th class="col-date-out text-center">Vencim.</th>
+                
             </tr>
         </thead>
         <tbody>
             @foreach($productos as $producto)
-            <tr class="{{ $producto->stock < $producto->stock_minimo ? 'highlight' : '' }}">
-                <td class="col-code">{{ $producto->codigo }}</td>
-                <td class="col-name">{{ Str::limit($producto->nombre, 20) }}</td>
-                <td class="col-desc">{{ Str::limit($producto->descripcion, 30) }}</td>
-                <td class="col-cat">{{ Str::limit($producto->categoria->nombre, 15) }}</td>
-                <td class="col-lab">{{ Str::limit($producto->laboratorio->nombre, 15) }}</td>
-                <td class="col-stock text-right">{{ $producto->stock }}</td>
-                <td class="col-min text-right">{{ $producto->stock_minimo }}</td>
-                <td class="col-max text-right">{{ $producto->stock_maximo }}</td>
-                <td class="col-price-buy text-right">{{ number_format($producto->precio_compra, 2) }}</td>
-                <td class="col-price-sell text-right">{{ number_format($producto->precio_venta, 2) }}</td>
-                <td class="col-date-in text-center">{{ $producto->fecha_ingreso->format('d/m/Y') }}</td>
-                <td class="col-date-out text-center">{{ $producto->fecha_vencimiento ? $producto->fecha_vencimiento->format('d/m/Y') : 'N/A' }}</td>
-            </tr>
+                @php
+                    $loteActivo = $producto->lotes()->orderBy('fecha_vencimiento', 'asc')->first();
+                    $stockTotal = $producto->lotes()->sum('cantidad');
+                @endphp
+                
+                <tr class="{{ $stockTotal < $producto->stock_minimo ? 'highlight' : '' }}">
+                    <td class="col-code">{{ $producto->codigo }}</td>
+                    <td class="col-name">{{ Str::limit($producto->nombre, 20) }}</td>
+                    <td class="col-desc">{{ Str::limit($producto->descripcion, 30) }}</td>
+                    <td class="col-cat">{{ Str::limit($producto->categoria->nombre, 15) }}</td>
+                    <td class="col-lab">{{ Str::limit($producto->laboratorio->nombre, 15) }}</td>
+                    <td class="col-stock text-right">{{ $stockTotal }}</td>
+                    <td class="col-min text-right">{{ $producto->stock_minimo }}</td>
+                    <td class="col-max text-right">{{ $producto->stock_maximo }}</td>
+                    <td class="col-lote">{{ $loteActivo ? $loteActivo->numero_lote : 'N/A' }}</td>
+                    <td class="col-price-buy text-right">
+                        {{ $loteActivo ? number_format($loteActivo->precio_compra, 2) : 'N/A' }}
+                    </td>
+                    <td class="col-price-sell text-right">
+                        {{ $loteActivo ? number_format($loteActivo->precio_venta, 2) : 'N/A' }}
+                    </td>
+                    <td class="col-date-in text-center">
+                        @if($loteActivo && $loteActivo->fecha_ingreso)
+                            {{ \Carbon\Carbon::parse($loteActivo->fecha_ingreso)->format('d/m/Y') }}
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    <td class="col-date-out text-center">
+                        @if($loteActivo && $loteActivo->fecha_vencimiento)
+                            {{ \Carbon\Carbon::parse($loteActivo->fecha_vencimiento)->format('d/m/Y') }}
+                        @else
+                            N/A
+                        @endif
+                    </td>
+                    
+                </tr>
             @endforeach
         </tbody>
     </table>
 
-    <div class="footer">
-        <p>Reporte generado por: {{ Auth::user()->name ?? 'Sistema' }} | Página {PAGE_NUM} de {PAGE_COUNT}</p>
+     <div class="footer">
+        <p>Sistema de Gestión - {{ date('Y') }} </p>
+        <p>Generado por: {{ Auth::user()->name ?? 'Sistema' }}</p>
     </div>
 
     <div class="signature">

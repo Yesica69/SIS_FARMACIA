@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 use App\Models\Producto; 
 use App\Models\TmpCompra;
+
+use App\Models\Lote;
 use Illuminate\Http\Request;
 
 class TmpCompraController extends Controller
@@ -98,11 +100,32 @@ if($tmp_compra_existe){
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
-    {
-        TmpCompra::destroy($id); // Buscar el usuario por ID
-      
+public function destroy($id)
+{
+    \DB::beginTransaction();
+    try {
+        // 1. Obtener el registro temporal
+        $tmpCompra = TmpCompra::findOrFail($id);
 
-        return response()->json(['success'=>true]);
-    }
+        // 2. Eliminar el lote relacionado con este producto (si existe)
+        $lote = Lote::where('producto_id', $tmpCompra->producto_id)
+                    ->latest('id') // Puedes quitar esto si quieres eliminar todos
+                    ->first();
+
+        if ($lote) {
+            $lote->delete();
+        }
+
+        // 3. Eliminar el registro temporal
+        $tmpCompra->delete();
+
+        \DB::commit();
+        return response()->json(['success' => true]);
+    } 
+    catch (\Exception $e) {
+    \Log::error('Error al eliminar producto y lote: ' . $e->getMessage());
+    return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+}
+}
+
 }

@@ -4,80 +4,96 @@
 @include('layouts.navbars.auth.topnav', ['title' => 'Categorías'])
 <div class="container-fluid py-4">
     <!-- Header Principal -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-radius-lg shadow-sm" style="border-left: 4px solid #5e72e4;">
-                <div class="card-body d-flex justify-content-between align-items-center">
+<div class="row">
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header pb-0 d-flex justify-content-between align-items-center bg-white">
                     <div class="d-flex align-items-center">
-                        <i class="fas fa-tags fa-2x me-3 text-primary"></i>
-                        <h4 class="mb-0">
-                            <strong>GESTIÓN DE CATEGORÍAS</strong>
-                        </h4>
+                        
+                        <h5 class="mb-0">
+                            
+                            <i class="fas fa-tags  me-3 text-primary"></i>
+                            <strong>GESTION DE CATEGORIAS</strong></h5>
                     </div>
-                    <button type="button" class="btn bg-gradient-primary shadow-sm" 
-                            data-bs-toggle="modal" data-bs-target="#modalCrear">
-                        <i class="fas fa-plus-circle me-1"></i> Nueva Categoría
-                    </button>
+                    
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-gradient-info me-3">
+                             
+                              <i class="fas fa-database me-1"></i> {{ $categorias->count() }} Categorias
+                        </span>
+                        
+                        <div class="dropdown me-2">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                    title="Exportar reporte en diferentes formatos">
+                                <i class="fas fa-download me-1"></i> Exportar
+                            </button>
+                           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.categorias.reporte') }}?tipo=pdf"
+                                    title="Exportar a PDF" target="_blank">
+                                        <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.categorias.reporte') }}?tipo=excel"
+                                    title="Exportar a Excel">
+                                        <i class="fas fa-file-excel text-success me-2"></i> Excel
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.categorias.reporte') }}?tipo=csv"
+                                    title="Exportar a CSV">
+                                        <i class="fas fa-file-csv text-info me-2"></i> CSV
+                                    </a>
+                                </li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                            </ul>
+                        </div>
+
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
+                            <i class="fas fa-plus-circle me-1"></i> Nuevo
+                        </button>
+                    </div>
                 </div>
-            </div>
         </div>
-    </div>
+
+ 
+    <hr>
 
     <!-- Tarjeta de lista de categorías -->
-    <div class="row">
+    
         <div class="col-12">
             <div class="card border-radius-lg shadow-sm">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-list-check me-2 text-primary"></i>
-                        <strong>Catálogo de Categorías</strong>
-                    </h5>
-                    <span class="badge bg-gradient-primary rounded-pill px-3 py-2">
-                        <i class="fas fa-database me-1"></i> Total: {{ $categorias->count() }}
-                    </span>
-                     <div class="dropdown">
-        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
-                id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
-                title="Exportar reporte en diferentes formatos">
-            <i class="fas fa-download me-1"></i> Exportar
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
-            <li>
-                <a class="dropdown-item" 
-                   href="{{ route('admin.compras.reporte', ['tipo' => 'pdf']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&laboratorio_id={{ request('laboratorio_id') }}"
-                   title="Exportar a PDF" target="_blank">
-                    <i class="fas fa-file-pdf text-danger me-2"></i> PDF
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item" 
-                   href="{{ route('admin.compras.reporte', ['tipo' => 'excel']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&laboratorio_id={{ request('laboratorio_id') }}"
-                   title="Exportar a Excel">
-                    <i class="fas fa-file-excel text-success me-2"></i> Excel
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item" 
-                   href="{{ route('admin.compras.reporte', ['tipo' => 'csv']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&laboratorio_id={{ request('laboratorio_id') }}"
-                   title="Exportar a CSV">
-                    <i class="fas fa-file-csv text-info me-2"></i> CSV
-                </a>
-            </li>
-        </ul>
-    </div>
-                </div>
+                
+
+                <div class="card shadow-lg border-0">
+                                    <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom">
+                                        <h5 class="mb-0 ">
+                                              <i class="ni ni-bullet-list-67 me-2 text-primary"></i></i>Categorias Registrados
+                                        </h5>
+                                    
+                                </div>
 
                 <div class="card-body px-0 pt-0 pb-2">
-                    <div class="table-responsive p-0">
-                        <table id="categorias-table" class="table align-items-center mb-0">
-                            <thead class="bg-gray-90">
+                    <div class="table-responsive ">
+                        <table id="categorias-table" class="table table-hover align-items-center mb-0">
+                            
+                            
+                        
+                            <thead class="bg-light">
                                 <tr>
-                                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">#</th>
-                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder">Categoría</th>
+                                    <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">#</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Categoría</th>
                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder">Descripción</th>
                                     <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder">Acciones</th>
                                 </tr>
                             </thead>
+                            
                             <tbody>
                                 @foreach($categorias as $categoria)
                                 <tr>
@@ -98,8 +114,10 @@
                                     <td class="text-center align-middle">
                                         <div class="d-flex justify-content-center">
                                             <!-- Botón Editar -->
-                                            <button type="button" class="btn btn-sm bg-gradient-info text-white mx-1" 
-                                                    data-bs-toggle="modal" data-bs-target="#editModal{{ $categoria->id }}"
+                                            <button type="button" class="btn btn-sm bg-gradient-success text-white mx-1" 
+                                                    data-bs-toggle="modal" 
+                                                     style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
+                                                    data-bs-target="#editModal{{ $categoria->id }}"
                                                     title="Editar categoría">
                                                 <i class="fas fa-pen"></i>
                                             </button>
@@ -112,21 +130,21 @@
 
 
                                             <form action="{{ route('admin.categorias.destroy', $categoria->id) }}" 
-      method="POST" 
-      class="d-inline"
-      data-categoria='{"nombre":"{{ $categoria->nombre }}"}'>
-        @csrf
-        @method('DELETE')
-        <button type="button" 
-                class="btn btn-sm bg-gradient-danger text-white  mx-1 rounded-end shadow-sm px-4 btn-eliminar-categoria"
-                 
-                title="Eliminar categoria"
-                data-bs-toggle="tooltip">
-            <span class="btn-inner--icon me-1">
-                <i class="fas fa-trash-alt"></i>
-            </span>
-            
-        </button>
+                                            method="POST" 
+                                            class="d-inline"
+                                            data-categoria='{"nombre":"{{ $categoria->nombre }}"}'>
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" 
+                                                        class="btn btn-sm bg-gradient-danger text-white  mx-1 btn-eliminar-categoria"
+                                                         style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
+                                                        title="Eliminar categoria"
+                                                        data-bs-toggle="tooltip">
+                                                    <span class="btn-inner--icon me-1">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </span>
+                                                    
+                                                </button>
                                                 </form>
 
                                             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -202,7 +220,7 @@
                                             });
                                             </script>
 
-                                            <style>
+                                        <style>
                                             /* Estilos Premium */
                                             .swal2-container-premium {
                                                 border-radius: 18px !important;
@@ -333,7 +351,7 @@
                                                 0% { transform: rotate(0deg); }
                                                 100% { transform: rotate(360deg); }
                                             }
-                                            </style>
+                                        </style>
 
                                             <style>
                                                 .compact-table th, .compact-table td {
@@ -365,8 +383,8 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-gradient-primary text-white">
-                <h5 class="modal-title" id="modalCrearLabel">
-                    <i class="fas fa-plus-circle me-2"></i> Nueva Categoría
+                <h5 class="modal-title text-white" id="modalCrearLabel">
+                    <i class="fas fa-plus-circle me-2 text-white"></i> Nueva Categoría
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -416,7 +434,7 @@
 <div class="modal fade" id="editModal{{ $categoria->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $categoria->id }}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-gradient-info text-white">
+            <div class="modal-header bg-gradient-success text-white">
                 <h5 class="modal-title" id="editModalLabel{{ $categoria->id }}">
                     <i class="fas fa-edit me-2"></i> Editar Categoría
                 </h5>
@@ -453,7 +471,7 @@
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         <i class="fas fa-times me-1"></i> Cancelar
                     </button>
-                    <button type="submit" class="btn bg-gradient-info text-white">
+                    <button type="submit" class="btn bg-gradient-success text-white">
                         <i class="fas fa-save me-1"></i> Actualizar
                     </button>
                 </div>
@@ -462,7 +480,9 @@
     </div>
 </div>
 @endforeach
-
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection
 
 @push('css')

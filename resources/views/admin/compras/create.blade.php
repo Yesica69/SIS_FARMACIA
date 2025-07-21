@@ -10,9 +10,11 @@
                 <div class="card-header bg-white border-bottom">
                     <div class="d-flex justify-content-between align-items-center py-2">
                         <div class="d-flex align-items-center">
-                            <div class="icon icon-shape bg-gradient-primary text-white rounded-circle shadow me-3">
-                                <i class="fas fa-shopping-cart"></i>
-                            </div>
+                            <div class="icon icon-shape bg-gradient-primary text-white rounded-circle shadow me-3 d-flex justify-content-center align-items-center" 
+     style="width: 60px; height: 60px; padding: 0;">
+    <i class="fas fa-shopping-cart fa-lg" style="margin: 0; line-height: 1;"></i>
+</div>
+
                             <div>
                                 <h3 class="mb-0 text-dark font-weight-bold">Nueva Compra</h3>
                                 <p class="text-sm text-muted mb-0">Complete el formulario para registrar una nueva compra</p>
@@ -25,13 +27,20 @@
                         </div>
                     </div>
                 </div>
-                </div>
+            </div>
+                
+
                 
                 <div class="card-body">
                     <form action="{{ route('admin.compras.create') }}" id="form_compra" method="POST" autocomplete="off">
                         @csrf
 
+                        
                         <div class="row g-4">
+
+
+
+
                             <!-- Sección de Productos -->
                             <div class="col-lg-8">
                                 <div class="card border-0 shadow-sm">
@@ -42,103 +51,161 @@
                                     </div>
                                     <div class="card-body">
                                     <div class="row g-3 align-items-end mb-4">
-                    <div class="col-md-2">
-                        <label for="cantidad" class="form-label fw-semibold small text-muted">Cantidad</label>
-                        <input type="number" class="form-control border-primary border-2" 
-                            id="cantidad" name="cantidad" value="1" min="1" required>
-                        @error('cantidad')
-                            <div class="invalid-feedback d-block small">{{ $message }}</div>
-                        @enderror
-                    </div>
+                                <div class="col-md-2">
+                                    <label for="cantidad" class="form-label fw-semibold small text-muted">Cantidad</label>
+                                    <input type="number" class="form-control border-primary border-2" 
+                                        id="cantidad" name="cantidad" value="1" min="1" required>
+                                    @error('cantidad')
+                                        <div class="invalid-feedback d-block small">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-                    <div class="col-md-5">
-                        <label for="codigo" class="form-label fw-semibold small text-muted">Código de Producto</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-primary border-end-0">
-                                <i class="fas fa-barcode text-primary"></i>
-                            </span>
-                            <input id="codigo" type="text" class="form-control border-primary border-start-0" 
-                                name="codigo" placeholder="Escanear o ingresar código" autofocus>
-                        </div>
-                    </div>
+                                <div class="col-md-5">
+                                    <label for="codigo" class="form-label fw-semibold small text-muted">Código de Producto</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-primary border-end-0">
+                                            <i class="fas fa-barcode text-primary"></i>
+                                        </span>
+                                        <input id="codigo" type="text" class="form-control border-primary border-start-0" 
+                                            name="codigo" placeholder="Escanear o ingresar código" autofocus>
+                                    </div>
+                                </div>
 
-                    <div class="col-md-4">
-                        <div class="d-flex justify-content-end gap-2 pt-3">
-                            <button type="button" class="btn btn-primary rounded-pill px-3" 
-                                data-bs-toggle="modal" data-bs-target="#productosModal">
-                                <i class="fas fa-search me-1"></i> 
-                            </button>
-                            <a href="{{ route('admin.productos.create') }}" 
-                                class="btn btn-success rounded-pill px-3">
-                                <i class="fas fa-plus me-1"></i> 
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                                <div class="col-md-4">
+                                    <div class="d-flex justify-content-end gap-2 pt-3">
+                                        <button type="button" class="btn btn-primary flex-grow-1" 
+                                            data-bs-toggle="modal" data-bs-target="#productosModal">
+                                            <i class="fas fa-search me-2"></i> 
+                                        </button>
+                                        <a href="{{ route('admin.productos.create') }}" 
+                                            class="btn btn-success flex-grow-1">
+                                            <i class="fas fa-plus me-2"></i> 
+                                        </a>
+                                    </div>
+                                </div>
+
+
+
+                            </div>
 
                                         <!-- Tabla de productos seleccionados - Diseño Mejorado -->
                                         <div class="table-responsive">
-    <table class="table table-sm table-borderless table-hover mb-0" style="font-size: 0.85rem;">
-        <thead class="bg-light">
-        <tr>
-                <th class="text-center px-1" style="width: 3%;">#</th>
-                <th class="text-center px-1" style="width: 10%;">Código</th>
-                <th class="text-center px-1" style="width: 5%;">Cant.</th>
-                <th class="px-1" style="width: 40%;">Nombre</th>
-                <th class="text-end px-1" style="width: 12%;">Unit.</th>
-                <th class="text-end px-1" style="width: 15%;">Subtotal</th>
-                <th class="text-center px-1" style="width: 5%;"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @php
-                $cont = 1; 
-                $total_cantidad = 0; 
-                $total_compra = 0;
-            @endphp
-            
-            @forelse($tmp_compras as $tmp_compra)
-            <tr>
-                <td class="text-center">{{ $cont++ }}</td>
-                <td class="text-center"><span class="badge bg-light text-dark border">{{ $tmp_compra->producto->codigo }}</span></td>
-                <td class="text-center">{{ $tmp_compra->cantidad }}</td>
-                <td class="text-truncate" style="max-width: 200px;" title="{{ $tmp_compra->producto->nombre }}">{{ $tmp_compra->producto->nombre }}</td>
-                <td class="text-end">Bs {{ number_format($tmp_compra->producto->precio_compra ) }}</td>
-                <td class="text-end fw-semibold">Bs {{ number_format($costo = $tmp_compra->cantidad * $tmp_compra->producto->precio_compra, 2, '.', '') }}</td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-outline-danger border-0 py-0 px-2 delete-btn" 
-                        data-id="{{ $tmp_compra->id }}" title="Eliminar">
-                        <i class="fas fa-trash-alt" style="font-size: 0.75rem;"></i>
-                    </button>
-                </td>
-            </tr>
-            @php
-                $total_cantidad += $tmp_compra->cantidad;
-                $total_compra += $costo;
-            @endphp
-            @empty
-            <tr>
-                <td colspan="7" class="text-center py-3 text-muted small">
-                    <i class="fas fa-info-circle me-2"></i>No hay productos agregados
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-        <tfoot class="bg-light">
-            <tr>
-                <th colspan="2" class="text-end small">Totales:</th>
-                <th class="text-center small">{{ $total_cantidad }}</th>
-                <th colspan="2" class="text-end small">Total:</th>
-                <th class="text-end text-success fw-bold">Bs {{ number_format($total_compra, 2, '.', '') }}</th>
-                <th></th>
-            </tr>
-        </tfoot>
-    </table>
-</div>
+                                            <table class="table table-sm table-borderless table-hover mb-0" style="font-size: 0.85rem;">
+                                                <thead class="bg-light">
+                                                <tr>
+                                                        <th class="text-center px-1" style="width: 3%;">#</th>
+                                                        <th class="text-center px-1" style="width: 10%;">Código</th>
+                                                        <th class="text-center px-1" style="width: 5%;">Cant.</th>
+                                                        <th class="px-1" style="width: 40%;">Nombre</th>
+                                                        <th class="px-1" style="width: 40%;">Lote</th>
+                                                        <th class="text-end px-1" style="width: 12%;">Unit.</th>
+                                                        <th class="text-end px-1" style="width: 15%;">Subtotal</th>
+                                                        <th class="text-center px-1" style="width: 5%;"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php
+                                                        $cont = 1; 
+                                                        $total_cantidad = 0; 
+                                                        $total_compra = 0;
+                                                    @endphp
+                                                    
+                                                    @forelse($tmp_compras as $tmp_compra)
+                                                    <tr>
+                                                        <td class="text-center">{{ $cont++ }}</td>
+                                                        <td class="text-center"><span class="badge bg-light text-dark border">{{ $tmp_compra->producto->codigo }}</span></td>
+                                                        <td class="text-center">{{ $tmp_compra->cantidad }}</td>
+                                                        <td class="text-truncate" style="max-width: 200px;" title="{{ $tmp_compra->producto->nombre }}">{{ $tmp_compra->producto->nombre }}</td>
+                                                        <!--aqui se visularia el lote de la compra -->
+<td>
+    @php
+        $lote = \App\Models\Lote::where('producto_id', $tmp_compra->producto_id)
+                                ->latest('id')
+                                ->first();
+    @endphp
+
+    @if($lote)
+        <span class="badge bg-success">{{ $lote->numero_lote }}</span>
+    @else
+        <button type="button"
+                class="btn btn-sm btn-outline-primary py-0 px-2 btn-agregar-lote"
+                data-bs-toggle="modal"
+                data-bs-target="#loteModal"
+                data-producto-id="{{ $tmp_compra->producto->id }}"
+                data-nombre-producto="{{ $tmp_compra->producto->nombre }}">
+            <i class="fas fa-plus-circle me-1"></i> Agregar Lote
+        </button>
+    @endif
+</td>
+
+
+
+
+
+
+
+
+
+
+
+
+                                                       @php
+    $lote = isset($lotesPorProducto[$tmp_compra->producto_id])
+            ? $lotesPorProducto[$tmp_compra->producto_id]->first()
+            : null;
+
+    $precio = $lote ? $lote->precio_compra : 0;
+    $costo = $tmp_compra->cantidad * $precio;
+@endphp
+
+<td class="text-end">
+    @if($lote)
+        Bs {{ number_format($precio, 2, '.', '') }}
+    @else
+        <span class="text-muted">Pendiente</span>
+    @endif
+</td>
+
+<td class="text-end fw-semibold">
+    Bs {{ number_format($costo, 2, '.', '') }}
+</td>
+
+
+                                                        <td class="text-center">
+                                                            <button type="button" class="btn btn-sm btn-outline-danger border-0 py-0 px-2 delete-btn" 
+                                                                data-id="{{ $tmp_compra->id }}" title="Eliminar">
+                                                                <i class="fas fa-trash-alt" style="font-size: 0.75rem;"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    @php
+                                                        $total_cantidad += $tmp_compra->cantidad;
+                                                        $total_compra += $costo;
+                                                    @endphp
+                                                    @empty
+                                                    <tr>
+                                                        <td colspan="7" class="text-center py-3 text-muted small">
+                                                            <i class="fas fa-info-circle me-2"></i>No hay productos agregados
+                                                        </td>
+                                                    </tr>
+                                                    @endforelse
+                                                </tbody>
+                                                <tfoot class="bg-light">
+                                                    <tr>
+                                                        <th colspan="2" class="text-end small">Totales:</th>
+                                                        <th class="text-center small">{{ $total_cantidad }}</th>
+                                                        <th colspan="2" class="text-end small">Total:</th>
+                                                        <th class="text-end text-success fw-bold">Bs {{ number_format($total_compra, 2, '.', '') }}</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
+                            <!-- Sección de Información de Compra - Diseño Mejorado -->
                             <!-- Sección de Información de Compra - Diseño Mejorado -->
                             <div class="col-lg-4">
                                 <div class="card border-0 shadow-sm h-100">
@@ -172,12 +239,19 @@
                                         <div class="row g-3 mb-4">
                                             <div class="col-md-6">
                                                 <label for="fecha" class="form-label fw-bold text-sm">Fecha</label>
-                                                <input type="date" class="form-control form-control-sm border" 
-                                                    name="fecha" value="{{ old('fecha', date('Y-m-d')) }}" required>
+                                                <input 
+                                                    type="date" 
+                                                    class="form-control form-control-sm border" 
+                                                    name="fecha" 
+                                                    value="{{ old('fecha', date('Y-m-d')) }}" 
+                                                    min="{{ date('Y-m-d') }}" 
+                                                    required
+                                                >
                                                 @error('fecha')
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
                                             </div>
+
 
                                             <div class="col-md-6">
                                                 <label for="comprobante" class="form-label fw-bold text-sm">Comprobante</label>
@@ -219,8 +293,114 @@
     </div>
 </div>
 
-<!-- Modal de Productos - Diseño Mejorado -->
-<!-- Modal de Productos - Diseño Mejorado con Indicadores de Stock -->
+<!-- Modal para creación de lote -->
+<div class="modal fade" id="loteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-boxes me-2"></i>Registro de Lote para: <span id="nombre-producto-modal"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                
+                <form id="formLote" method="POST" action="{{ route('compras.agregarLote') }}">
+                    
+
+                    @csrf
+                    <!-- Campos ocultos con IDs necesarios -->
+                    <input type="hidden" name="producto_id" id="modalProductoId" value="">
+                    <input type="hidden" name="tmp_compra_id" id="modalTmpCompraId" value="">
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Estás registrando un lote para: 
+                                <strong id="nombre-producto-alert">Cargando...</strong>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Número de Lote*</label>
+                            <input type="text" class="form-control" name="numero_lote" required
+                                   placeholder="Ej: LT-2023-001" pattern="[A-Za-z0-9-]+" title="Solo letras, números y guiones">
+                            <small class="text-muted">Código único para identificar este lote</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Cantidad en este Lote*</label>
+                            <input type="number" class="form-control" name="cantidad" min="1" required
+                                   placeholder="Ej: 100">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Fecha de Ingreso*</label>
+                            <input type="date" class="form-control" name="fecha_ingreso" required
+                                   value="{{ date('Y-m-d') }}">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Fecha de Vencimiento</label>
+                            <input type="date" class="form-control" name="fecha_vencimiento"
+                                   min="{{ date('Y-m-d') }}">
+                            <small class="text-muted">Opcional para productos perecederos</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Precio de Compra (Bs)*</label>
+                            <div class="input-group">
+                                <span class="input-group-text">Bs</span>
+                                <input type="number" step="0.01" class="form-control" 
+                                    name="precio_compra" placeholder="0.00" required>
+                            </div>
+                            <small class="text-muted">Precio unitario de compra para este lote</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Precio de Venta (Bs)*</label>
+                            <div class="input-group">
+                                <span class="input-group-text">Bs</span>
+                                <input type="number" step="0.01" class="form-control" 
+                                    name="precio_venta" placeholder="0.00" required>
+                            </div>
+                            <small class="text-muted">Precio unitario de venta para este lote</small>
+                        </div>
+                    </div>
+
+                   
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i> Cancelar
+                </button>
+                
+                <button type="button" class="btn btn-primary" id="btnGuardarLote">
+                <i class="fas fa-save me-2"></i> Guardar Lote
+                </button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+>
+<!-- Modal de Productos  -->
 <div class="modal fade" id="productosModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
@@ -287,8 +467,8 @@
     </div>
 </div>
 
-<!-- Modal de Laboratorios - Diseño Mejorado -->
-<!-- Modal de Laboratorios - Diseño Mejorado -->
+<!-- Modal de Laboratorios  -->
+
 <div class="modal fade" id="laboratoriosModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog ">
         <div class="modal-content border-0 shadow-sm">
@@ -399,6 +579,41 @@
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const botonesAgregarLote = document.querySelectorAll('.btn-agregar-lote');
+        const inputProductoId = document.getElementById('modalProductoId');
+        const inputTmpCompraId = document.getElementById('modalTmpCompraId');
+        const spanNombreProducto = document.getElementById('nombre-producto-modal');
+        const alertNombreProducto = document.getElementById('nombre-producto-alert');
+
+        botonesAgregarLote.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const productoId = this.getAttribute('data-producto-id');
+                const tmpCompraId = this.getAttribute('data-tmp-compra-id');
+                const nombreProducto = this.getAttribute('data-nombre-producto');
+
+                // Llenar los inputs ocultos y los spans del modal
+                inputProductoId.value = productoId;
+                inputTmpCompraId.value = tmpCompraId;
+                spanNombreProducto.textContent = nombreProducto;
+                alertNombreProducto.textContent = nombreProducto;
+            });
+        });
+    });
+</script>
+
+<script>
+    document.getElementById('btnGuardarLote').addEventListener('click', function () {
+        document.getElementById('formLote').submit();
+    });
+
+    
+</script>
+
+
+
 <script>
 $(document).ready(function() {
     // [Mantener todos tus scripts originales aquí]
@@ -482,9 +697,30 @@ $(document).ready(function() {
                                 setTimeout(() => { location.reload() }, 1500);
                             }
                         },
-                        error: function (error) {
-                            Swal.fire('Error', 'No se pudo eliminar el producto', 'error');
-                        }
+error: function (xhr) {
+    let response = xhr.responseJSON;
+    let errorMessage = 'Error desconocido';
+
+    if (response) {
+        if (response.error) {
+            errorMessage = response.error;
+        } else {
+            // Si no hay campo error, convierte todo el objeto a texto
+            errorMessage = JSON.stringify(response, null, 4);
+        }
+    }
+
+    Swal.fire({
+        title: 'Error al eliminar',
+        html: '<pre style="text-align:left; white-space: pre-wrap;">' + errorMessage + '</pre>',
+        icon: 'error',
+        width: 600,
+        confirmButtonText: 'Cerrar'
+    });
+}
+
+
+                        
                     });
                 }
             });

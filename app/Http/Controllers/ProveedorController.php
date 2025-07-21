@@ -3,8 +3,14 @@
 namespace App\Http\Controllers;
 use App\Models\Sucursal;
 use App\Models\Proveedor;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
+use PDF;
 
 class ProveedorController extends Controller
 {
@@ -136,4 +142,133 @@ class ProveedorController extends Controller
             ->with('mensaje', 'se elimino al proveedor de manera correcta.')
             ->with('icono', 'success');
     }
+
+    public function generarReporte(Request $request)
+{
+    $request->validate([
+        'tipo' => 'required|in:pdf,excel,csv,print'
+    ]);
+    
+    $proveedores = Proveedor::all(); // Cambiado a plural
+    
+    if($proveedores->isEmpty()) {
+        return back()->with('error', 'No hay proveedores para generar el reporte');
+    }
+
+    switch ($request->tipo) {
+        case 'pdf':
+            return $this->generarPDF($proveedores);
+        case 'excel':
+            return $this->generarExcel($proveedores);
+        case 'csv':
+            return $this->generarCSV($proveedores);
+        case 'print':
+            return view('admin.proveedores.reporte', [
+                'proveedores' => $proveedores, // Cambiado a plural
+                'fecha_generacion' => now()->format('d/m/Y H:i:s')
+            ]);
+        default:
+            abort(404);
+    }
+}
+
+private function generarPDF($proveedores)
+{
+    $pdf = Pdf::loadView('admin.proveedores.reporte', [
+        'proveedores' => $proveedores, // Cambiado a plural
+        'fecha_generacion' => now()->format('d/m/Y H:i:s')
+    ]);
+    
+    return $pdf->download('reporte_proveedores_'.now()->format('YmdHis').'.pdf');
+}
+
+private function generarExcel($proveedores)
+{
+    $data = $proveedores->map(function ($proveedor) {
+        return [
+            'Empresa' => $proveedor->nombre,
+            'Dirección' => $proveedor->direccion ?? 'No especificada',
+            'Teléfono' => $proveedor->telefono ?? 'No registrado',
+            'Email' => $proveedor->email ?? 'Sin email',
+            'Contacto' => $proveedor->nombre_contacto ?? $proveedor->nombre, // Usa nombre_contacto o nombre como fallback
+            'Celular' => $proveedor->celular ?? 'No registrado'
+        ];
+    });
+
+    return Excel::download(
+        new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection,
+                               \Maatwebsite\Excel\Concerns\WithHeadings,
+                               \Maatwebsite\Excel\Concerns\WithStyles,
+                               \Maatwebsite\Excel\Concerns\ShouldAutoSize {
+            
+            private $data;
+            
+            public function __construct($data) {
+                $this->data = collect($data);
+            }
+            
+            public function collection() {
+                return $this->data;
+            }
+            
+            public function headings(): array {
+                return [
+                    'Empresa',
+                    'Dirección',
+                    'Teléfono Principal',
+                    'Email',
+                    'Contacto',
+                    'Teléfono Móvil'
+                ];
+            }
+            
+            public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet) {
+                return [
+                    // Estilo encabezados
+                    1 => [
+                        'font' => ['bold' => true],
+                        'alignment' => ['horizontal' => 'center']
+                    ],
+                    // Estilo cuerpo
+                    'A2:F' . $sheet->getHighestRow() => [
+                        'alignment' => ['vertical' => 'center']
+                    ],
+                    // Alineación izquierda para empresa y dirección
+                    'A2:B' . $sheet->getHighestRow() => [
+                        'alignment' => ['horizontal' => 'left']
+                    ],
+                    // Wrap text para dirección y email
+                    'B2:D' . $sheet->getHighestRow() => [
+                        'alignment' => ['wrapText' => true]
+                    ]
+                ];
+            }
+        },
+        'reporte_proveedores_' . now()->format('YmdHis') . '.xlsx'
+    );
+}
+
+private function generarCSV($proveedores)
+{
+    $data = $proveedores->map(function ($proveedor) {
+        return [
+            'Empresa' => $proveedor->nombre,
+             'Dirección' => $proveedor->direccion,
+             'Teléfono' => $proveedor->telefono,
+             'Email' => $proveedor->email,
+            'Nombre' => $proveedor->nombre ,        
+            'Celular' => $proveedor->celular
+        ];
+    });
+
+    return Excel::download(
+        new class($data) implements FromCollection {
+            private $data;
+            public function __construct($data) { $this->data = $data; }
+            public function collection() { return $this->data; }
+        },
+        'reporte_proveedores_'.now()->format('YmdHis').'.csv', // Corregido nombre
+        \Maatwebsite\Excel\Excel::CSV
+    );
+}
 }

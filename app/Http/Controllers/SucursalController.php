@@ -5,6 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Sucursal;
 use Illuminate\Http\Request;
 use App\Models\User;
+
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Carbon\Carbon;
+use PDF;
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -134,5 +140,92 @@ class SucursalController extends Controller
         return redirect()->route('admin.sucursals.index')
             ->with('mensaje', 'laboratorio eliminada con éxito.')
             ->with('icono', 'success');
+    }
+
+
+
+  public function generarReporte(Request $request) // Elimina el parámetro $tipo
+{
+    $request->validate([
+        'tipo' => 'required|in:pdf,excel,csv,print'
+    ]);
+    
+    $sucursals = Sucursal::all();
+    return $this->generarReportePorTipo($request->tipo, $sucursals);
+}
+     protected function generarReportePorTipo($tipo, $sucursals)
+    {
+        switch ($tipo) {
+            case 'pdf':
+                return $this->generarPDF($sucursals);
+            case 'excel':
+                return $this->generarExcel($sucursals);
+            case 'csv':
+                return $this->generarCSV($sucursals);
+            case 'print':
+                return view('admin.sucursals.reporte', [
+                    'sucursals' => $sucursals,
+                    'fecha_generacion' => now()->format('d/m/Y H:i:s')
+                ]);
+            default:
+                abort(404);
+        }
+    }
+
+    private function generarPDF($sucursals)
+    {
+        $pdf = PDF::loadView('admin.sucursals.reporte', [
+            'sucursals' => $sucursals,
+            'fecha_generacion' => now()->format('d/m/Y H:i:s'),
+            'page' => 1, 
+            'pages' => 1
+        ]);
+        
+        return $pdf->download('reporte_sucursales_'.now()->format('YmdHis').'.pdf');
+    }
+
+    private function generarExcel($sucursals)
+    {
+        $data = $sucursals->map(function ($sucursal) {
+            return [
+                'Nombre' => $sucursal->nombre,
+                'Dirección' => $sucursal->direccion,
+                'Email' => $sucursal->email,
+                'Teléfono' => $sucursal->telefono,
+                'Fecha Registro' => $sucursal->created_at->format('d/m/Y')
+            ];
+        });
+
+        return Excel::download(
+            new class($data) implements FromCollection {
+                private $data;
+                public function __construct($data) { $this->data = $data; }
+                public function collection() { return $this->data; }
+            },
+            'reporte_sucursales_'.now()->format('YmdHis').'.xlsx'
+        );
+    }
+
+    private function generarCSV($sucursals)
+    {
+        $data = $sucursals->map(function ($sucursal) {
+            return [
+                'Nombre' => $sucursal->nombre,
+                'Dirección' => $sucursal->direccion,
+                'Email' => $sucursal->email,
+                'Teléfono' => $sucursal->telefono,
+                'Fecha Registro' => $sucursal->created_at->format('d/m/Y')
+            ];
+        });
+
+        return Excel::download(
+            new class($data) implements FromCollection {
+                private $data;
+                public function __construct($data) { $this->data = $data; }
+                public function collection() { return $this->data; }
+            },
+            'reporte_sucursales_'.now()->format('YmdHis').'.csv',
+            \Maatwebsite\Excel\Excel::CSV
+        );
     }
 }

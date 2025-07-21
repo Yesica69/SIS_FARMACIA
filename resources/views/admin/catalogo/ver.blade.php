@@ -67,7 +67,9 @@
                             </h6>
                             
                             <div class="product-price mb-2">
-                                Bs {{ number_format($producto->precio_venta, 2) }}
+                               
+                                Bs {{ number_format($producto->precio_minimo, 2) }}
+
                             </div>
                             
                             <div class="product-meta d-flex justify-content-between align-items-center">

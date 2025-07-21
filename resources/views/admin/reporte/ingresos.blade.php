@@ -1,7 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Egresos por fecha'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Ingresos por fecha'])
 
     <div class="container-fluid mt--6">
             <div class="col-12">
@@ -10,7 +10,7 @@
                         <div>
                             <h5 class="mb-0">
                                 <i class="ni ni-delivery-fast me-2 text-primary"></i>
-                                <strong>Buscar Egresos por Fecha</strong>
+                                <strong>Buscar Ingresos por Fecha</strong>
                             </h5>
                         </div>
                         

@@ -16,10 +16,59 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Reporte de Compras</h1>
-        <p>Generado el: {{ $fecha_generacion }}</p>
+        <style>
+    .compact-header {
+        text-align: center;
+        padding: 12px 0;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #e0e0e0;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    .compact-logo {
+        margin: 0 auto 10px; /* Centrado con margen inferior reducido */
+    }
+
+    .compact-logo img {
+        height: 65px; 
+        width: auto;
+        max-width: 150px;
+    }
+
+    .compact-title {
+        margin: 0;
+        font-size: 18px; 
+        font-weight: 600;
+        color: #2d3748;
+        line-height: 1.3;
+    }
+
+    .compact-subtitle {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: #4a5568;
+    }
+
+    .compact-meta {
+        margin-top: 6px;
+        font-size: 11px;
+        color: #718096;
+    }
+</style>
+
+<div class="compact-header">
+    <div class="compact-logo">
+        <img src="{{ public_path('assets/img/logofarmacia.jpeg') }}" alt="Logo Farmacia">
     </div>
+    
+    <div>
+        <h1 class="compact-title">REPORTE DE COMPRAS</h1>
+        <p class="compact-subtitle">Farmacia Mariel</p>
+        <div class="compact-meta">
+            {{ $fecha_generacion }} | {{ Auth::user()->name ?? 'Sistema' }}
+        </div>
+    </div>
+</div>
 
     <table>
         <thead>
@@ -54,8 +103,9 @@
         </tfoot>
     </table>
 
-    <div class="footer">
-        Generado por: {{ Auth::user()->name }} - {{ $fecha_generacion }}
+      <div class="footer">
+        <p>Sistema de Gestión - {{ date('Y') }} </p>
+        <p>Generado por: {{ Auth::user()->name ?? 'Sistema' }}</p>
     </div>
 </body>
 </html>

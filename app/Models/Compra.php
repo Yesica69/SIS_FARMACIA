@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Compra extends Model
 {
     //
+     protected $fillable = [
+        'fecha',
+        'comprobante',
+        'precio_total',
+        'sucursal_id',
+        'laboratorio_id'
+    ];
     use HasFactory, HasRoles;
 
     //una ccompra tiene muchos detalle de esa compra
@@ -21,6 +28,7 @@ class Compra extends Model
 {
     return $this->belongsTo(Laboratorio::class);
 }
+
 
 
 

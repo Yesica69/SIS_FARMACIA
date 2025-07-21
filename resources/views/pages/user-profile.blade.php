@@ -14,7 +14,7 @@
                 <div class="card profile-card mb-4">
                     <div class="card-header bg-gradient-primary text-white">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Mi Perfil</h5>
+                            <h5 class="mb-0 text-white">Mi Perfil</h5>
                             <button type="submit" form="profileForm" class="btn btn-light btn-sm shadow-sm">
                                 <i class="fas fa-save me-1"></i> Guardar
                             </button>
@@ -78,7 +78,7 @@
                                         <div class="mt-2 text-center" id="imagePreview"></div>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Usuario</label>
+                                        <label class="form-label">Usuari56789o</label>
                                         <div class="input-group custom-input-group">
                                             <span class="input-group-text"><i class="fas fa-user"></i></span>
                                             <input class="form-control" type="text" name="username" 

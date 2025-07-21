@@ -4,73 +4,72 @@
 @include('layouts.navbars.auth.topnav', ['title' => 'Clientes'])
 <div class="container-fluid py-4">
     <!-- Tarjeta de título -->
+<div class="col-12 mb-4">
+             
+
+
+
+
+
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-radius-lg shadow-sm" style="border-left: 4px solid #5e72e4;">
-                <div class="card-body d-flex justify-content-between align-items-center">
+                <div class="card-header pb-0 d-flex justify-content-between align-items-center bg-white">
                     <div>
                         <h5 class="mb-0">
                             <i class="fas fa-users me-2 text-primary"></i>
                             <strong>Clientes</strong>
                         </h5>
                     </div>
+                    
                     <div class="col-4 text-end">
-    <div class="dropdown">
-        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
-                id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-download me-1"></i> Exportar
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
-            <li>
-                <button class="dropdown-item" type="button" onclick="exportar('pdf')">
-                    <i class="fas fa-file-pdf text-danger me-2"></i> PDF
-                </button>
-            </li>
-            <li>
-                <button class="dropdown-item" type="button" onclick="exportar('excel')">
-                    <i class="fas fa-file-excel text-success me-2"></i> Excel
-                </button>
-            </li>
-            <li>
-                <button class="dropdown-item" type="button" onclick="exportar('csv')">
-                    <i class="fas fa-file-csv text-info me-2"></i> CSV
-                </button>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-                <button class="dropdown-item" type="button" onclick="exportar('print')">
-                    <i class="fas fa-print me-2"></i> Imprimir
-                </button>
-            </li>
-        </ul>
-    </div>
+                       <div class="d-flex align-items-center">
+                        <span class="badge bg-gradient-info me-3">
+                             
+                             
+                              <i class="fas fa-database me-1"></i> {{ $clientes->count() }} Clientes
+                        </span>
+                        
+                        <div class="dropdown me-2">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                    title="Exportar reporte en diferentes formatos">
+                                <i class="fas fa-download me-1"></i> Exportar
+                            </button>
+                           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.clientes.reporte') }}?tipo=pdf"
+                                    title="Exportar a PDF" target="_blank">
+                                        <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.clientes.reporte') }}?tipo=excel"
+                                    title="Exportar a Excel">
+                                        <i class="fas fa-file-excel text-success me-2"></i> Excel
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.clientes.reporte') }}?tipo=csv"
+                                    title="Exportar a CSV">
+                                        <i class="fas fa-file-csv text-info me-2"></i> CSV
+                                    </a>
+                                </li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                            </ul>
+                        </div>
+
+                        
+                    </div> 
+                </div>      
+             
+
 </div>
 
-<script>
-function exportar(tipo) {
-    // Obtener los filtros actuales del formulario
-    const filtros = {
-        categoria: $('#categoria').val(),
-        stockBajo: $('#stockBajo').is(':checked'),
-        diasVencimiento: $('#diasVencimiento').val()
-    };
-    
-    switch(tipo) {
-        case 'pdf':
-            window.open(`generar_reporte.php?tipo=pdf&${$.param(filtros)}`, '_blank');
-            break;
-        case 'excel':
-            window.location.href = `generar_reporte.php?tipo=excel&${$.param(filtros)}`;
-            break;
-        case 'csv':
-            window.location.href = `generar_reporte.php?tipo=csv&${$.param(filtros)}`;
-            break;
-        case 'print':
-            window.print();
-            break;
-    }
-}
-</script>
                 </div>
             </div>
         </div>
@@ -160,17 +159,19 @@ function exportar(tipo) {
     <div class="row">
         <div class="col-12">
             <div class="card border-radius-lg shadow-sm">
-                <div class="card-header pb-0" style="background-color: #f8fafc;">
-                    <h6 class="mb-0">
-                        <i class="fas fa-list-ol me-2 text-primary"></i>
-                        <strong>Clientes Registrados</strong>
-                    </h6>
+                <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom">
+                            <h5 class="mb-0 ">
+                            
+                            <i class="ni ni-bullet-list-67 me-2 text-primary"></i></i>Categorias Registrados
+                            </h5>
+                                    
                 </div>
                 
                 <div class="card-body px-0 pt-0 pb-2">
                     <div class="table-responsive p-0">
-                        <table id="mitabla" class="table align-items-center mb-0">
-                            <thead>
+                        <table id="mitabla1" class="table table-hover align-items-center mb-0">
+                          
+                             <thead class="bg-light">
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="width: 8%; text-align: center">Nro</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="text-align: center">Nombre</th>
@@ -204,10 +205,14 @@ function exportar(tipo) {
                                     <td style="text-align: center; vertical-align: middle">
                                         <div class="d-flex justify-content-center">
                                             <!-- Botón Editar -->
-                                            <button type="button" class="btn btn-sm bg-gradient-success text-white mx-1" 
-                                                data-bs-toggle="modal" data-bs-target="#editModal{{ $cliente->id }}" 
-                                                title="Editar">
-                                                <i class="fas fa-edit"></i>
+                                            
+
+                                             <button type="button" class="btn btn-sm bg-gradient-success text-white mx-1" 
+                                                    data-bs-toggle="modal" 
+                                                     style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
+                                                    data-bs-target="#editModal{{ $cliente->id }}"
+                                                    title="Editar categoría">
+                                                <i class="fas fa-pen"></i>
                                             </button>
 
                                             <!-- Botón Eliminar -->
@@ -221,7 +226,9 @@ function exportar(tipo) {
         @csrf
         @method('DELETE')
         <button type="button" 
-                class="btn btn-sm bg-gradient-danger text-white rounded-end shadow-sm px-4 btn-eliminar-cliente"
+                class="btn btn-sm bg-gradient-danger text-white mx-1 btn-eliminar-cliente"
+              
+                 style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
                 title="Eliminar cliente"
                 data-bs-toggle="tooltip">
             <span class="btn-inner--icon me-1">
@@ -229,7 +236,13 @@ function exportar(tipo) {
             </span>
             <span class="btn-inner--text"></span>
         </button>
+
+
+        
     </form>
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -305,136 +318,136 @@ document.querySelectorAll('.btn-eliminar-cliente').forEach(button => {
 </script>
 
 <style>
-/* Estilos Premium */
-.swal2-container-premium {
-    border-radius: 18px !important;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    max-width: 480px !important;
-    padding: 2.5rem !important;
-}
+    /* Estilos Premium */
+    .swal2-container-premium {
+        border-radius: 18px !important;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        max-width: 480px !important;
+        padding: 2.5rem !important;
+    }
 
-.swal2-icon-wrapper {
-    text-align: center;
-    margin: 1.5rem 0;
-}
+    .swal2-icon-wrapper {
+        text-align: center;
+        margin: 1.5rem 0;
+    }
 
-.swal2-icon-svg {
-    width: 72px;
-    height: 72px;
-    opacity: 0.9;
-}
+    .swal2-icon-svg {
+        width: 72px;
+        height: 72px;
+        opacity: 0.9;
+    }
 
-.swal2-content-container {
-    text-align: center;
-    padding: 0 1.5rem;
-}
+    .swal2-content-container {
+        text-align: center;
+        padding: 0 1.5rem;
+    }
 
-.swal2-title {
-    font-size: 1.8rem !important;
-    font-weight: 600 !important;
-    color: #2f3542 !important;
-    letter-spacing: -0.5px;
-    margin-bottom: 0 !important;
-}
+    .swal2-title {
+        font-size: 1.8rem !important;
+        font-weight: 600 !important;
+        color: #2f3542 !important;
+        letter-spacing: -0.5px;
+        margin-bottom: 0 !important;
+    }
 
-.swal2-subtitle {
-    font-size: 1.25rem;
-    color: #57606f;
-    font-weight: 500;
-    margin: 1rem 0;
-}
+    .swal2-subtitle {
+        font-size: 1.25rem;
+        color: #57606f;
+        font-weight: 500;
+        margin: 1rem 0;
+    }
 
-.swal2-user-info {
-    background: #f8f9fa;
-    padding: 0.75rem;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    color: #2f3542;
-    border-left: 4px solid #ff4757;
-}
+    .swal2-user-info {
+        background: #f8f9fa;
+        padding: 0.75rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        color: #2f3542;
+        border-left: 4px solid #ff4757;
+    }
 
-.swal2-warning-text {
-    font-size: 0.95rem;
-    color: #ff6b81;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px dashed #dfe4ea;
-}
+    .swal2-warning-text {
+        font-size: 0.95rem;
+        color: #ff6b81;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px dashed #dfe4ea;
+    }
 
-.swal2-confirm-btn-premium {
-    background: linear-gradient(135deg, #ff4757, #ff6b81) !important;
-    border: none !important;
-    padding: 12px 28px !important;
-    font-weight: 600 !important;
-    font-size: 1rem !important;
-    border-radius: 10px !important;
-    color: white !important;
-    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.25) !important;
-    transition: all 0.3s ease !important;
-}
+    .swal2-confirm-btn-premium {
+        background: linear-gradient(135deg, #ff4757, #ff6b81) !important;
+        border: none !important;
+        padding: 12px 28px !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        border-radius: 10px !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(255, 71, 87, 0.25) !important;
+        transition: all 0.3s ease !important;
+    }
 
-.swal2-confirm-btn-premium:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(255, 71, 87, 0.3) !important;
-}
+    .swal2-confirm-btn-premium:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(255, 71, 87, 0.3) !important;
+    }
 
-.swal2-cancel-btn-premium {
-    background: white !important;
-    border: 1px solid #dfe4ea !important;
-    padding: 12px 28px !important;
-    font-weight: 500 !important;
-    font-size: 1rem !important;
-    border-radius: 10px !important;
-    color: #57606f !important;
-    transition: all 0.3s ease !important;
-}
+    .swal2-cancel-btn-premium {
+        background: white !important;
+        border: 1px solid #dfe4ea !important;
+        padding: 12px 28px !important;
+        font-weight: 500 !important;
+        font-size: 1rem !important;
+        border-radius: 10px !important;
+        color: #57606f !important;
+        transition: all 0.3s ease !important;
+    }
 
-.swal2-cancel-btn-premium:hover {
-    background: #f8f9fa !important;
-    border-color: #ced6e0 !important;
-}
+    .swal2-cancel-btn-premium:hover {
+        background: #f8f9fa !important;
+        border-color: #ced6e0 !important;
+    }
 
-.swal2-actions-premium {
-    margin: 2rem 0 0 0 !important;
-    gap: 1rem !important;
-}
+    .swal2-actions-premium {
+        margin: 2rem 0 0 0 !important;
+        gap: 1rem !important;
+    }
 
-/* Loader premium */
-.swal2-loader-container {
-    width: 100%;
-    padding: 1.5rem 0;
-}
+    /* Loader premium */
+    .swal2-loader-container {
+        width: 100%;
+        padding: 1.5rem 0;
+    }
 
-.swal2-loader-circle {
-    width: 60px;
-    height: 60px;
-    border: 4px solid rgba(255, 71, 87, 0.2);
-    border-top-color: #ff4757;
-    border-radius: 50%;
-    margin: 0 auto 1.5rem;
-    animation: swal2-spin 1s linear infinite;
-}
+    .swal2-loader-circle {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 71, 87, 0.2);
+        border-top-color: #ff4757;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        animation: swal2-spin 1s linear infinite;
+    }
 
-.swal2-loader-bar-container {
-    width: 100%;
-    height: 6px;
-    background: rgba(255, 71, 87, 0.1);
-    border-radius: 3px;
-    overflow: hidden;
-}
+    .swal2-loader-bar-container {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 71, 87, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+    }
 
-.swal2-loader-bar {
-    height: 100%;
-    width: 0;
-    background: linear-gradient(90deg, #ff4757, #ff6b81);
-    border-radius: 3px;
-}
+    .swal2-loader-bar {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, #ff4757, #ff6b81);
+        border-radius: 3px;
+    }
 
-@keyframes swal2-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+    @keyframes swal2-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 
 
@@ -536,6 +549,7 @@ document.querySelectorAll('.btn-eliminar-cliente').forEach(button => {
     </div>
 </div>
 @endforeach
+
 @endsection
 
 @push('css')
@@ -607,39 +621,55 @@ document.querySelectorAll('.btn-eliminar-cliente').forEach(button => {
 @endpush
 
 @push('js')
+
 <!-- Y estos scripts al final de tu body -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    $(document).ready(function() {
-        $('#mitabla').DataTable({
-            "pageLength": 5,
-            "responsive": true,
-            "autoWidth": false,
-            "language": {
-                "lengthMenu": "Mostrar _MENU_ registros por página",
-                "zeroRecords": "No se encontraron resultados",
-                "info": "Mostrando página _PAGE_ de _PAGES_",
-                "infoEmpty": "No hay registros disponibles",
-                "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                "search": "Buscar:",
-                "paginate": {
-                    "first": "Primero",
-                    "last": "Último",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
-                },
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "emptyTable": "No hay datos disponibles en la tabla"
-            },
-            "dom": '<"top"f>rt<"bottom"lip><"clear">',
-            "initComplete": function() {
-                $('.dataTables_filter input').addClass('form-control').attr('placeholder', 'Buscar...');
-                $('.dataTables_length select').addClass('form-control');
+$(document).ready(function() {
+    // Configuración de DataTables
+    $('#mitabla1').DataTable({
+        "pageLength": 10,
+        "responsive": true,
+        "autoWidth": false,
+        "language": {
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "zeroRecords": "No se encontraron categorías",
+            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay categorías registradas",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "dom": '<"row"<"col-md-6"l><"col-md-6"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
+        "initComplete": function() {
+            $('.dataTables_filter input').addClass('form-control').attr('placeholder', 'Buscar categoría...');
+            $('.dataTables_length select').addClass('form-select');
+        }
+    });
+    
+    // Confirmación antes de eliminar con SweetAlert2
+    $('form[method="DELETE"]').on('submit', function(e) {
+        e.preventDefault();
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esta acción!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#5e72e4',
+            cancelButtonColor: '#f5365c',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.submit();
             }
         });
     });
+});
 </script>
 @endpush

@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Models\Sucursal;
 
 use App\Models\Compra;
-
+use App\Models\Lote;
 use App\Models\Venta;
 use App\Models\Cliente;
 use App\Models\DetalleVenta; // Asegúrate de importar el modelo DetalleVenta
@@ -26,19 +26,25 @@ class CatalogController extends Controller
         $sort = $request->input('sort', 'newest'); // Valor por defecto 'newest'
     
         // Consulta de productos más vendidos (se mantiene igual)
-        $topProductos = DetalleVenta::join('productos', 'detalle_ventas.producto_id', '=', 'productos.id')
+        $topProductos = Producto::withSum('lotes as total_cantidad', 'cantidad')
+            ->join('detalle_ventas', 'productos.id', '=', 'detalle_ventas.producto_id')
             ->select(
                 'productos.id',
                 'productos.nombre',
                 'productos.imagen',
-                'productos.stock',
-                'productos.precio_venta',
                 DB::raw('SUM(detalle_ventas.cantidad) as total_vendido')
             )
-            ->groupBy('productos.id', 'productos.nombre', 'productos.imagen', 'productos.stock','productos.precio_venta')
+            ->groupBy('productos.id', 'productos.nombre', 'productos.imagen')
             ->orderByDesc('total_vendido')
             ->take(6)
             ->get();
+
+
+           foreach ($topProductos as $producto) {
+    $productoLotes = \App\Models\Lote::where('producto_id', $producto->id)->get();
+    $producto->precio_minimo = $productoLotes->min('precio_venta') ?? 0;
+    $producto->stock = $productoLotes->sum('cantidad');
+}
     
         // Consulta base
         $query = Producto::with('categoria');
@@ -59,27 +65,30 @@ class CatalogController extends Controller
         }
     
         // Lógica de ordenamiento MEJORADA
+        $query = Producto::with('categoria')->withSum('lotes as total_cantidad', 'cantidad')->withMin('lotes as precio_minimo', 'precio_venta');
+
         switch ($sort) {
-            case 'price_asc':
-                $query->orderBy('precio_venta', 'asc');
-                break;
-                
-            case 'price_desc':
-                $query->orderBy('precio_venta', 'desc');
-                break;
-                
-            case 'popular':
-                $query->select('productos.*')
-                     ->leftJoin('detalle_ventas', 'productos.id', '=', 'detalle_ventas.producto_id')
-                     ->selectRaw('productos.*, SUM(IFNULL(detalle_ventas.cantidad, 0)) as total_vendido')
-                     ->groupBy('productos.id')
-                     ->orderByDesc('total_vendido');
-                break;
-                
-            case 'newest':
-            default:
-                $query->orderBy('created_at', 'desc');
-        }
+    case 'price_asc':
+        $query->orderBy('precio_minimo'); // de los lotes
+        break;
+
+    case 'price_desc':
+        $query->orderByDesc('precio_minimo'); // de los lotes
+        break;
+
+    case 'popular':
+        $query->select('productos.*')
+              ->leftJoin('detalle_ventas', 'productos.id', '=', 'detalle_ventas.producto_id')
+              ->selectRaw('productos.*, SUM(IFNULL(detalle_ventas.cantidad, 0)) as total_vendido')
+              ->groupBy('productos.id')
+              ->orderByDesc('total_vendido');
+        break;
+
+    case 'newest':
+    default:
+        $query->orderBy('created_at', 'desc');
+}
+
     
         $productos = $query->get();
     
@@ -92,22 +101,35 @@ class CatalogController extends Controller
         ]);
     }
     public function show($id)
-    {
-        $producto = Producto::with('categoria')->findOrFail($id);
-    $categorias = Categoria::all(); // Agregado
+{
+    $producto = Producto::with(['categoria', 'lotes'])->findOrFail($id);
+    $categorias = Categoria::all();
+
+    // Obtener precio mínimo y stock total desde los lotes
+    $producto->precio_minimo = $producto->lotes->min('precio_venta') ?? 0;
+    $producto->stock = $producto->lotes->sum('cantidad');
 
     return view('admin.catalogo.show', compact('producto', 'categorias'));
+}
+
+
+public function ver(Categoria $categoria)
+{
+    $productosPaginados = $categoria->productos()->with('lotes')->paginate(12);
+
+    // Calcular precio mínimo y stock total por producto
+    foreach ($productosPaginados as $producto) {
+        $producto->precio_minimo = $producto->lotes->min('precio_venta') ?? 0;
+        $producto->stock = $producto->lotes->sum('cantidad');
     }
 
-    public function ver(Categoria $categoria)
-    {
-       
-        return view('admin.catalogo.ver', [ // Asegúrate que esta ruta coincida
-            'productos' => $categoria->productos()->paginate(12),
-            'categoria' => $categoria,
-            'categorias' => Categoria::all()
-        ]);
-    }
+    return view('admin.catalogo.ver', [
+        'productos' => $productosPaginados,
+        'categoria' => $categoria,
+        'categorias' => Categoria::all()
+    ]);
+}
+
 
     // En tu componente Livewire
 public function getCategoryIcon($categoryName)
@@ -135,6 +157,8 @@ public function buscar(Request $request)
     $termino = $request->input('search');
     
     $productos = Producto::with('categoria')
+        ->withMin('lotes as precio_minimo', 'precio_venta') // Precio más bajo desde Lotes
+        ->withSum('lotes as total_cantidad', 'cantidad')    // Stock total desde Lotes (opcional)
         ->where('nombre', 'LIKE', "%{$termino}%")
         ->orWhere('descripcion', 'LIKE', "%{$termino}%")
         ->orWhereHas('categoria', function($query) use ($termino) {
@@ -142,15 +166,15 @@ public function buscar(Request $request)
         })
         ->paginate(12);
     
-    // Obtener todas las categorías para el filtro
-    $categorias = Categoria::all(); // Asegúrate de importar el modelo Categoria
-    
+    $categorias = Categoria::all();
+
     return view('admin.catalogo.buscar', [
         'productos' => $productos,
         'terminoBusqueda' => $termino,
-        'categorias' => $categorias // Pasamos las categorías a la vista
+        'categorias' => $categorias
     ]);
 }
+
 
 
 
@@ -160,19 +184,25 @@ public function buscar(Request $request)
 public function search(Request $request)
 {
     $query = $request->input('query', '');
-    
-    $results = Producto::where('nombre', 'like', "%$query%")
+
+    $results = Producto::with('lotes') // Asegúrate que la relación esté definida en el modelo Producto
+        ->where('nombre', 'like', "%$query%")
         ->take(10)
         ->get()
         ->map(function($item) {
+            // Obtener el precio más bajo desde los lotes
+            $precio_venta = $item->lotes->min('precio_venta') ?? 0;
+
             return [
                 'nombre' => $item->nombre,
-                'url' => route('admin.productos.show', $item->id),
-                'imagen' => $item->imagen ? asset('storage/'.$item->imagen) : asset('img/default-product.png')
+                'url' => route('admin.catalogo.show', $item->id), // Asegúrate que esta sea la ruta correcta
+                'imagen' => $item->imagen ? asset('storage/'.$item->imagen) : asset('img/default-product.png'),
+                'precio' => 'Bs ' . number_format($precio_venta, 2) // Ahora se incluye el precio correcto
             ];
         });
 
     return response()->json($results);
 }
+
 
 }

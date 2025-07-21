@@ -5,8 +5,9 @@
 <div class="container-fluid mt--6">
     <div class="row">
         <div class="col">
-            <div class="card">
-                <div class="card-header border-0">
+            <div class="card" style="height: auto;">
+            <div class="card-header border-0 p-2"> <!-- p-2 es un padding más pequeño -->
+                <div class="d-flex justify-content-between align-items-center">
                     <h3 class="mb-0"><b>Listado de cajas</b></h3>
                     <div class="card-header bg-transparent border-0">
                     @if ($cajaAbierto)                 
@@ -21,47 +22,47 @@
 
                     <!-- Barra de acciones -->
                 <div class="d-flex gap-2 align-items-center">
-    <button class="btn btn-sm btn-outline-secondary" id="refreshTable">
-        <i class="fas fa-sync-alt me-1"></i> Actualizar
-    </button>
-    <div class="position-relative"> <!-- Contenedor relativo importante -->
-        <div class="dropdown">
-            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
-                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-download me-1"></i> Exportar
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg" 
-                style="z-index: 1060; position: absolute;"
-                aria-labelledby="exportDropdown">
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" 
-                       href="{{ route('admin.cajas.reporte', ['tipo' => 'pdf']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}"
-                       target="_blank">
-                        <i class="fas fa-file-pdf text-danger me-2"></i> PDF
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" 
-                       href="{{ route('admin.cajas.reporte', ['tipo' => 'excel']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
-                        <i class="fas fa-file-excel text-success me-2"></i> Excel
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" 
-                       href="{{ route('admin.cajas.reporte', ['tipo' => 'csv']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
-                        <i class="fas fa-file-csv text-info me-2"></i> CSV
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
+                        <button class="btn btn-sm btn-outline-secondary" id="refreshTable">
+                            <i class="fas fa-sync-alt me-1"></i> Actualizar
+                        </button>
+                        <div class="position-relative"> <!-- Contenedor relativo importante -->
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                                        id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-download me-1"></i> Exportar
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg" 
+                                    style="z-index: 1060; position: absolute;"
+                                    aria-labelledby="exportDropdown">
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center" 
+                                        href="{{ route('admin.cajas.reporte', ['tipo' => 'pdf']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}"
+                                        target="_blank">
+                                            <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center" 
+                                        href="{{ route('admin.cajas.reporte', ['tipo' => 'excel']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
+                                            <i class="fas fa-file-excel text-success me-2"></i> Excel
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center" 
+                                        href="{{ route('admin.cajas.reporte', ['tipo' => 'csv']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
+                                            <i class="fas fa-file-csv text-info me-2"></i> CSV
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 </div>
                 
             </div>
-            
+             </div>
             
         </div>
     </div>
@@ -72,6 +73,11 @@
     <div class="row mt-3">
         <div class="col-md-12">
             <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">
+                        <i class="ni ni-bullet-list-67 me-2 text-primary"></i>Detalle de cajas
+                    </h5>
+                </div>
                 <!-- Tabla de Cajas -->
         <div class="card-body pt-0">
             <div class="table-responsive">
@@ -129,6 +135,7 @@
         @if(!$caja->fecha_cierre)
         <button type="button" class="btn btn-action btn-warning"
             data-bs-toggle="modal" data-bs-target="#ingresoEgresoModal{{$caja->id}}"
+            style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
             data-bs-tooltip="tooltip" title="Registrar Movimientos">
             <i class="fas fa-exchange-alt"></i>
         </button>
@@ -137,17 +144,23 @@
         @if(!$caja->fecha_cierre)
         <button type="button" class="btn btn-action btn-secondary"
             data-bs-toggle="modal" data-bs-target="#cerrarModal{{$caja->id}}"
+             style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
             data-bs-tooltip="tooltip" title="Cerrar Caja">
             <i class="fas fa-lock"></i>
         </button>
         @endif
         
         <!-- Botón ver -->
-        <button type="button" class="btn btn-action btn-info"
+        <button type="button" 
+        
+         class="btn btn-sm bg-gradient-info text-white mx-1 d-flex align-items-center justify-content-center"
             data-bs-toggle="modal" data-bs-target="#verModal{{$caja->id}}"
+             style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
             data-bs-tooltip="tooltip" title="Ver Detalles">
             <i class="fas fa-eye"></i>
         </button>
+
+        
         
         <!-- Botón editar 
         <button type="button" class="btn btn-action btn-primary"
@@ -159,6 +172,7 @@
         <!-- Botón eliminar -->
         <button type="button" class="btn btn-action btn-danger"
             onclick="confirmDelete({{$caja->id}})"
+             style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
             data-bs-tooltip="tooltip" title="Eliminar Caja">
             <i class="fas fa-trash-alt"></i>
         </button>

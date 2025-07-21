@@ -86,27 +86,15 @@
                                 
                                 <!-- Dates Row - Diseño Rectangular Compacto -->
                                 <div class="form-row d-flex align-items-end"> <!-- align-items-end para alinear los labels -->
-                                <div class="flex-grow-1 mr-2 mb-4"> <!-- flex-grow-1 para que ocupen el espacio disponible -->
-        <label class="form-control-label">Fecha Ingreso <span class="text-danger">*</span></label>
-        <input type="date" class="form-control" name="fecha_ingreso" value="{{ old('fecha_ingreso') }}" required>
-        @error('fecha_ingreso')
-            <div class="invalid-feedback d-block">{{$message}}</div>
-        @enderror
-    </div>
-    
-    <div class="col-auto px-2 mb-3 d-flex align-items-center">
-        <span class="text-muted"></span>
-    </div>
-    
-    
-    <div class="flex-grow-1 mb-4">
-        <label class="form-control-label">Fecha Vencimiento</label>
-        <input type="date" class="form-control" name="fecha_vencimiento" value="{{ old('fecha_vencimiento') }}">
-        @error('fecha_vencimiento')
-            <div class="invalid-feedback d-block">{{$message}}</div>
-        @enderror
-    </div>
-</div>
+                               
+                                
+                                <div class="col-auto px-2 mb-3 d-flex align-items-center">
+                                    <span class="text-muted"></span>
+                                </div>
+                                
+                                
+                            
+                            </div>
                                 
                                 <!-- Description -->
                                 <div class="mb-3">
@@ -125,10 +113,7 @@
                                                 <h6 class="mb-0">Control de Inventario</h6>
                                             </div>
                                             <div class="card-body p-2">
-                                                <div class="form-group mb-2">
-                                                    <label class="form-control-label">Stock Actual</label>
-                                                    <input type="number" class="form-control" name="stock" value="{{ old('stock', 0) }}" required>
-                                                </div>
+                                                
                                                 
                                                 <div class="form-group mb-2">
                                                     <label class="form-control-label">Stock Mínimo</label>
@@ -143,34 +128,7 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="col-md-6 pl-md-2">
-                                        <div class="card border-0 shadow-sm mb-3 h-100">
-                                            <div class="card-header bg-light py-2">
-                                                <h6 class="mb-0">Información de Precios</h6>
-                                            </div>
-                                            <div class="card-body p-3">
-                                                <div class="form-group mb-3">
-                                                    <label class="form-control-label">Precio Compra</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text">Bs.</span>
-                                                        </div>
-                                                        <input type="text" class="form-control" name="precio_compra" value="{{ old('precio_compra') }}" required>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="form-group mb-3">
-                                                    <label class="form-control-label">Precio Venta</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text">Bs.</span>
-                                                        </div>
-                                                        <input type="text" class="form-control" name="precio_venta" value="{{ old('precio_venta') }}" required>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
                             </div>
                             

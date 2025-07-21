@@ -10,13 +10,11 @@
                 <div class="card-header border-0">
                     <div class="row align-items-center">
                         <div class="col-8">
-                            <h3 class="mb-0"><i class="fas fa-shopping-cart me-2"></i> <strong>Detalle de la Compra</strong></h3>
+                            <h4 class="mb-0"><i class="fas fa-shopping-cart me-2"></i> <strong>Detalle de la Compra</strong></h4>
                         </div>
                         <div class="col-4 text-end">
                             <div>
-                        <a href="{{ url('/admin/compras') }}" class="btn btn-sm btn-outline-secondary me-2">
-                            <i class="ni ni-bold-left me-1"></i> Volver al listado
-                        </a>
+                        
                         <a href="{{ url('/admin/compras/pdf/' . $compra->id) }}" target="_blank" class="btn btn-sm btn-danger">
                             <i class="ni ni-single-copy-04 me-1"></i> Exportar PDF
                         </a>
@@ -24,66 +22,73 @@
                         </div>
                     </div>
                 </div>
-                
+                 </div> 
+                 <hr> 
                 <!-- Card Body -->
-                <div class="card-body">
-                    <div class="row">
-                        <!-- Columna izquierda (Tabla de productos) -->
-                        <div class="col-md-8">
-                            <div class="table-responsive">
-                                <table class="table table-hover table-bordered">
-                                    <thead class="thead-light">
-                                        
-                                        
+                <div class="row mb-3">
+        <div class="col-md-8">
+            <div class="card">
+                 <div class="modal-header bg-gradient-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-boxes me-2"></i> Productos Comprados</h5>
+                </div>
 
-
-                                        <tr>
-                <th class="text-center px-1" style="width: 3%;">#</th>
-                <th class="text-center px-1" style="width: 10%;">Código</th>
-                <th class="text-center px-1" style="width: 5%;">Cantidad</th>
-                <th class="px-1" style="width: 40%;">Nombre</th>
-               
-                <th class="text-end px-1" style="width: 12%;">Unit.</th>
-                <th class="text-end px-1" style="width: 15%;">total</th>
-                
+                 
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+    <table class="table table-sm table-bordered table-hover align-middle mb-0" style="font-size: 0.875rem;">
+        <thead class="table-light">
+            <tr>
+                <th class="text-center px-2 py-1" style="width: 4%;">#</th>
+                <th class="text-center px-2 py-1" style="width: 12%;">Código</th>
+                <th class="text-center px-2 py-1" style="width: 8%;">Cantidad</th>
+                <th class="px-2 py-1" style="width: 35%;">Producto</th>
+                <th class="text-end px-2 py-1" style="width: 12%;">P. Unit.</th>
+                <th class="text-end px-2 py-1" style="width: 15%;">Subtotal</th>
             </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php $cont = 1; $total_cantidad = 0; $total_compra = 0; ?>
-                                        @foreach($compra->detalles as $detalle)
-                                            <tr>
-                                                <td style="text-align: center; vertical-align: middle">{{$cont++}}</td>
-                                                <td style="text-align: center; vertical-align: middle">
-                                                    <span class="badge bg-secondary">{{$detalle->producto->codigo}}</span>
-                                                </td>
-                                                <td style="text-align: center; vertical-align: middle">{{$detalle->cantidad}}</td>
-                                                <td style="vertical-align: middle">{{$detalle->producto->nombre}}</td>
-                                               
-                                                <td style="text-align: center; vertical-align: middle">Bs{{number_format($detalle->producto->precio_compra, 2)}}</td>
-                                                <td style="text-align: center; vertical-align: middle">Bs{{number_format($costo = $detalle->cantidad * $detalle->producto->precio_compra, 2)}}</td>
-                                            </tr>
-                                            @php
-                                                $total_cantidad += $detalle->cantidad;
-                                                $total_compra += $costo;
-                                            @endphp
-                                        @endforeach
-                                    </tbody>
-                                    <tfoot class="bg-light">
-                                        <tr>
-                                            <td colspan="2" style="text-align: right"><strong>Total</strong></td>
-                                            <td style="text-align: center"><strong>{{$total_cantidad}}</strong></td>
-                                            <td colspan="2" style="text-align: right"><strong>Total compra</strong></td>
-                                            <td style="text-align: center"><strong>Bs{{number_format($total_compra, 2)}}</strong></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
-
+        </thead>
+        <tbody>
+            @php $cont = 1; $total_cantidad = 0; $total_compra = 0; @endphp
+            @foreach($compra->detalles as $detalle)
+            <tr>
+                <td class="text-center px-2 py-1">{{ $cont++ }}</td>
+                <td class="text-center px-2 py-1">
+                    <span class="badge bg-secondary bg-opacity-10 text-dark border border-secondary border-opacity-25">{{ $detalle->producto->codigo }}</span>
+                </td>
+                <td class="text-center px-2 py-1">{{ $detalle->cantidad }}</td>
+                <td class="px-2 py-1">{{ $detalle->producto->nombre }}</td>
+                @php
+                    $lote = \App\Models\Lote::where('producto_id', $detalle->producto_id)
+                                        ->latest('id')
+                                        ->first();
+                    $precioCompra = $lote->precio_compra ?? 0;
+                    $costo = $detalle->cantidad * $precioCompra;
+                @endphp
+                <td class="text-end px-2 py-1">Bs{{ number_format($precioCompra, 2) }}</td>
+                <td class="text-end px-2 py-1 fw-semibold">Bs{{ number_format($costo, 2) }}</td>
+            </tr>
+            @php
+                $total_cantidad += $detalle->cantidad;
+                $total_compra += $costo;
+            @endphp
+            @endforeach
+        </tbody>
+        <tfoot class="table-light">
+            <tr>
+                <td colspan="2" class="text-end fw-bold px-2 py-1">Total</td>
+                <td class="text-center fw-bold px-2 py-1">{{ $total_cantidad }}</td>
+                <td colspan="2" class="text-end fw-bold px-2 py-1">Total Compra</td>
+                <td class="text-center fw-bold px-2 py-1">Bs{{ number_format($total_compra, 2) }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+                </div>
+            </div>
+        </div>
                         <!-- Columna derecha (Fecha y detalles de compra) -->
                         <div class="col-md-4">
                             <div class="card border-info mb-3">
-                                <div class="card-header bg-info text-white">
+                                <div class="modal-header bg-gradient-info text-white">
                                     <h5 class="card-title mb-0"><i class="fas fa-calendar-alt me-2"></i>Información de Compra</h5>
                                 </div>
                                 <div class="card-body">
@@ -104,23 +109,25 @@
                                         <label for="precio_total" class="form-label">Monto Total</label>
                                         <input type="text" class="form-control text-center fw-bold text-danger bg-light" value="Bs{{number_format($total_compra, 2)}}" disabled>
                                     </div>
+                                    
+                                        <a href="{{ url('/admin/compras/'.$compra->id.'/edit') }}" 
+                                                                class="btn btn-sm btn-icon   bg-gradient-success  mx-3" 
+                                                                    
+                                                                title="Editar">
+                                                                    <i class="fas fa-pencil-alt"></i>Editar
+                                                                </a>
+                                        <a href="{{url('/admin/compras')}}" class="btn btn-primary">
+                                            <i class="fas fa-arrow-left me-1"></i> Volver
+                                        </a>
+               
                                 </div>
+                                
                             </div>
+                            
                         </div>
                     </div>
                 </div>
                 
-                <!-- Card Footer -->
-                <div class="card-footer d-flex justify-content-end">
-                    <a href="{{ url('/admin/compras/'.$compra->id.'/edit') }}" 
-                                               class="btn btn-sm btn-icon btn-success mx-3" 
-                                               title="Editar">
-                                                <i class="fas fa-pencil-alt"></i>Editar
-                                            </a>
-                    <a href="{{url('/admin/compras')}}" class="btn btn-primary">
-                        <i class="fas fa-arrow-left me-1"></i> Volver
-                    </a>
-                </div>
             </div>
         </div>
     </div>

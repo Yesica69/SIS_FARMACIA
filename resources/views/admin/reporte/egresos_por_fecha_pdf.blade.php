@@ -89,6 +89,12 @@
         <div class="total">
             Total Egresos: Bs {{ number_format($total, 2) }}
         </div>
+
+
+                  <div class="footer">
+        <p>Sistema de Gestión - {{ date('Y') }} </p>
+        <p>Generado por: {{ Auth::user()->name ?? 'Sistema' }}</p>
+    </div>
     </main>
 </body>
 </html>

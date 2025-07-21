@@ -58,9 +58,16 @@ Route::prefix('admin/sucursals')->group(function () {
     Route::get('/editar/{id}', [SucursalController::class, 'edit'])->name('admin.sucursals.edit');
     Route::put('/actualizar/{id}', [SucursalController::class, 'update'])->name('admin.sucursals.update');
     Route::delete('/eliminar/{id}', [SucursalController::class, 'destroy'])->name('admin.sucursals.destroy');
+    Route::get('/admin/sucursals/reporte', [SucursalController::class, 'generarReporte'])
+     ->name('admin.sucursals.reporte');
 });
-//rutas para roles
 
+
+   
+// Elimina el {tipo} de la URI
+//rutas para roles
+ Route::get('/admin/roles/reporte', [App\Http\Controllers\RoleController::class, 'generarReporte'])
+     ->name('admin.roles.reporte');
 Route::get('/admin/roles', [App\Http\Controllers\RoleController::class, 'index'])->name('admin.roles.index')->middleware('auth');
 Route::get('/admin/roles/create', [App\Http\Controllers\RoleController::class, 'create'])->name('admin.roles.create');
 Route::post('/admin/roles/create', [App\Http\Controllers\RoleController::class, 'store'])->name('admin.roles.store');
@@ -68,7 +75,10 @@ Route::get('/admin/roles/{id}', [App\Http\Controllers\RoleController::class, 'sh
 Route::get('/admin/roles/{id}/edit', [App\Http\Controllers\RoleController::class, 'edit'])->name('admin.roles.edit')->middleware('auth');
 Route::put('/admin/roles/{id}', [App\Http\Controllers\RoleController::class, 'update'])->name('admin.roles.update')->middleware('auth');
 Route::delete('/admin/roles/{id}', [App\Http\Controllers\RoleController::class, 'destroy'])->name('admin.roles.destroy')->middleware('auth');
-Route::get('/admin/roles/reporte', [App\Http\Controllers\RoleController::class, 'reporte'])->name('admin.roles.reporte');
+
+ 
+
+   
 
 //ruta apara asignar prmiso
 Route::get('/admin/roles/{id}/asignar', [App\Http\Controllers\RoleController::class, 'asignar'])->name('admin.roles.asignar')->middleware('auth');
@@ -105,11 +115,15 @@ Route::get('/admin/usuarios/{id}/edit', [App\Http\Controllers\UsuarioController:
 Route::put('/admin/usuarios/{id}', [App\Http\Controllers\UsuarioController::class, 'update'])->name('admin.usuarios.update')->middleware('auth');
 Route::delete('/admin/usuarios/{id}', [App\Http\Controllers\UsuarioController::class, 'destroy'])->name('admin.usuarios.destroy')->middleware('auth');
 
-
+Route::get('/admin/usuarios/reporte/{tipo}', [App\Http\Controllers\UsuarioController::class, 'generarReporte'])
+    ->where('tipo', 'pdf|excel|csv|print')
+    ->name('admin.usuarios.reporte');
 
 
 //rutas para CATEGORIAS
-
+// Coloca ESTA RUTA ANTES de cualquier ruta similar
+Route::get('/admin/categorias/reporte', [App\Http\Controllers\CategoriaController::class, 'generarReporte'])
+     ->name('admin.categorias.reporte');
 Route::get('/admin/categorias', [App\Http\Controllers\CategoriaController::class, 'index'])->name('admin.categorias.index')->middleware('auth');
 Route::get('/admin/categorias/create', [App\Http\Controllers\CategoriaController::class, 'create'])->name('admin.categorias.create')->middleware('auth');
 Route::post('/admin/categorias/create', [App\Http\Controllers\CategoriaController::class, 'store'])->name('admin.categorias.store')->middleware('auth');
@@ -118,9 +132,11 @@ Route::get('/admin/categorias/{id}/edit', [App\Http\Controllers\CategoriaControl
 Route::put('/admin/categorias/{id}', [App\Http\Controllers\CategoriaController::class, 'update'])->name('admin.categorias.update')->middleware('auth');
 Route::delete('/admin/categorias/{id}', [App\Http\Controllers\CategoriaController::class, 'destroy'])->name('admin.categorias.destroy')->middleware('auth');
 
+     
 
 //RUTAS PARA LABORATORIOS
-
+ Route::get('/admin/laboratorios/reporte', [App\Http\Controllers\LaboratorioController::class, 'generarReporte'])
+     ->name('admin.laboratorios.reporte');
 Route::get('/admin/laboratorios', [App\Http\Controllers\LaboratorioController::class, 'index'])->name('admin.laboratorios.index')->middleware('auth');
 Route::get('/admin/laboratorios/create', [App\Http\Controllers\LaboratorioController::class, 'create'])->name('admin.laboratorios.create')->middleware('auth');
 Route::post('/admin/laboratorios/create', [App\Http\Controllers\LaboratorioController::class, 'store'])->name('admin.laboratorios.store')->middleware('auth');
@@ -149,7 +165,8 @@ Route::delete('/admin/laboratorios/{id}', [App\Http\Controllers\LaboratorioContr
 
 
     //RUTAS PARA PROVEEDOR
-
+ Route::get('/admin/proveedores/reporte', [App\Http\Controllers\ProveedorController::class, 'generarReporte'])
+     ->name('admin.proveedores.reporte');
     Route::get('/admin/proveedores', [App\Http\Controllers\ProveedorController::class, 'index'])->name('admin.proveedores.index')->middleware('auth');
     Route::get('/admin/proveedores/create', [App\Http\Controllers\ProveedorController::class, 'create'])->name('admin.proveedores.create')->middleware('auth');
     Route::post('/admin/proveedores/create', [App\Http\Controllers\ProveedorController::class, 'store'])->name('admin.proveedores.store')->middleware('auth');
@@ -184,11 +201,14 @@ Route::delete('/admin/laboratorios/{id}', [App\Http\Controllers\LaboratorioContr
        Route::post('/admin/compras/detalle/create', [App\Http\Controllers\DetalleCompraController::class, 'store'])->name('admin.detalle.compras.store')->middleware('auth');
        Route::delete('/admin/compras/detalle/{id}', [App\Http\Controllers\DetalleCompraController::class, 'destroy'])->name('admin.detalle.compras.destroy')->middleware('auth');
 
+// routes/lote
+Route::post('/admin/compras/agregar-lote', [App\Http\Controllers\CompraController::class, 'agregarLote'])->name('compras.agregarLote');
 
-      
+Route::get('/admin/compras/tmp', [App\Http\Controllers\CompraController::class, 'mostrarTmpCompras'])->name('compras.tmp');
 
  //RUTAS PARA CLIENTES
-
+Route::get('/admin/clientes/reporte', [App\Http\Controllers\ClienteController::class, 'generarReporte'])
+     ->name('admin.clientes.reporte');
  Route::get('/admin/clientes', [App\Http\Controllers\ClienteController::class, 'index'])->name('admin.clientes.index')->middleware('auth');
  Route::get('/admin/clientes/create', [App\Http\Controllers\ClienteController::class, 'create'])->name('admin.clientes.create')->middleware('auth');
  Route::post('/admin/clientes/create', [App\Http\Controllers\ClienteController::class, 'store'])->name('admin.clientes.store')->middleware('auth');
@@ -311,3 +331,19 @@ Route::get('/admin/buscar-productos', [App\Http\Controllers\CatalogController::c
 // Ruta para el autocompletado (AJAX)
 Route::get('/admin/buscar-autocomplete', [App\Http\Controllers\CatalogController::class, 'search'])
 ->name('admin.catalogo.search');
+
+
+// lotes rutas
+Route::get('/admin/lotes/reporte', [App\Http\Controllers\LoteController::class, 'generarReporte'])
+     ->name('admin.lotes.reporte');
+    Route::get('/admin/lotes', [App\Http\Controllers\LoteController::class, 'index'])->name('admin.lotes.index')->middleware('auth');
+    Route::get('/admin/lotes/create', [App\Http\Controllers\LoteController::class, 'create'])->name('admin.lotes.create')->middleware('auth');
+    Route::post('/admin/lotes/create', [App\Http\Controllers\LoteController::class, 'store'])->name('admin.lotes.store')->middleware('auth');
+    Route::get('/admin/lotes/{id}', [App\Http\Controllers\LoteController::class, 'show'])->name('admin.lotes.show')->middleware('auth');
+    Route::get('/admin/lotes/{id}/edit', [App\Http\Controllers\LoteController::class, 'edit'])->name('admin.lotes.edit')->middleware('auth');
+    Route::put('/admin/lotes/{id}', [App\Http\Controllers\LoteController::class, 'update'])->name('admin.lotes.update')->middleware('auth');
+    Route::delete('/admin/lotes/{id}', [App\Http\Controllers\LoteController::class, 'destroy'])->name('admin.lotes.destroy')->middleware('auth');
+
+
+    //cchat
+    Route::post('/chat-ia', [App\Http\Controllers\ChatIAController::class, 'preguntar']);

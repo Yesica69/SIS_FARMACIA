@@ -90,7 +90,7 @@
             <!-- Logo y botón móvil -->
             <a class="navbar-brand text-primary me-3" href="#">
                 <i class="fas fa-clinic-medical me-2"></i>
-                <span class="d-none d-sm-inline">Farmacia</span>
+                <img src="{{ asset('assets/img/logo2.jpeg') }}" alt="Logo" width="80" height="auto">
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">

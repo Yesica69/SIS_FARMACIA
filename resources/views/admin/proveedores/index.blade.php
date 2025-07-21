@@ -5,41 +5,90 @@
     
     <div class="container-fluid py-4">
         <!-- Primera tarjeta: Título y botón -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card border-radius-lg shadow-sm" style="border-left: 4px solid #5e72e4;">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-0">
-                                <i class="ni ni-delivery-fast me-2 text-primary"></i>
-                                <strong>Gestión de Proveedores</strong>
-                            </h5>
+
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header pb-0 d-flex justify-content-between align-items-center bg-white">
+                    <div class="d-flex align-items-center">
+                        
+                        <h5 class="mb-0">
+                            
+                          <i class="ni ni-delivery-fast me-2 text-primary"></i>
+                            <strong>GESTION DE PROVEEDORES</strong></h5>
+                    </div>
+                    
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-gradient-info me-3">
+                             
+                             
+                              <i class="fas fa-database me-1"></i> {{ $proveedores->count() }} Proveedores
+                        </span>
+                        
+                        <div class="dropdown me-2">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                    title="Exportar reporte en diferentes formatos">
+                                <i class="fas fa-download me-1"></i> Exportar
+                            </button>
+                           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.proveedores.reporte') }}?tipo=pdf"
+                                    title="Exportar a PDF" target="_blank">
+                                        <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.proveedores.reporte') }}?tipo=excel"
+                                    title="Exportar a Excel">
+                                        <i class="fas fa-file-excel text-success me-2"></i> Excel
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.proveedores.reporte') }}?tipo=csv"
+                                    title="Exportar a CSV">
+                                        <i class="fas fa-file-csv text-info me-2"></i> CSV
+                                    </a>
+                                </li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                            </ul>
                         </div>
-                        <button type="button" class="btn bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#modalCrear">
-                            <i class="ni ni-fat-add me-1"></i> Nuevo Proveedor
+
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
+                            <i class="fas fa-plus-circle me-1"></i> Nuevo
                         </button>
                     </div>
                 </div>
-            </div>
+        </div>
+    
+
+
+       
         </div>
 
         <!-- Segunda tarjeta: Tabla de proveedores -->
         <div class="row">
             <div class="col-12">
                 <div class="card mb-4 border-radius-lg shadow-sm">
-                    <div class="card-header pb-0" style="background-color: #f8fafc;">
-                        <h6 class="mb-0">
+                      <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom">
+                        <h5 class="mb-0">
                             <i class="ni ni-bullet-list-67 me-2 text-primary"></i>
                             <strong>Proveedores Registrados</strong>
-                        </h6>
+                        </h5>
                     </div>
+
+
+                    
                     
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
                            
                             <table id="proveedor-tabla" class="table align-items-center mb-0">
-                                <thead>
-                                    <tr style="background-color: #f8fafc;">
+                                <thead class="bg-light">
+                                    <tr >
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="width: 5%; text-align: center">Nro</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="text-align: center">Empresa</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="text-align: center">Dirección</th>
@@ -65,45 +114,47 @@
                                         <td style="vertical-align: middle">{{$proveedor->email}}</td>
                                         <td style="vertical-align: middle">{{$proveedor->nombre}}</td>
                                         <td style="vertical-align: middle; text-align: center">
-                                            <a href="https://wa.me/591{{$proveedor->celular}}" target="_blank"
-                                               class="btn btn-sm bg-gradient-success" title="Contactar por WhatsApp">
-                                                <i class="ni ni-send me-1"></i> {{$proveedor->celular}}
+                                            <a href="https://wa.me/591{{ $proveedor->celular }}" 
+                                            target="_blank"
+                                            class="btn btn-sm fw-bold shadow-sm transition-all" 
+                                            style="background-color: #25D366; color: white; border-radius: 8px; border: none;"
+                                            onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';"
+                                            onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';"
+                                            title="Contactar por WhatsApp">
+                                            <i class="fab fa-whatsapp me-2 fs-5 align-middle"></i> 
+                                            <span class="align-middle">{{ $proveedor->celular }}</span>
                                             </a>
                                         </td>
                                         <td style="text-align: center; vertical-align: middle">
                                             <div class="btn-group" proveedor="group">
-                                                <!-- Botón Ver -->
-                                                <button type="button" class="btn btn-sm bg-gradient-info mx-1 text-white" 
-                                                        data-bs-toggle="modal" data-bs-target="#verModal{{ $proveedor->id }}"
-                                                        title="Ver detalles">
-                                                        <i class="fas fa-eye"></i>
-                                                </button>
-                                                
-                                                <!-- Botón Editar -->
-                                                
+                                               <!-- Contenedor para agrupar los botones  -->
+<div class="d-inline-flex gap-2">
+    <!-- Botón Ver -->
+    <button type="button" 
+            class="btn btn-sm bg-gradient-info text-white d-flex justify-content-center align-items-center" 
+            style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
+            data-bs-toggle="modal" 
+            data-bs-target="#verModal{{ $proveedor->id }}"
+            title="Ver detalles">
+        <i class="fas fa-eye" style="font-size: 0.8rem;"></i>
+    </button>
 
-                                                <!-- Botón Eliminar -->
-                                                
-
-
-
-
-                                                <form action="{{ route('admin.proveedores.destroy', $proveedor->id) }}" 
-      method="POST" 
-      class="d-inline"
-      data-proveedor='{"nombre":"{{ $proveedor->nombre }}"}'>
+    <!-- Botón Eliminar -->
+    <form action="{{ route('admin.proveedores.destroy', $proveedor->id) }}" 
+          method="POST" 
+          class="d-inline"
+          data-proveedor='{"nombre":"{{ $proveedor->nombre }}"}'>
         @csrf
         @method('DELETE')
         <button type="button" 
-                class="btn btn-sm bg-gradient-danger text-white rounded-end shadow-sm px-4 btn-eliminar-proveedor"
-                title="Eliminar rol"
+                class="btn btn-sm bg-gradient-danger text-white d-flex justify-content-center align-items-center btn-eliminar-proveedor"
+                style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
+                title="Eliminar proveedor"
                 data-bs-toggle="tooltip">
-            <span class="btn-inner--icon me-1">
-                <i class="fas fa-trash-alt"></i>
-            </span>
-            <span class="btn-inner--text"></span>
+            <i class="fas fa-trash-alt" style="font-size: 0.8rem;"></i>
         </button>
     </form>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -617,6 +668,9 @@ document.querySelectorAll('.btn-eliminar-proveedor').forEach(button => {
         </div>
     </div>
     @endforeach
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection
 
 @push('css')

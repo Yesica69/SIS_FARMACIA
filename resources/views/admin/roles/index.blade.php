@@ -4,43 +4,80 @@
 @include('layouts.navbars.auth.topnav', ['title' => 'Gestión de Roles'])
 <div class="container-fluid py-4">
     <!-- Header Principal -->
-    
-    <div class="card border-radius-lg shadow-sm">
-    <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-center p-4">
-        <div class="d-flex align-items-center mb-3 mb-md-0">
-            <div class="icon icon-shape bg-gradient-info shadow-info text-center rounded-circle me-3">
-                <i class="fas fa-user-tag text-white opacity-10"></i>
-            </div>
-            <div>
-                <h5 class="mb-0 text-dark font-weight-bold">Gestión de Roles</h5>
-                <p class="text-sm text-muted mb-0">Administración completa del sistema de roles</p>
-            </div>
-        </div>
-        <div class="d-flex align-items-center">
-            <span class="badge bg-gradient-info me-3">
-                <i class="fas fa-layer-group me-1"></i> {{ $roles->count() }} roles
-            </span>
-            <button type="button" class="btn btn-light bg-gradient-info text-white me-2 shadow-sm" 
-                    data-bs-toggle="modal" data-bs-target="#crearRolModal">
-                <i class="fas fa-plus-circle me-1"></i> Nuevo Rol
-            </button>
-            
-            <a href="{{ url('/admin/roles/reporte') }}" target="_blank" class="btn btn-sm btn-danger">
-                <i class="fas fa-file-pdf me-1"></i> PDF
-            </a>
+
+<div class="row">
+        <!-- Card de Encabezado -->
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header pb-0 d-flex justify-content-between align-items-center bg-white">
+                    <div class="d-flex align-items-center">
+                        
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-tag me-3 text-primary"></i>
+                            <strong>GESTION ROLES</strong></h5>
+                    </div>
+                    
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-gradient-info me-3">
+                             
+                             <i class="fas fa-layer-group me-1"></i> {{ $roles->count() }} roles
+                        </span>
+                        
+                        <div class="dropdown me-2">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                    title="Exportar reporte en diferentes formatos">
+                                <i class="fas fa-download me-1"></i> Exportar
+                            </button>
+                           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.roles.reporte') }}?tipo=pdf"
+                                    title="Exportar a PDF" target="_blank">
+                                        <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.roles.reporte') }}?tipo=excel"
+                                    title="Exportar a Excel">
+                                        <i class="fas fa-file-excel text-success me-2"></i> Excel
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.roles.reporte') }}?tipo=csv"
+                                    title="Exportar a CSV">
+                                        <i class="fas fa-file-csv text-info me-2"></i> CSV
+                                    </a>
+                                </li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                            </ul>
+                        </div>
+
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#crearRolModal">
+                            <i class="fas fa-plus-circle me-1"></i> Nuevo
+                        </button>
+                    </div>
+                </div>
         </div>
     </div>
-</div>
+
+
+    
+   
 
     <!-- Modal para Crear Nuevo Rol -->
     <div class="modal fade" id="crearRolModal" tabindex="-1" aria-labelledby="crearRolModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-gradient-info text-white">
-                    <h5 class="modal-title" id="crearRolModalLabel">
-                        <i class="fas fa-plus-circle me-2"></i> Registrar Nuevo Rol
+                
+                    <div class="modal-header bg-gradient-primary text-white">
+                    <h5 class="modal-title text-white" id="crearRolModalLabel">
+                        <i class="fas fa-plus-circle me-2 text-white"></i> 
+                        Registrar Nuevo Rol
                     </h5>
-                    
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
@@ -67,7 +104,7 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             <i class="fas fa-times me-2"></i> Cancelar
                         </button>
-                        <button type="submit" class="btn btn-success">
+                        <button type="submit" class="btn bg-gradient-primary">
                             <i class="fas fa-save me-2"></i> Guardar Rol
                         </button>
                     </div>
@@ -76,10 +113,10 @@
         </div>
     </div>
     
-    <div class="my-3"></div> 
+    
     
     <!-- Card de Roles registrados -->
-    <div class="card shadow-lg border-0">
+    
         
         
         <div class="card-body">
@@ -114,43 +151,50 @@
             
             <div class="d-flex justify-content-between align-items-center border-top pt-3">
                 
-            <div class="btn-group">
-                                    <!-- Botón Asignar Permisos -->
-                                    <button type="button" class="btn btn-sm bg-gradient-warning text-white" 
-                                        data-bs-toggle="modal" data-bs-target="#asignarModal{{ $role->id }}"
-                                        title="Asignar permisos">
-                                        <i class="fas fa-key"></i>
-                                    </button>
-                                    
-                                    <!-- Botón Editar -->
-                                    <button type="button" class="btn btn-sm bg-gradient-success text-white" 
-                                        data-bs-toggle="modal" data-bs-target="#editModal{{ $role->id }}"
-                                        title="Editar rol">
-                                        <i class="fas fa-pencil-alt"></i>
-                                    </button>
-                                    
-                                    <!-- Botón Eliminar -->
-                                   
+           
+                                    <!-- Contenedor de botones con espaciado -->
+<!-- Contenedor de botones compactos -->
+<!-- Contenedor de botones con espaciado controlado -->
+<div class="d-flex align-items-center">
+    <!-- Botón Permisos -->
+     <button type="button" 
+        class="btn btn-sm btn-outline-warning rounded-2 me-2 px-2 py-1"
+        data-bs-toggle="modal" 
+        data-bs-target="#asignarModal{{ $role->id }}"
+        title="Asignar permisos">
+    <i class="fas fa-key me-1"></i>
+    <span class="small">Permisos</span>
+</button>
+    
+    
+    
+    <!-- Botón Editar -->
+    <button type="button" 
+            class="btn btn-sm btn-outline-success rounded-2 me-2 px-2 py-1"
+            data-bs-toggle="modal" 
+            data-bs-target="#editModal{{ $role->id }}"
+            title="Editar rol">
+        <i class="fas fa-pencil-alt me-1"></i>
+        <span class="small">Editar</span>
+    </button>
 
-
-
-
-                                    <form action="{{ route('admin.roles.destroy', $role->id) }}" 
-      method="POST" 
-      class="d-inline"
-      data-role='{"nombre":"{{ $role->nombre }}"}'>
+    
+    
+    <!-- Botón Eliminar -->
+    <form action="{{ route('admin.roles.destroy', $role->id) }}" 
+          method="POST" 
+          class="d-inline me-2"
+          data-role='{"nombre":"{{ $role->nombre }}"}'>
         @csrf
         @method('DELETE')
         <button type="button" 
-                class="btn btn-sm bg-gradient-danger text-white rounded-end shadow-sm px-3 btn-eliminar-role"
-                title="Eliminar rol"
-                data-bs-toggle="tooltip">
-            <span class="btn-inner--icon me-1">
-                <i class="fas fa-trash-alt"></i>
-            </span>
-            <span class="btn-inner--text">Eliminar</span>
+                class="btn btn-sm btn-outline-danger rounded-2 px-2 py-1 btn-eliminar-role"
+                title="Eliminar rol">
+            <i class="fas fa-trash-alt me-1"></i>
+            <span class="small">Eliminar</span>
         </button>
     </form>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -379,7 +423,7 @@ document.querySelectorAll('.btn-eliminar-role').forEach(button => {
                 <div class="modal fade" id="editModal{{ $role->id }}" tabindex="-1" aria-labelledby="editLabel{{ $role->id }}" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content border-0 shadow-lg">
-                            <div class="modal-header bg-gradient-info text-white">
+                            <div class="modal-header bg-gradient-success text-white">
                                 <h5 class="modal-title" id="editLabel{{ $role->id }}">Editar Rol</h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
@@ -478,6 +522,9 @@ document.querySelectorAll('.btn-eliminar-role').forEach(button => {
         </div>
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection
 
 @section('scripts')

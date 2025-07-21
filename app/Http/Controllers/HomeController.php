@@ -60,10 +60,14 @@ public function index()
     $data = $topProducts->pluck('total_vendido');
 
     // Productos con bajo stock (menos de 10 unidades)
-    $lowStockProducts = Producto::where('stock', '<', 4)
-        ->where('sucursal_id', $sucursal_id)
-        ->orderBy('stock', 'ASC')
-        ->get();
+    
+   
+    $lowStockProducts = Producto::withSum('lotes as total_cantidad', 'cantidad')
+    ->where('sucursal_id', $sucursal_id)
+    ->having('total_cantidad', '<', 10)
+    ->orderBy('total_cantidad', 'asc')
+    ->get();
+
 
     
 

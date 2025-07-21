@@ -9,7 +9,7 @@ use App\Models\Caja;
 use App\Models\MovimientoCaja;
 use App\Models\TmpCompra;
 use NumberToWords\NumberToWords;
-
+use App\Models\Lote;
 use NumberFormatter;
 use App\Models\Proveedor;
 use App\Models\Laboratorio;
@@ -54,11 +54,13 @@ class CompraController extends Controller
         $laboratorios = Laboratorio::all();
     $session_id = session()->getId();
     $tmp_compras = TmpCompra::where('session_id',$session_id)->get();
+$lotesPorProducto = \App\Models\Lote::latest('id')->get()->groupBy('producto_id');
 
-        return view('admin.compras.create', compact('productos',  'laboratorios','tmp_compras'));
+        return view('admin.compras.create', compact('productos', 'laboratorios', 'tmp_compras', 'lotesPorProducto'));
+
     }
     
-    public function store(Request $request)
+ public function store(Request $request)
     {
         // Lógica para almacenar la compra
         //$datos = request()->all();
@@ -115,8 +117,8 @@ class CompraController extends Controller
         $detalle_compra->save();
 
 //SUMAR 
-        $producto->stock += $tmp_compra->cantidad;
-        $producto->save();
+      //  $producto->stock += $tmp_compra->cantidad;
+       // $producto->save();
 
 
 
@@ -134,6 +136,57 @@ class CompraController extends Controller
     /**
      * Display the specified resource.
      */
+
+
+    /**
+     * Display the specified resource.
+     */
+
+// CompraController.php
+// En tu LoteController.php
+public function agregarLote(Request $request)
+{
+    $request->validate([
+    'numero_lote' => 'required|string',
+    'cantidad' => 'required|integer|min:1',
+    'fecha_ingreso' => 'required|date',
+    'precio_compra' => 'required|numeric',
+    'precio_venta' => 'required|numeric',
+    'producto_id' => 'required|exists:productos,id',
+]);
+
+ 
+
+    // Guardar el lote (esto depende de tu relación, ejemplo con hasOne)
+    
+
+        Lote::create([
+    'numero_lote' => $request->numero_lote,
+    'fecha_ingreso' => $request->fecha_ingreso,
+    'fecha_vencimiento' => $request->fecha_vencimiento,
+    'cantidad' => $request->cantidad,
+    'precio_compra' => $request->precio_compra,
+    'precio_venta' => $request->precio_venta,
+    'producto_id' => $request->producto_id,
+'session_id' => session()->getId(),
+
+    ]);
+
+    return redirect()->back()->with('success', 'Lote registrado correctamente.');
+    
+}
+public function mostrarTmpCompras()
+{
+    $tmpCompras = TmpCompra::with('producto')->where('user_id', auth()->id())->get();
+
+    $lotesPorProducto = Lote::latest('id')->get()->groupBy('producto_id');
+
+   
+     return view('compras.create', compact('tmpCompras', 'lotesPorProducto'));
+    
+}
+
+
     public function show($id)
     {
         //
@@ -194,53 +247,50 @@ class CompraController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
-    {
-        DB::beginTransaction();
-        try {
-            $compra = Compra::with('detalles.producto')->findOrFail($id);
-            
-            // 1. Buscar el movimiento de caja relacionado (2 métodos alternativos)
-            $movimiento = MovimientoCaja::where('descripcion', 'like', '%Compra de productos - ID: '.$compra->id.'%')
-                                      ->orWhere('descripcion', 'like', '%Compra ID: '.$compra->id.'%')
-                                      ->first();
-            
-            // Alternativa si lo anterior no funciona:
-            if (!$movimiento) {
-                $movimiento = MovimientoCaja::where('monto', $compra->precio_total)
-                                          ->whereDate('created_at', $compra->created_at->toDateString())
-                                          ->where('tipo', 'EGRESO')
-                                          ->first();
-            }
-            
-            // 2. Revertir stock de productos
-            foreach ($compra->detalles as $detalle) {
-                $producto = $detalle->producto;
-                $producto->stock = max(0, $producto->stock - $detalle->cantidad); // Evita negativos
-                $producto->save();
-            }
-            
-            // 3. Eliminar en este orden
-            if ($movimiento) {
-                $movimiento->delete(); // Primero el movimiento
-            }
-            
-            $compra->detalles()->delete(); // Luego los detalles
-            $compra->delete(); // Finalmente la compra
-            
-            DB::commit();
-            
-            return redirect()->route('admin.compras.index')
-                ->with('mensaje', 'Compra y movimiento de caja eliminados correctamente')
-                ->with('icono', 'success');
+public function destroy($id)
+{
+    DB::beginTransaction();
+    try {
+        // Cargar la compra con sus relaciones usando el nombre correcto
+        $compra = Compra::with(['detalles.lote', 'movimientoCaja'])->findOrFail($id);
+        
+        // 1. Revertir la cantidad en los lotes asociados
+        foreach ($compra->detalles as $detalle) {
+            if ($detalle->lote) {
+                $lote = $detalle->lote;
+                $lote->cantidad += $detalle->cantidad; // Revertimos la compra
                 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->with('mensaje', 'Error al eliminar: '.$e->getMessage())
-                ->with('icono', 'error');
+                if ($lote->cantidad <= 0) {
+                    $lote->delete();
+                } else {
+                    $lote->save();
+                }
+            }
         }
+        
+        // 2. Eliminar el movimiento de caja asociado (usando movimientoCaja)
+        if ($compra->movimientoCaja) {
+            $compra->movimientoCaja->delete();
+        }
+        
+        // 3. Eliminar los detalles de la compra
+        $compra->detalles()->delete();
+        
+        // 4. Finalmente eliminar la compra
+        $compra->delete();
+        
+        DB::commit();
+        
+        return redirect()->route('admin.compras.index')
+               ->with('success', 'Compra eliminada correctamente');
+               
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error eliminando compra ID '.$id.': '.$e->getMessage());
+        return redirect()->back()
+               ->with('error', 'No se pudo eliminar la compra: '.$e->getMessage());
     }
+}
     public function agregarTmp(Request $request)
 {
     $request->validate([
@@ -353,20 +403,99 @@ private function generarExcel($compras)
         return [
             'Fecha' => $compra->fecha,
             'Comprobante' => $compra->comprobante,
-            'Laboratorio' => $compra->laboratorio->nombre,
-            'Total' => $compra->precio_total,
+            'Laboratorio' => $compra->laboratorio->nombre ?? 'N/A',
+            'Total' => number_format($compra->precio_total, 2),
             'Productos' => $compra->detalles->count(),
             'Cantidad Total' => $compra->detalles->sum('cantidad')
         ];
     });
 
     return Excel::download(
-        new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection {
+        new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection,
+                               \Maatwebsite\Excel\Concerns\WithHeadings,
+                               \Maatwebsite\Excel\Concerns\WithStyles,
+                               \Maatwebsite\Excel\Concerns\ShouldAutoSize,
+                               \Maatwebsite\Excel\Concerns\WithColumnWidths {
+            
             private $data;
-            public function __construct($data) { $this->data = $data; }
-            public function collection() { return $this->data; }
+            
+            public function __construct($data) {
+                $this->data = collect($data);
+            }
+            
+            public function collection() {
+                return $this->data;
+            }
+            
+            public function headings(): array {
+                return [
+                    'Fecha',
+                    'Comprobante',
+                    'Laboratorio',
+                    'Total (Bs)',
+                    'N° Productos',
+                    'Cantidad Total'
+                ];
+            }
+            
+            public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet) {
+                return [
+                    // Estilo encabezados
+                    1 => [
+                        'font' => [
+                            'bold' => true,
+                            'color' => ['rgb' => 'FFFFFF'],
+                            'size' => 12
+                        ],
+                        'fill' => [
+                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => '3498DB'] // Azul
+                        ],
+                        'alignment' => [
+                            'horizontal' => 'center',
+                            'vertical' => 'center'
+                        ]
+                    ],
+                    // Estilo cuerpo
+                    'A2:F' . $sheet->getHighestRow() => [
+                        'alignment' => [
+                            'vertical' => 'center',
+                            'horizontal' => 'center'
+                        ],
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                                'color' => ['rgb' => 'EEEEEE']
+                            ]
+                        ]
+                    ],
+                    // Alineación izquierda para laboratorio
+                    'C2:C' . $sheet->getHighestRow() => [
+                        'alignment' => [
+                            'horizontal' => 'left'
+                        ]
+                    ],
+                    // Formato numérico para total
+                    'D2:D' . $sheet->getHighestRow() => [
+                        'numberFormat' => [
+                            'formatCode' => '#,##0.00'
+                        ]
+                    ]
+                ];
+            }
+            
+            public function columnWidths(): array {
+                return [
+                    'A' => 15,  // Fecha
+                    'B' => 20,  // Comprobante
+                    'C' => 25,  // Laboratorio
+                    'D' => 15,  // Total
+                    'E' => 12,  // Productos
+                    'F' => 15   // Cantidad
+                ];
+            }
         },
-        'reporte_compras_'.now()->format('YmdHis').'.xlsx'
+        'reporte_compras_' . now()->format('YmdHis') . '.xlsx'
     );
 }
 

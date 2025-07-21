@@ -25,7 +25,7 @@
                                         @method('post')
                                         <div class="mb-3">
                                             <label for="email" class="form-label">Correo electrónico</label>
-                                            <input type="email" name="email" id="email" class="form-control form-control-lg" value="{{ old('email') ?? 'admin@argon.com' }}" aria-label="Email" required>
+                                            <input type="email" name="email" id="email" class="form-control form-control-lg" value="{{ old('email') ?? 'usuario@gmail.com' }}" aria-label="Email" required>
                                             @error('email') 
                                                 <div class="text-danger text-sm pt-1">{{ $message }}</div> 
                                             @enderror

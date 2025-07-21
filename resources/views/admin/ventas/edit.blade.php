@@ -8,7 +8,7 @@
         <!-- Card 1: Productos -->
         <div class="col-lg-8">
             <div class="card shadow-lg">
-                <div class="card-header bg-gradient-primary text-white">
+                <div class="card-header bg-gradient-success text-white">
                     <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>Productos de la Venta</h5>
                 </div>
                 <div class="card-body">
@@ -42,29 +42,43 @@
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="text-center" width="5%">#</th>
-                                    <th class="text-center" width="15%">Código</th>
-                                    <th class="text-center" width="10%">Cant.</th>
-                                    <th width="30%">Nombre</th>
-                                    <th class="text-center" width="15%">P. Unit.</th>
-                                    <th class="text-center" width="15%">Total</th>
-                                    <th class="text-center" width="10%">Acción</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">#</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Código</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Cantidad</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Producto</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">P. Unitario</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Subtotal</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php $cont = 1; $total_cantidad = 0; $total_venta = 0;?>
                                 @foreach($venta->detallesVenta as $detalle)
                                 <tr>
-                                    <td class="text-center">{{$cont++}}</td>
-                                    <td class="text-center">{{$detalle->producto->codigo}}</td>
-                                    <td class="text-center">{{$detalle->cantidad}}</td>
-                                    <td>{{$detalle->producto->nombre}}</td>
-                                    <td class="text-center">Bs {{number_format($detalle->producto->precio_venta, 2)}}</td>
-                                    <td class="text-center">Bs {{number_format($costo = $detalle->cantidad * $detalle->producto->precio_venta, 2)}}</td>
                                     <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="{{$detalle->id}}">
+                                         <span class="text-secondary text-xs font-weight-bold">{{$cont++}}</td>
+                                    <td class="text-center">
+                                         <span class="text-secondary text-xs font-weight-bold">{{$detalle->producto->codigo}}</td>
+                                    <td class="text-center">
+                                         <span class="text-secondary text-xs font-weight-bold">{{$detalle->cantidad}}</td>
+                                    <td> <span class="text-secondary text-xs font-weight-bold">{{$detalle->producto->nombre}}</td>
+                                  @php
+    // Obtener el lote con cantidad positiva más reciente para este producto
+    $lote = $detalle->producto->lotes()->where('cantidad', '>', 0)->orderBy('fecha_ingreso', 'desc')->first();
+    $precioVenta = $lote ? $lote->precio_venta : 0;
+    $costo = $detalle->cantidad * $precioVenta;
+@endphp
+
+<td class="text-center">
+     <span class="text-secondary text-xs font-weight-bold">Bs {{ number_format($precioVenta, 2) }}</td>
+<td class="text-center">
+     <span class="text-secondary text-xs font-weight-bold">Bs {{ number_format($costo, 2) }}</td>
+
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-xs btn-outline-danger delete-btn" data-id="{{$detalle->id}}">
                                             <i class="fas fa-trash"></i>
                                         </button>
+
+                                       
                                     </td>
                                 </tr>
                                 @php
@@ -91,7 +105,7 @@
         <!-- Card 2: Información del Cliente -->
         <div class="col-lg-4">
             <div class="card shadow-lg">
-                <div class="card-header bg-gradient-primary text-white">
+                <div class="card-header bg-gradient-success text-white">
                     <h5 class="mb-0"><i class="fas fa-user-tag me-2"></i>Información de la Venta</h5>
                 </div>
                 <div class="card-body">

@@ -9,52 +9,53 @@
         <!-- Tarjeta principal con sombra más suave y bordes redondeados -->
         <div class="card shadow-lg rounded-3 border-0 overflow-hidden">
             <!-- Encabezado con gradiente profesional -->
-            <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="card-header btn-white text-white py-3">
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <div class="d-flex align-items-center">
                             
                             <div>
-                                <h3 class="mb-0 text-white">Panel de Ventas</h3>
-                                <p class="text-white text-opacity-75 mb-0">Resumen estadístico de tus ventas</p>
+                                <h3 class="mb-0 text-black">Panel de Ventas</h3>
+                               
+                                <p class="text-black text-opacity-75 mb-0">Resumen estadístico de tus ventas</p>
                             </div>
                             <!-- Barra de acciones -->
-                <div class="d-flex gap-2 align-items-center">
-    <button class="btn btn-sm btn-outline-secondary" id="refreshTable">
-        <i class="fas fa-sync-alt me-1"></i> Actualizar
-    </button>
-    <div class="position-relative"> <!-- Contenedor relativo importante -->
-        <div class="dropdown">
-            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
-                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-download me-1"></i> Exportar
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg" 
-                style="z-index: 1060; position: absolute;"
-                aria-labelledby="exportDropdown">
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" 
-                       href="{{ route('admin.ventas.reporte', ['tipo' => 'pdf']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}"
-                       target="_blank">
-                        <i class="fas fa-file-pdf text-danger me-2"></i> PDF
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" 
-                       href="{{ route('admin.ventas.reporte', ['tipo' => 'excel']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
-                        <i class="fas fa-file-excel text-success me-2"></i> Excel
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" 
-                       href="{{ route('admin.ventas.reporte', ['tipo' => 'csv']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
-                        <i class="fas fa-file-csv text-info me-2"></i> CSV
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
+                             <div class="d-flex gap-2 align-items-center">
+                                <button class="btn btn-sm btn-outline-secondary" id="refreshTable">
+                                    <i class="fas fa-sync-alt me-1"></i> Actualizar
+                                </button>
+                                <div class="position-relative"> <!-- Contenedor relativo importante -->
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                                                id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-download me-1"></i> Exportar
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-lg" 
+                                            style="z-index: 1060; position: absolute;"
+                                            aria-labelledby="exportDropdown">
+                                            <li>
+                                                <a class="dropdown-item d-flex align-items-center" 
+                                                href="{{ route('admin.ventas.reporte', ['tipo' => 'pdf']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}"
+                                                target="_blank">
+                                                    <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item d-flex align-items-center" 
+                                                href="{{ route('admin.ventas.reporte', ['tipo' => 'excel']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
+                                                    <i class="fas fa-file-excel text-success me-2"></i> Excel
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item d-flex align-items-center" 
+                                                href="{{ route('admin.ventas.reporte', ['tipo' => 'csv']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&cliente_id={{ request('cliente_id') }}">
+                                                    <i class="fas fa-file-csv text-info me-2"></i> CSV
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
 
@@ -62,38 +63,39 @@
                     </div>
                     
                     <div class="col-md-4 text-end">
-    @if(isset($cajaAbierto) && $cajaAbierto)
-        <!-- Botón NUEVA VENTA - Verde con efecto hover -->
-        <a href="{{ url('/admin/ventas/create') }}" 
-           class="btn btn-sm rounded-pill px-3 shadow-sm border-0"
-           style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white; transition: all 0.3s;"
-           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(40, 167, 69, 0.3)'"
-           onmouseout="this.style.transform='none'; this.style.boxShadow='none'">
-           <i class="fas fa-plus-circle me-1"></i> NUEVA VENTA
-        </a>
-    @else
-        <!-- Botón ABRIR CAJA - Rojo con efecto hover -->
-        <a href="{{ url('/admin/cajas/create') }}" 
-           class="btn btn-sm rounded-pill px-3 shadow-sm border-0"
-           style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; transition: all 0.3s;"
-           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(220, 53, 69, 0.3)'"
-           onmouseout="this.style.transform='none'; this.style.boxShadow='none'">
-           <i class="fas fa-lock-open me-1"></i> ABRIR CAJA
-        </a>
-    @endif
-</div>
+                            @if(isset($cajaAbierto) && $cajaAbierto)
+                                <!-- Botón NUEVA VENTA - Verde con efecto hover -->
+                                <a href="{{ url('/admin/ventas/create') }}" 
+                                class="btn btn-sm rounded-pill px-3 shadow-sm border-0"
+                                style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white; transition: all 0.3s;"
+                                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(40, 167, 69, 0.3)'"
+                                onmouseout="this.style.transform='none'; this.style.boxShadow='none'">
+                                <i class="fas fa-plus-circle me-1"></i> NUEVA VENTA
+                                </a>
+                            @else
+                                <!-- Botón ABRIR CAJA - Rojo con efecto hover -->
+                                <a href="{{ url('/admin/cajas/create') }}" 
+                                class="btn btn-sm rounded-pill px-3 shadow-sm border-0"
+                                style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; transition: all 0.3s;"
+                                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(220, 53, 69, 0.3)'"
+                                onmouseout="this.style.transform='none'; this.style.boxShadow='none'">
+                                <i class="fas fa-lock-open me-1"></i> ABRIR CAJA
+                                </a>
+                            @endif
+                        </div>
                 </div>
             </div>
-
+            </div>
+<hr>
             <!-- Cuerpo de la tarjeta -->
-            <div class="card-body bg-soft-light">
+            
                 <!-- Estadísticas en formato moderno -->
                 <div class="row g-4 mb-4">
                     <div class="col-md-4">
                         <div class="card border-0 shadow-sm rounded-3 h-100 hover-scale">
                             <div class="card-body p-3">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                                    <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3 d-flex align-items-center justify-content-center">
                                         <i class="fas fa-receipt fs-2"></i>
                                     </div>
                                     <div>
@@ -112,7 +114,7 @@
                         <div class="card border-0 shadow-sm rounded-3 h-100 hover-scale">
                             <div class="card-body p-3">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-shape bg-success bg-opacity-10 text-success rounded-3 p-3 me-3">
+                                    <div class="icon-shape bg-success bg-opacity-10 text-success rounded-3 p-3 me-3 d-flex align-items-center justify-content-center">
                                         <i class="fas fa-money-bill-wave fs-2"></i>
                                     </div>
                                     <div>
@@ -136,7 +138,7 @@
                         <div class="card border-0 shadow-sm rounded-3 h-100 hover-scale">
                             <div class="card-body p-3">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-shape bg-info bg-opacity-10 text-info rounded-3 p-3 me-3">
+                                    <div class="icon-shape bg-info bg-opacity-10 text-info rounded-3 p-3 me-3 d-flex align-items-center justify-content-center">
                                         <i class="fas fa-calendar-alt fs-2"></i>
                                     </div>
                                     <div>
@@ -153,10 +155,22 @@
                             </div>
                         </div>
                     </div>
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Escuchar eventos de eliminación 
+                        document.addEventListener('ventaEliminada', function() {
+                            fetch('/actualizar-ventas-mes')
+                                .then(response => response.json())
+                                .then(data => {
+                                    document.querySelector('#ventas-mes-card h2').textContent = 'Bs' + data.total.toFixed(2);
+                                });
+                        });
+                    });
+                    </script>
                 </div>
 
                 
-            </div>
+           
         </div>
     </div>
 </div>
@@ -188,18 +202,22 @@
 </style>
 
     <!-- Card Inferior - Tabla de Ventas -->
+    <div class="card shadow-lg rounded-3 border-0 overflow-hidden" style="max-width: 1020px; margin: 0 auto;">
     <div class="row">
-        <div class="col">
+        <div class="col-12">
             <div class="card shadow">
-                <div class="card-header bg-white border-0">
-                    <h3 class="mb-0">
-                        <i class="fas fa-history text-primary mr-2"></i>Detalle de Ventas
-                    </h3>
+                <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom">
+                    <h5 class="mb-0">
+                        <i class="ni ni-bullet-list-67 me-2 text-primary"></i>Detalle de Ventas
+                    </h5>
                 </div>
+
+                
                 <div class="card-body px-0">
                     <div class="table-responsive">
-                        <table id="ventasTabla" class="table align-items-center table-flush table-hover">
-                            <thead class="thead-light">
+                        <table id="ventasTabla" class="table table-hover align-items-center mb-0">
+                            
+                            <thead class="bg-light">
                                 <tr>
                                     <th class="text-center">#</th>
                                     <th class="text-center">Detalles</th>
@@ -224,8 +242,6 @@
                                                     <tr class="bg-gradient-primary text-white">
                                                         <th>Producto</th>
                                                         <th class="text-center">Cantidad</th>
-                                                        
-                                                        
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -233,7 +249,6 @@
                                                     <tr>
                                                         <td>{{ $detalle->producto->nombre }}</td>
                                                         <td class="text-center">{{ $detalle->cantidad }}</td>
-                                                      
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
@@ -244,33 +259,37 @@
                                     <td class="align-middle text-success font-weight-bold">Bs{{ number_format($venta->precio_total, 2) }}</td>
                                     <td class="text-center align-middle">
                                         <div class="d-flex justify-content-center">
-                                            <!--<a href="{{ url('/admin/ventas/pdf/' . $venta->id) }}" 
-                                               target="_blank" 
-                                               class="btn btn-sm btn-danger mx-1" 
-                                               title="PDF"
-                                               data-toggle="tooltip">
-                                                <i class="fas fa-file-pdf"></i>
-                                            </a>-->
-                                            
                                             <a href="{{ url('/admin/ventas', $venta->id) }}" 
-                                               class="btn btn-sm btn-primary mx-1" 
+                                              class="btn btn-sm bg-gradient-success text-white mx-1 d-flex align-items-center justify-content-center"
+                                                style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
                                                title="Ver"
                                                data-toggle="tooltip">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            
-                                           
+
+                                            <a href="{{ url('/admin/ventas', $venta->id) }}" 
+                                              class="btn btn-sm bg-gradient-success text-white mx-1 d-flex align-items-center justify-content-center"
+                                                style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
+                                               title="Ver"
+                                               data-toggle="tooltip">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+
+
                                             
                                             <form action="{{ url('/admin/ventas', $venta->id) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" 
-                                                        class="btn btn-sm btn-dark mx-1" 
+                                                          class="btn btn-sm bg-gradient-danger text-white mx-1 btn-eliminar-compra"
                                                         title="Eliminar"
+                                                          style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
                                                         data-toggle="tooltip"
                                                         onclick="return confirm('¿Confirmas eliminar esta venta?')">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
+
+                                                 
                                             </form>
                                         </div>
                                     </td>
@@ -280,10 +299,10 @@
                         </table>
                     </div>
                 </div>
-                
             </div>
         </div>
     </div>
+</div>
 </div>
 
 

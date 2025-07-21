@@ -5,7 +5,7 @@ use NumberToWords\NumberToWords;
 use App\Models\Caja;
 use NumberFormatter;
 
-
+use App\Models\Lote;
 use App\Models\Venta;
 use App\Models\Cliente;
 use App\Models\DetalleVenta;
@@ -134,20 +134,29 @@ class VentaController extends Controller
             // Redirigir al índice con un mensaje de éxito
             $tmp_ventas = TmpVenta::where('session_id',$session_id)->get();
 
-            foreach($tmp_ventas as $tmp_venta){
-            //traer toda la informacion del producto
-            $producto = Producto::where('id',$tmp_venta->producto_id)->first();
-            $detalle_venta = new DetalleVenta();
-            $detalle_venta->cantidad = $tmp_venta->cantidad;
+            foreach ($tmp_ventas as $tmp_venta) {
+                // Crear detalle venta
+                $detalle_venta = new DetalleVenta();
+                $detalle_venta->cantidad = $tmp_venta->cantidad;
+                $detalle_venta->venta_id = $ventas->id;
+                $detalle_venta->producto_id = $tmp_venta->producto_id;
+                $detalle_venta->save();
 
-            $detalle_venta->venta_id = $ventas->id;
-            $detalle_venta->producto_id = $tmp_venta->producto_id;
+                // Descontar cantidad vendida del primer lote disponible (ordenado por fecha_ingreso asc)
+                $lote = Lote::where('producto_id', $tmp_venta->producto_id)
+                            ->where('cantidad', '>', 0)
+                            ->orderBy('fecha_ingreso', 'asc')
+                            ->first();
 
-            $detalle_venta->save();
+                if ($lote) {
+                    $lote->cantidad -= $tmp_venta->cantidad;
+                    if ($lote->cantidad < 0) $lote->cantidad = 0; // Evitar cantidad negativa
+                    $lote->save();
+                }
+            
 
-            //SUMAR 
-            $producto->stock -= $tmp_venta->cantidad;
-            $producto->save();
+
+            
 
 
 
@@ -405,20 +414,104 @@ private function generarExcel($ventas)
     $data = $ventas->map(function ($venta) {
         return [
             'Fecha' => $venta->fecha,
+            'N° Factura' => $venta->numero_factura ?? 'N/A',
             'Cliente' => $venta->cliente->nombre_cliente ?? 'Sin cliente',
-            'Total' => $venta->precio_total,
+            'CI/NIT' => $venta->cliente->nit_ci ?? 'N/A',
+            'Total (Bs)' => number_format($venta->precio_total, 2),
             'Productos' => $venta->detallesVenta->count(),
-            'Cantidad Total' => $venta->detallesVenta->sum('cantidad')
+            'Cantidad Total' => $venta->detallesVenta->sum('cantidad'),
+            'Método Pago' => $venta->metodo_pago ?? 'No especificado'
         ];
     });
 
     return Excel::download(
-        new class($data) implements FromCollection {
+        new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection,
+                               \Maatwebsite\Excel\Concerns\WithHeadings,
+                               \Maatwebsite\Excel\Concerns\WithStyles,
+                               \Maatwebsite\Excel\Concerns\ShouldAutoSize,
+                               \Maatwebsite\Excel\Concerns\WithColumnWidths {
+            
             private $data;
-            public function __construct($data) { $this->data = collect($data); }
-            public function collection() { return $this->data; }
+            
+            public function __construct($data) {
+                $this->data = collect($data);
+            }
+            
+            public function collection() {
+                return $this->data;
+            }
+            
+            public function headings(): array {
+                return [
+                    'Fecha',
+                    'N° Factura', 
+                    'Cliente',
+                    'CI/NIT',
+                    'Total (Bs)',
+                    'Productos',
+                    'Cantidad Total',
+                    'Método Pago'
+                ];
+            }
+            
+            public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet) {
+                return [
+                    // Estilo encabezados
+                    1 => [
+                        'font' => [
+                            'bold' => true,
+                            'color' => ['rgb' => 'FFFFFF'],
+                            'size' => 12
+                        ],
+                        'fill' => [
+                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => '3498DB'] // Azul
+                        ],
+                        'alignment' => [
+                            'horizontal' => 'center',
+                            'vertical' => 'center'
+                        ]
+                    ],
+                    // Estilo cuerpo
+                    'A2:H' . $sheet->getHighestRow() => [
+                        'alignment' => [
+                            'vertical' => 'center',
+                            'horizontal' => 'center'
+                        ],
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                                'color' => ['rgb' => 'EEEEEE']
+                            ]
+                        ]
+                    ],
+                    // Alineación izquierda para cliente
+                    'C2:C' . $sheet->getHighestRow() => [
+                        'alignment' => ['horizontal' => 'left']
+                    ],
+                    // Formato numérico para total
+                    'E2:E' . $sheet->getHighestRow() => [
+                        'numberFormat' => [
+                            'formatCode' => '#,##0.00'
+                        ]
+                    ]
+                ];
+            }
+            
+            public function columnWidths(): array {
+                return [
+                    'A' => 12,  // Fecha
+                    'B' => 15,   // N° Factura
+                    'C' => 30,   // Cliente
+                    'D' => 15,   // CI/NIT
+                    'E' => 15,   // Total
+                    'F' => 12,   // Productos
+                    'G' => 15,   // Cantidad
+                    'H' => 20    // Método Pago
+                ];
+            }
         },
-        'reporte_ventas_'.now()->format('YmdHis').'.xlsx'
+        'reporte_ventas_' . now()->format('YmdHis') . '.xlsx'
     );
 }
 

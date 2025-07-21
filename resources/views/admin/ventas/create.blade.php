@@ -4,12 +4,37 @@
 @include('layouts.navbars.auth.topnav', ['title' => 'Nueva venta'])
 <div class="container-fluid mt--6">
     <div class="row">
+
+    <!-- Card Principal - Diseño Mejorado -->
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <div class="d-flex align-items-center">
+                            <div class="icon icon-shape bg-gradient-primary text-white rounded-circle shadow me-3">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div>
+                                <h3 class="mb-0 text-dark font-weight-bold">Nueva Venta</h3>
+                                <p class="text-sm text-muted mb-0">Complete el formulario para registrar una nueva compra</p>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="{{ route('admin.compras.index') }}" class="btn btn-outline-dark btn-sm">
+                                <i class="fas fa-list me-1"></i> Ver Historial
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
         <!-- Card 1: Registro de Productos -->
         <div class="col-lg-8">
             <div class="card shadow">
-                <div class="card-header bg-gradient-primary text-white">
-                    <h3 class="mb-0"><i class="fas fa-boxes me-2"></i>Registro de Productos</h3>
-                </div>
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="mb-0 text-dark font-weight-bold">
+                        <i class="fas fa-boxes text-primary me-2"></i>Productos
+                        </h6>
+                             </div>
                 <div class="card-body">
                     <!-- Formulario de búsqueda -->
                     <div class="row mb-4">
@@ -27,14 +52,20 @@
                         <div class="col-md-4 d-flex align-items-end">
                             <div class="d-flex gap-2 w-100">
                                 <button type="button" class="btn btn-primary flex-grow-1" data-bs-toggle="modal" data-bs-target="#verModal">
-                                    <i class="fas fa-search me-2"></i>Buscar
+                                    <i class="fas fa-search me-2"></i>
                                 </button>
                                 <a href="{{url('/admin/productos/create')}}" class="btn btn-success flex-grow-1">
-                                    <i class="fas fa-plus me-2"></i>Nuevo
+                                    <i class="fas fa-plus me-2"></i>
                                 </a>
                             </div>
                         </div>
                     </div>
+
+
+
+                    
+
+
 
                     <!-- Tabla de productos -->
                     <div class="table-responsive">
@@ -58,8 +89,17 @@
                                     <td class="text-center">{{$tmp_venta->producto->codigo}}</td>
                                     <td class="text-center">{{$tmp_venta->cantidad}}</td>
                                     <td>{{$tmp_venta->producto->nombre}}</td>
-                                    <td class="text-center">Bs {{number_format($tmp_venta->producto->precio_venta, 2)}}</td>
-                                    <td class="text-center">Bs {{number_format($costo = $tmp_venta->cantidad * $tmp_venta->producto->precio_venta, 2)}}</td>
+                                    @php
+    $lote = \App\Models\Lote::where('producto_id', $tmp_venta->producto_id)
+                            ->latest('id') // o por fecha_ingreso si prefieres
+                            ->first();
+    $precioVenta = $lote->precio_venta ?? 0;
+    $costo = $tmp_venta->cantidad * $precioVenta;
+@endphp
+
+<td class="text-center">Bs {{ number_format($precioVenta, 2) }}</td>
+<td class="text-center">Bs {{ number_format($costo, 2) }}</td>
+
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="{{$tmp_venta->id}}">
                                             <i class="fas fa-trash"></i>
@@ -90,9 +130,16 @@
         <!-- Card 2: Datos del Cliente y Venta -->
         <div class="col-lg-4">
             <div class="card shadow">
-                <div class="card-header bg-gradient-primary text-white">
-                    <h3 class="mb-0"><i class="fas fa-user-tag me-2"></i>Datos del Cliente</h3>
-                </div>
+                
+
+                <div class="card-header bg-white border-bottom">
+                                        <h6 class="mb-0 text-dark font-weight-bold">
+                                            <i class="fas fa-user-tag me-2"></i>Datos del Cliente
+                                        </h6>
+                                    </div>
+
+
+
                 <div class="card-body">
                     <form action="{{ route('admin.ventas.create') }}" id="form_venta" method="POST">
                         @csrf
@@ -124,11 +171,19 @@
                         <!-- Fecha -->
                         <div class="mb-4">
                             <label for="fecha" class="form-label">Fecha de Venta</label>
-                            <input type="date" class="form-control" name="fecha" value="{{ old('fecha',date('Y-m-d')) }}" required>
+                            <input 
+                                type="date" 
+                                class="form-control" 
+                                name="fecha" 
+                                value="{{ old('fecha', date('Y-m-d')) }}" 
+                                min="{{ date('Y-m-d') }}" 
+                                required
+                            >
                             @error('fecha')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
+
 
                         <!-- Total -->
                         <div class="mb-4">
@@ -153,16 +208,14 @@
 
 
 <!-- Modal Productos -->
-<!-- Modal de Productos - Diseño Mejorado -->
+
 <div class="modal fade" id="verModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content border-0 shadow-lg">
             <!-- Encabezado del Modal -->
             <div class="modal-header bg-gradient-primary text-white border-bottom-0">
                 <div class="d-flex align-items-center">
-                    <div class="icon icon-shape bg-white text-primary rounded-circle shadow me-3">
-                        <i class="fas fa-boxes"></i>
-                    </div>
+                    
                     <h5 class="modal-title mb-0">Listado de Productos</h5>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -204,18 +257,33 @@
                                         {{ $producto->stock }}
                                     </span>
                                 </td>
-                                <td class="text-end text-xs font-weight-bold text-primary">
-                                    ${{ number_format($producto->precio_venta, 2) }}
-                                </td>
-                                <td class="text-xs font-weight-normal">
-                                    @if($producto->fecha_vencimiento)
-                                        <span class="badge @if(\Carbon\Carbon::parse($producto->fecha_vencimiento)->isPast()) bg-gradient-danger @else bg-gradient-info @endif">
-                                            {{ \Carbon\Carbon::parse($producto->fecha_vencimiento)->format('d/m/Y') }}
-                                        </span>
-                                    @else
-                                        <span class="badge bg-gray-200">N/A</span>
-                                    @endif
-                                </td>
+                                @php
+    $lote = $producto->lotes->sortByDesc('id')->first(); // o puedes usar ->first() si ya vienen ordenados
+@endphp
+
+<td class="text-end text-xs font-weight-bold text-primary">
+    @if($lote)
+        Bs {{ number_format($lote->precio_venta, 2) }}
+    @else
+        <span class="text-muted">N/A</span>
+    @endif
+</td>
+
+<td class="text-xs font-weight-normal">
+    @if($lote && $lote->fecha_vencimiento)
+        <span class="badge 
+            @if(\Carbon\Carbon::parse($lote->fecha_vencimiento)->isPast()) 
+                bg-gradient-danger 
+            @else 
+                bg-gradient-info 
+            @endif">
+            {{ \Carbon\Carbon::parse($lote->fecha_vencimiento)->format('d/m/Y') }}
+        </span>
+    @else
+        <span class="badge bg-gray-200">N/A</span>
+    @endif
+</td>
+
                             </tr>
                             @endforeach
                         </tbody>

@@ -5,7 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
 use Spatie\Permission\Traits\HasRoles; 
-use Illuminate\Support\Facades\Auth; // Importar Auth
+use Illuminate\Support\Facades\Auth; 
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
+use PDF;
 
 class ClienteController extends Controller
 {
@@ -31,6 +37,7 @@ class ClienteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    
     public function store(Request $request)
     {
         //
@@ -127,4 +134,168 @@ $cliente->save();
             ->with('mensaje', 'Cliente eliminada con éxito.')
             ->with('icono', 'success');
     }
+    public function generarReporte(Request $request)
+{
+    $request->validate([
+        'tipo' => 'required|in:pdf,excel,csv,print'
+    ]);
+    
+    $clientes = Cliente::all();
+    
+    if ($clientes->isEmpty()) {
+        return back()->with('error', 'No hay clientes para generar el reporte');
+    }
+
+    switch ($request->tipo) {
+        case 'pdf':
+            return $this->generarPDF($clientes);
+        case 'excel':
+            return $this->generarExcel($clientes);
+        case 'csv':
+            return $this->generarCSV($clientes);
+        case 'print':
+            return view('admin.clientes.reporte', [
+                'clientes' => $clientes,
+                'fecha_generacion' => now()->format('d/m/Y H:i:s')
+            ]);
+        default:
+            abort(404);
+    }
+}
+
+private function generarPDF($clientes)
+{
+    $pdf = Pdf::loadView('admin.clientes.reporte', [
+        'clientes' => $clientes,
+        'fecha_generacion' => now()->format('d/m/Y H:i:s')
+    ]);
+    
+    return $pdf->download('reporte_clientes_' . now()->format('YmdHis') . '.pdf');
+}
+
+private function generarExcel($clientes)
+{
+    $data = $clientes->map(function ($cliente) {
+        return [
+            'ID' => $cliente->id,
+            'Nombre del Cliente' => $cliente->nombre_cliente,
+            'NIT/CI' => $cliente->nit_ci ?? 'N/A',
+            'Celular' => $cliente->celular ?? 'No registrado',
+            'Email' => $cliente->email ?? 'Sin email',
+            'Fecha Registro' => $cliente->created_at->format('d/m/Y H:i'),
+            'Última Actualización' => $cliente->updated_at->format('d/m/Y H:i')
+        ];
+    });
+
+    return Excel::download(
+        new class($data) implements \Maatwebsite\Excel\Concerns\FromCollection,
+                               \Maatwebsite\Excel\Concerns\WithHeadings,
+                               \Maatwebsite\Excel\Concerns\WithStyles,
+                               \Maatwebsite\Excel\Concerns\ShouldAutoSize,
+                               \Maatwebsite\Excel\Concerns\WithColumnWidths {
+            
+            private $data;
+            
+            public function __construct($data) {
+                $this->data = collect($data);
+            }
+            
+            public function collection() {
+                return $this->data;
+            }
+            
+            public function headings(): array {
+                return [
+                    'ID',
+                    'Nombre del Cliente',
+                    'NIT/CI',
+                    'Celular',
+                    'Email',
+                    'Fecha de Registro',
+                    'Última Actualización'
+                ];
+            }
+            
+            public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet) {
+                return [
+                    // Estilo encabezados
+                    1 => [
+                        'font' => [
+                            'bold' => true,
+                            'color' => ['rgb' => 'FFFFFF'],
+                            'size' => 12
+                        ],
+                        'fill' => [
+                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => '2C3E50'] // Azul oscuro
+                        ],
+                        'alignment' => [
+                            'horizontal' => 'center',
+                            'vertical' => 'center'
+                        ]
+                    ],
+                    // Estilo cuerpo
+                    'A2:G' . $sheet->getHighestRow() => [
+                        'alignment' => [
+                            'vertical' => 'center',
+                            'wrapText' => true
+                        ],
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                                'color' => ['rgb' => 'EEEEEE']
+                            ]
+                        ]
+                    ],
+                    // Alineación izquierda para nombres
+                    'B2:B' . $sheet->getHighestRow() => [
+                        'alignment' => [
+                            'horizontal' => 'left'
+                        ]
+                    ],
+                    // Formato condicional para emails válidos
+                    'E2:E' . $sheet->getHighestRow() => [
+                        'font' => [
+                            'color' => ['rgb' => '27AE60'] // Verde si tiene email
+                        ]
+                    ]
+                ];
+            }
+            
+            public function columnWidths(): array {
+                return [
+                    'A' => 10,  // ID
+                    'B' => 30,  // Nombre
+                    'C' => 15,  // NIT/CI
+                    'D' => 15,  // Celular
+                    'E' => 25,  // Email
+                    'F' => 20,  // Fecha Registro
+                    'G' => 20   // Actualización
+                ];
+            }
+        },
+        'reporte_clientes_' . now()->format('YmdHis') . '.xlsx'
+    );
+}
+private function generarCSV($clientes)
+{
+    $data = $clientes->map(function ($cliente) {
+        return [
+            'Nombre_cliente' => $cliente->nombre_cliente,
+            'Nit_ci' => $cliente->nit_ci,
+            'Celular' => $cliente->celular,
+            'Email' => $cliente->email
+        ];
+    });
+
+    return Excel::download(
+        new class($data) implements FromCollection {
+            private $data;
+            public function __construct($data) { $this->data = $data; }
+            public function collection() { return $this->data; }
+        },
+        'reporte_clientes_' . now()->format('YmdHis') . '.csv',
+        \Maatwebsite\Excel\Excel::CSV
+    );
+}
 }

@@ -5,23 +5,70 @@
 
 <div class="container-fluid py-4">
     <!-- Primera tarjeta: Título y botón -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-radius-lg shadow">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
+    <div class="row">
+        <!-- Card de Encabezado -->
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header pb-0 d-flex justify-content-between align-items-center bg-white">
+                    <div class="d-flex align-items-center">
+                        
                         <h5 class="mb-0">
-                            <i class="ni ni-shop me-2 text-primary"></i>
-                            <strong>Sucursales Registradas</strong>
-                        </h5>
+                            <i class="ni ni-shop me-3 text-primary"></i>
+                            <strong>GESTION SUCURSALES</strong></h5>
                     </div>
-                    <button type="button" class="btn bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#modalCrear">
-                        <i class="ni ni-fat-add me-1"></i> Nueva Sucursal
-                    </button>
+                    
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-gradient-info me-3">
+                             {{ count($sucursals) }} sucursales
+                        </span>
+                        
+                        <div class="dropdown me-2">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                    title="Exportar reporte en diferentes formatos">
+                                <i class="fas fa-download me-1"></i> Exportar
+                            </button>
+                           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.sucursals.reporte') }}?tipo=pdf"
+                                    title="Exportar a PDF" target="_blank">
+                                        <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.sucursals.reporte') }}?tipo=excel"
+                                    title="Exportar a Excel">
+                                        <i class="fas fa-file-excel text-success me-2"></i> Excel
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" 
+                                    href="{{ route('admin.sucursals.reporte') }}?tipo=csv"
+                                    title="Exportar a CSV">
+                                        <i class="fas fa-file-csv text-info me-2"></i> CSV
+                                    </a>
+                                </li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                            </ul>
+                        </div>
+
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
+                            <i class="fas fa-plus-circle me-1"></i> Nuevo
+                        </button>
+                    </div>
                 </div>
-            </div>
         </div>
     </div>
+
+
+    
+
+
+
+   
 
     <!-- Segunda tarjeta: Tabla de sucursales -->
     <div class="row">
@@ -37,7 +84,7 @@
                 <div class="card-body px-0 pt-0 pb-2">
                     <div class="table-responsive p-0">
                         <table class="table align-items-center mb-0">
-                            <thead>
+                            <thead class="bg-light">
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="text-align: center">Nro</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="text-align: center">Imagen</th>
@@ -69,16 +116,20 @@
                                         <div class="btn-group" role="group">
     <!-- Botón Editar - Verde con icono -->
     <button type="button" 
-            class="btn btn-sm bg-gradient-success text-white rounded-start shadow-sm px-3" 
+            
+            class="btn btn-sm bg-gradient-success text-white mx-1" 
             data-bs-toggle="modal" 
+            style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
             data-bs-target="#editModal{{ $sucursal->id }}"
             title="Editar sucursal"
             data-bs-toggle="tooltip">
         <span class="btn-inner--icon me-1">
             <i class="fas fa-edit"></i>
         </span>
-        <span class="btn-inner--text">Editar</span>
+        
     </button>
+
+
     
     <!-- Botón Eliminar - Rojo con icono -->
     <form action="{{ route('admin.sucursals.destroy', $sucursal->id) }}" 
@@ -88,14 +139,17 @@
         @csrf
         @method('DELETE')
         <button type="button" 
-                class="btn btn-sm bg-gradient-danger text-white rounded-end shadow-sm px-3 btn-eliminar-sucursal"
+                class="btn btn-sm bg-gradient-danger text-white mx-1 btn-eliminar-sucursal"
+                style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
                 title="Eliminar sucursal"
                 data-bs-toggle="tooltip">
             <span class="btn-inner--icon me-1">
                 <i class="fas fa-trash-alt"></i>
             </span>
-            <span class="btn-inner--text">Eliminar</span>
+           
         </button>
+
+
     </form>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -324,73 +378,188 @@ document.querySelectorAll('.btn-eliminar-sucursal').forEach(button => {
 
 <!-- Modal para Crear Nueva Sucursal -->
 <div class="modal fade" id="modalCrear" tabindex="-1" role="dialog" aria-labelledby="modalCrearLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-gradient-primary">
-                <h5 class="modal-title text-white" id="modalCrearLabel">
-                    <i class="ni ni-fat-add me-2"></i><strong>Registrar Nueva Sucursal</strong>
-                </h5>
-                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="{{ route('admin.sucursals.store') }}" method="POST" enctype="multipart/form-data">
+            <!-- Encabezado del Modal -->
+<div class="modal-header bg-gradient-primary text-white py-3">
+    <div class="d-flex align-items-center w-100">
+        <!-- Icono simple y bien alineado -->
+        <i class="ni ni-shop fs-4 me-3"></i>
+        
+        <!-- Texto del título -->
+        <div class="flex-grow-1">
+            <h5 class="modal-title mb-0">
+                <strong>Registrar Nueva Sucursal</strong>
+            </h5>
+            <p class="small mb-0">Complete todos los campos requeridos</p>
+        </div>
+        
+        <!-- Botón de cerrar -->
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+</div>
+            
+            <!-- Formulario -->
+            <form action="{{ route('admin.sucursals.store') }}" method="POST" enctype="multipart/form-data" id="formCrearSucursal">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label for="imagen" class="form-label">Imagen</label>
-                            <input type="file" class="form-control" id="imagen" name="imagen" accept=".jpg, .jpeg, .png" required>
-                            <div class="mt-2 text-center" id="imagePreview"></div>
+                        <!-- Columna Izquierda -->
+                        <div class="col-md-6">
+                            <!-- Campo de Imagen con Preview -->
+                            <div class="mb-4">
+                                <label for="imagen" class="form-label fw-bold">Logo de Sucursal</label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" class="form-control file-upload-input" id="imagen" name="imagen" accept=".jpg, .jpeg, .png" required>
+                                    <div class="file-upload-preview mt-3 text-center">
+                                        <div class="image-preview-container rounded border p-2 bg-light">
+                                            <img id="imagePreview" src="#" alt="Vista previa de imagen" class="img-fluid d-none" style="max-height: 150px;">
+                                            <div class="no-preview-text text-muted py-4">
+                                                <i class="ni ni-image fs-1"></i>
+                                                <p class="small mb-0">Vista previa aparecerá aquí</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">Formatos aceptados: JPG, JPEG, PNG (Max. 2MB)</small>
+                                    @error('imagen')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            
+                            <!-- Campo de Teléfono -->
+                            <div class="mb-3">
+                                <label for="telefono" class="form-label fw-bold">Teléfono</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="ni ni-mobile-button"></i></span>
+                                    <input type="text" class="form-control" id="telefono" name="telefono" value="{{ old('telefono') }}" placeholder="Ej: +591-71234567" required>
+                                </div>
+                                @error('telefono')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
                         
-                        <div class="col-md-12 mb-3">
-                            <div class="form-group">
-                                <label for="nombre" class="form-control-label">Nombre</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" value="{{ old('nombre') }}" required>
+                        <!-- Columna Derecha -->
+                        <div class="col-md-6">
+                            <!-- Campo de Nombre -->
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label fw-bold">Nombre de Sucursal</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="ni ni-shop"></i></span>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" value="{{ old('nombre') }}" placeholder="Ej: Sucursal Centro" required>
+                                </div>
                                 @error('nombre')
-                                    <small class="text-danger">{{ $message }}</small>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
-                        
-                        <div class="col-md-12 mb-3">
-                            <div class="form-group">
-                                <label for="email" class="form-control-label">Correo</label>
-                                <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required>
+                            
+                            <!-- Campo de Email -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-bold">Correo Electrónico</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="ni ni-email-83"></i></span>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" placeholder="Ej: sucursal@gmail.com" required>
+                                </div>
                                 @error('email')
-                                    <small class="text-danger">{{ $message }}</small>
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
-                        
-                        <div class="col-md-12 mb-3">
-                            <div class="form-group">
-                                <label for="direccion" class="form-control-label">Dirección</label>
-                                <input type="text" class="form-control" id="direccion" name="direccion" value="{{ old('direccion') }}" required>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-12 mb-3">
-                            <div class="form-group">
-                                <label for="telefono" class="form-control-label">Teléfono</label>
-                                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ old('telefono') }}" required>
+                            
+                            <!-- Campo de Dirección -->
+                            <div class="mb-3">
+                                <label for="direccion" class="form-label fw-bold">Dirección Completa</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="ni ni-pin-3"></i></span>
+                                    <textarea class="form-control" id="direccion" name="direccion" rows="2" required>{{ old('direccion') }}</textarea>
+                                </div>
+                                @error('direccion')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                
+                <!-- Pie del Modal -->
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         <i class="ni ni-fat-remove me-1"></i> Cancelar
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="ni ni-check-bold me-1"></i> Registrar
+                        <i class="ni ni-check-bold me-1"></i> Registrar Sucursal
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- Script para vista previa de imagen -->
+<script>
+document.getElementById('imagen').addEventListener('change', function(e) {
+    const preview = document.getElementById('imagePreview');
+    const noPreview = document.querySelector('.no-preview-text');
+    const file = e.target.files[0];
+    
+    if (file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove('d-none');
+            noPreview.classList.add('d-none');
+        }
+        
+        reader.readAsDataURL(file);
+    } else {
+        preview.src = '#';
+        preview.classList.add('d-none');
+        noPreview.classList.remove('d-none');
+    }
+});
+</script>
+
+<style>
+.icon-shape {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-shape-white {
+    background-color: rgba(255,255,255,0.2);
+}
+.file-upload-input {
+    cursor: pointer;
+}
+.file-upload-input::-webkit-file-upload-button {
+    visibility: hidden;
+}
+.file-upload-input::before {
+    content: 'Seleccionar archivo';
+    display: inline-block;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 6px 12px;
+    outline: none;
+    white-space: nowrap;
+    cursor: pointer;
+    color: #495057;
+}
+.image-preview-container {
+    transition: all 0.3s ease;
+}
+.image-preview-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.no-preview-text {
+    transition: all 0.3s ease;
+}
+</style>
 
 <!-- Modales para Editar (se generan dinámicamente para cada sucursal) -->
 @foreach($sucursals as $sucursal)

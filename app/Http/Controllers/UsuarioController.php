@@ -11,9 +11,22 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize; 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use App\Models\Categoria;
+use App\Models\Laboratorio;
+use App\Models\Lote;
+
+use App\Models\Producto;
+
+
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
+use PDF;
 
 class UsuarioController extends Controller
 {
@@ -237,5 +250,97 @@ class UsuarioController extends Controller
         }
     }
 
+    public function generarReporte($tipo)
+    {
+        $usuarios = User::with('sucursal')->get();
+        
+        return $this->generarReportePorTipo($tipo, $usuarios);
+    }
+
+    protected function generarReportePorTipo($tipo, $usuarios)
+    {
+        switch ($tipo) {
+            case 'pdf':
+                return $this->generarPDF($usuarios);
+            case 'excel':
+                return $this->generarExcel($usuarios);
+            case 'csv':
+                return $this->generarCSV($usuarios);
+            case 'print':
+                return view('admin.usuarios.reporte', [
+                    'usuarios' => $usuarios,
+                    'fecha_generacion' => now()->format('d/m/Y H:i:s')
+                ]);
+            default:
+                abort(404);
+        }
+    }
+
+    private function generarPDF($usuarios)
+    {
+        $pdf = PDF::loadView('admin.usuarios.reporte', [
+            'usuarios' => $usuarios,
+            'fecha_generacion' => now()->format('d/m/Y H:i:s'),
+            'page' => 1, 
+            'pages' => 1
+        ]);
+        
+        return $pdf->download('reporte_usuarios_'.now()->format('YmdHis').'.pdf');
+    }
+
+    private function generarExcel($usuarios)
+    {
+        $data = $usuarios->map(function ($usuario) {
+            return [
+                'Nombres' => $usuario->firstname,
+                'Apellidos' => $usuario->lastname,
+                'Email' => $usuario->email,
+                'Usuario' => $usuario->username,
+                'Rol' => $usuario->role,
+                'Sucursal' => $usuario->sucursal->nombre ?? 'N/A',
+                'Dirección' => $usuario->address,
+                'Teléfono' => $usuario->celular,
+                
+                'Registro' => $usuario->created_at->format('d/m/Y')
+            ];
+        });
+
+        return Excel::download(
+            new class($data) implements FromCollection {
+                private $data;
+                public function __construct($data) { $this->data = $data; }
+                public function collection() { return $this->data; }
+            },
+            'reporte_usuarios_'.now()->format('YmdHis').'.xlsx'
+        );
+    }
+
+    private function generarCSV($usuarios): BinaryFileResponse
+    {
+        $data = $usuarios->map(function ($usuario) {
+            return [
+                'Nombres' => $usuario->firstname,
+                'Apellidos' => $usuario->lastname,
+                'Email' => $usuario->email,
+                'Usuario' => $usuario->username,
+                'Rol' => $usuario->role,
+                'Sucursal' => $usuario->sucursal->nombre ?? 'N/A',
+                'Dirección' => $usuario->address,
+                'Teléfono' => $usuario->celular,
+                'Estado' => $usuario->activo ? 'Activo' : 'Inactivo',
+                'Registro' => $usuario->created_at->format('d/m/Y')
+            ];
+        });
+
+        return Excel::download(
+            new class($data) implements FromCollection {
+                private $data;
+                public function __construct($data) { $this->data = $data; }
+                public function collection() { return $this->data; }
+            },
+            'reporte_usuarios_'.now()->format('YmdHis').'.csv',
+            \Maatwebsite\Excel\Excel::CSV
+        );
+    }
     
 }

@@ -37,7 +37,10 @@
                                 </div>
                                 <div class="text-end">
                                     <span class="h3 text-primary fw-bold">
-                                        Bs {{ number_format($producto->precio_venta, 2) }}
+                                        
+                                        
+                                        Bs {{ number_format($producto->precio_minimo, 2) }}
+
                                     </span>
                                     <div class="text-muted small">Precio </div>
                                 </div>
