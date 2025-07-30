@@ -21,7 +21,7 @@
 <body>
     <!-- Encabezado -->
     <div class="header">
-        <h2>{{ $sucursal->nombre }}</h2>
+        <h2>Farmacia {{ $sucursal->nombre }}</h2>
         <p>{{ $sucursal->direccion }}</p>
         <p>Teléfono: {{ $sucursal->telefono }}</p>
         <p><strong>COMPROBANTE DE COMPRA</strong></p>
@@ -29,70 +29,71 @@
     </div>
 
     <!-- Datos del Laboratorio/Proveedor -->
-    <table class="table">
+ <!-- Tabla de Información del Proveedor Mejorada -->
+<table class="table" style="width: 100%; border-collapse: collapse; margin: 3px 0; font-family: 'Courier New', monospace; font-size: 10px;">
+    <tr>
+        <th colspan="2" style="padding: 3px; border: 1px solid #000; text-align: left; font-weight: bold;">
+            PROVEEDOR
+        </th>
+    </tr>
+    <tr>
+        <td width="30%" style="padding: 3px; border: 1px solid #000; font-weight: bold;">Nombre:</td>
+        <td style="padding: 3px; border: 1px solid #000;">
+            {{ strlen($compra->laboratorio->nombre ?? '') > 25 ? substr($compra->laboratorio->nombre, 0, 22).'...' : ($compra->laboratorio->nombre ?? 'N/A') }}
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 3px; border: 1px solid #000; font-weight: bold;">NIT/CI:</td>
+        <td style="padding: 3px; border: 1px solid #000;">{{ $compra->laboratorio->nit ?? 'N/A' }}</td>
+    </tr>
+</table>
+
+<!-- Tabla de Detalle de Productos Mejorada -->
+<table class="table" style="width: 100%; border-collapse: collapse; margin: 5px 0; font-family: 'Courier New', monospace; font-size: 10px;">
+    <thead>
         <tr>
-            <th colspan="2">Información del Laboratorio/Proveedor</th>
+            <th style="width: 5%; padding: 3px; border: 1px solid #000; text-align: center;">#</th>
+            <th style="width: 45%; padding: 3px; border: 1px solid #000; text-align: left;">PRODUCTO</th>
+            <th style="width: 15%; padding: 3px; border: 1px solid #000; text-align: center;">CANT</th>
+            <th style="width: 17%; padding: 3px; border: 1px solid #000; text-align: right;">P.UNIT</th>
+            <th style="width: 18%; padding: 3px; border: 1px solid #000; text-align: right;">TOTAL</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($compra->detalles as $detalle)
+        @php
+            $lote = $detalle->producto->lotes->first();
+            $precio_compra = $lote ? $lote->precio_compra : 0;
+            $subtotal = $detalle->cantidad * $precio_compra;
+            $nombreProducto = strlen($detalle->producto->nombre ?? '') > 25 ? substr($detalle->producto->nombre, 0, 22).'...' : ($detalle->producto->nombre ?? 'Prod.');
+        @endphp
+        <tr>
+            <td style="padding: 3px; border: 1px solid #000; text-align: center;">{{ $loop->iteration }}</td>
+            <td style="padding: 3px; border: 1px solid #000;">{{ $nombreProducto }}</td>
+            <td style="padding: 3px; border: 1px solid #000; text-align: center;">{{ $detalle->cantidad }}</td>
+            <td style="padding: 3px; border: 1px solid #000; text-align: right;">Bs{{ number_format($precio_compra, 2) }}</td>
+            <td style="padding: 3px; border: 1px solid #000; text-align: right;">Bs{{ number_format($subtotal, 2) }}</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+
+<!-- Tabla de Totales Mejorada -->
+<div style="width: 100%; margin-top: 20px;">
+    <table style="width: 50%; margin-left: auto; border-collapse: collapse; font-family: Arial, sans-serif;">
+        
+        
+        <tr>
+            <th style="padding: 8px; text-align: left; font-weight: bold; border-bottom: 2px solid #333;">TOTAL:</th>
+            <td style="padding: 8px; text-align: right; font-weight: bold; border-bottom: 2px solid #333;">Bs {{ number_format($compra->precio_total, 2) }}</td>
         </tr>
         <tr>
-            <td width="25%"><strong>Nombre:</strong></td>
-            <td>{{ $compra->laboratorio->nombre ?? 'N/A' }}</td>
-        </tr>
-        <tr>
-            <td><strong>NIT/CI:</strong></td>
-            <td>{{ $compra->laboratorio->nit ?? 'N/A' }}</td>
+            <td colspan="2" style="padding: 10px 8px 0 8px; font-size: 12px; color: #555;">
+                <strong>Total en letras:</strong> {{ $literal }}
+            </td>
         </tr>
     </table>
-
-    <!-- Detalle de Productos -->
-    <table class="table">
-        <thead>
-            <tr>
-                <th width="5%" class="text-center">#</th>
-                <th width="50%">Producto</th>
-                <th width="15%" class="text-center">Cantidad</th>
-                <th width="15%" class="text-right">P. Unitario</th>
-                <th width="15%" class="text-right">Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($compra->detalles as $detalle)
-            <tr>
-                <td class="text-center">{{ $loop->iteration }}</td>
-                <td>{{ $detalle->producto->nombre ?? 'Producto eliminado' }}</td>
-                <td class="text-center">{{ $detalle->cantidad }}</td>
-               
-                <td style="text-align: center; vertical-align: middle">Bs{{number_format($detalle->producto->precio_compra, 2)}}</td>
-                <td style="text-align: center; vertical-align: middle">Bs{{number_format($costo = 
-                     $detalle->cantidad * $detalle->producto->precio_compra, 2)}}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <!-- Totales -->
-    <div class="total-box">
-        <table class="table">
-            <tr>
-                <th>Subtotal:</th>
-                <td class="text-right">{{ number_format($compra->precio_total, 2) }}</td>
-            </tr>
-            @if($compra->impuesto_monto > 0)
-            <tr>
-                <th>Impuestos ({{ $compra->impuesto }}%):</th>
-                <td class="text-right">{{ number_format($compra->impuesto_monto, 2) }}</td>
-            </tr>
-            @endif
-            <tr>
-                <th><strong>TOTAL:</strong></th>
-                <td class="text-right"><strong>{{ number_format($compra->precio_total, 2) }}</strong></td>
-            </tr>
-            <tr>
-                <td colspan="2" style="border: none; padding-top: 10px;">
-                    <small><strong>Total:</strong> {{ $literal }}</small>
-                </td>
-            </tr>
-        </table>
-    </div>
+</div>
 
     <!-- Firmas y footer -->
     <div style="clear: both;"></div>
@@ -101,7 +102,7 @@
     </div>
     
     <div class="footer">
-        Generado el: {{ $fecha_generacion }} | {{ config('app.name') }}
+        Generado el: {{ $fecha_generacion }} 
     </div>
 </body>
 </html>

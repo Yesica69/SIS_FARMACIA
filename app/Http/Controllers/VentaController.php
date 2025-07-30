@@ -176,76 +176,41 @@ class VentaController extends Controller
 
 
 
-
-
-
-
-
-
-
-
-
-    
-public function pdf($id){
-
-
-
-
-
-    function numerosALetrasConDecimales($numero) 
-    {
-        $formatter = new NumberFormatter("es", NumberFormatter::SPELLOUT);
-    
-        // Asegurar que el número tenga 2 decimales
-        $partes = explode('.', number_format($numero, 2, '.', ''));
-    
-        // Convertir las partes a enteros
-        $entero = $formatter->format($partes[0]);
-        $decimal = $formatter->format($partes[1]);
-    
-        return ucfirst("$entero con $decimal/100");
-    }
-    
-
-
-
-
+public function pdf($id)
+{
     $id_sucursal = Auth::user()->sucursal_id;
-    $sucursal =Sucursal::where('id',$id_sucursal)->first();
-    $venta = Venta::with('detallesVenta','cliente')->findOrfail($id);
-//convertir
-    $numero = $venta->precio_total;
-$literal = numerosALetrasConDecimales($numero);
-
-
-
-
-
-$pdf = PDF::loadView('admin.ventas.pdf', compact('sucursal', 'venta', 'literal'))
-          ->setPaper([0, 0, 250.77, 600], 'portrait'); // 80mm ancho x 600pt alto (ajustable)
-
-return $pdf->stream();
-
-  //  return view('admin.ventas.pdf');
-
+    $sucursal = Sucursal::where('id', $id_sucursal)->first();
+    
+    $venta = Venta::with(['detallesVenta.producto', 'cliente'])->findOrFail($id);
+    
+    // Calcular el total sumando los subtotales
+    $total = $venta->detallesVenta->sum(function($detalle) {
+        $lote = $detalle->producto->lotes()->latest()->first();
+        $precio = $lote ? $lote->precio_venta : $detalle->producto->precio_venta;
+        return $detalle->cantidad * $precio;
+    });
+    
+    // Convertir a letras (variable ya contiene el string)
+    $literal = $this->numerosALetrasConDecimales($total);
+    
+    return PDF::loadView('admin.ventas.pdf', [
+        'sucursal' => $sucursal,
+        'venta' => $venta,
+        'literal' => $literal, // String con el monto en letras
+        'total' => $total
+    ])->setPaper([0, 0, 250.77, 600], 'portrait')->stream();
 }
 
-
-function numerosALetrasConDecimales($numero) 
+private function numerosALetrasConDecimales($numero)
 {
     $formatter = new NumberFormatter("es", NumberFormatter::SPELLOUT);
-
-    // Asegurar que el número tenga 2 decimales
-    $partes = explode('.', number_format($numero, 2, '.', ''));
-
-    // Convertir las partes a enteros
-    $entero = $formatter->format((int) $partes[0]);
-    $decimal = str_pad($partes[1], 2, "0", STR_PAD_LEFT);
-
-    return ucfirst("$entero con $decimal/100");
+    $partes = explode('.', number_format(abs($numero), 2, '.', ''));
+    
+    $entero = $partes[0] == 1 ? 'un boliviano' : $formatter->format($partes[0]) . ' bolivianos';
+    $decimal = $partes[1] == '00' ? 'exactos' : $formatter->format($partes[1]) . ' centavos';
+    
+    return ($numero < 0 ? 'Menos ' : '') . ucfirst("$entero con $decimal");
 }
-
-
 
 
 

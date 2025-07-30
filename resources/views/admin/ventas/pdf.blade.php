@@ -117,13 +117,13 @@
 
 <!-- Encabezado con logo -->
 <div class="header">
-    @if(file_exists(public_path('storage/'.$sucursal->imagen)))
+    @if(!empty($sucursal->imagen) && file_exists(public_path('storage/'.$sucursal->imagen)))
     <img src="{{ public_path('storage/'.$sucursal->imagen) }}" class="logo" alt="Logo">
     @endif
     <div class="header-text">
-        <div class="company-name text-uppercase">{{$sucursal->nombre}}</div>
+        
         <div class="company-info">
-            NIT: {{$sucursal->telefono}}<br>
+            
             Tel: {{$sucursal->telefono}}<br>
             {{$sucursal->direccion}}
         </div>
@@ -170,6 +170,8 @@ $fecha_formateada = str_replace(array_keys($meses), array_values($meses), $fecha
 <div class="divider"></div>
 
 <!-- Detalle de la venta -->
+<!-- Detalle de la venta -->
+<!-- Detalle de la venta -->
 <table>
     <thead>
         <tr class="text-bold">
@@ -184,21 +186,24 @@ $fecha_formateada = str_replace(array_keys($meses), array_values($meses), $fecha
         $contador = 1;
         $subtotal = 0;
         $suma_cantidad = 0;
-        $suma_precio_unitario = 0;
         $suma_subtotal = 0;
         @endphp
 
         @foreach($venta->detallesVenta as $detalle)
         @php
-        $subtotal = $detalle->cantidad * $detalle->producto->precio_venta;
+        // Obtenemos el lote más reciente para este producto
+        $lote = $detalle->producto->lotes()->orderBy('created_at', 'desc')->first();
+        
+        // Usamos el precio del lote si existe, sino del producto
+        $precio_unitario = $lote ? $lote->precio_venta : $detalle->producto->precio_venta;
+        $subtotal = $detalle->cantidad * $precio_unitario;
         $suma_subtotal += $subtotal;
-        $suma_precio_unitario += $detalle->producto->precio_venta;
         $suma_cantidad += $detalle->cantidad;
         @endphp
         <tr>
             <td class="item-qty">{{$detalle->cantidad}}</td>
             <td class="item-desc">{{$detalle->producto->nombre}}</td>
-            <td class="item-price">Bs {{number_format($detalle->producto->precio_venta, 2, '.', ',')}}</td>
+            <td class="item-price">Bs {{number_format($precio_unitario, 2, '.', ',')}}</td>
             <td class="item-total">Bs {{number_format($subtotal, 2, '.', ',')}}</td>
         </tr>
         @endforeach
@@ -206,8 +211,7 @@ $fecha_formateada = str_replace(array_keys($meses), array_values($meses), $fecha
         <!-- Totales -->
         <tr class="total-row">
             <td class="item-qty">{{$suma_cantidad}}</td>
-            <td class="item-desc">TOTAL</td>
-            <td class="item-price">Bs {{number_format($suma_precio_unitario, 2, '.', ',')}}</td>
+            <td class="item-desc" colspan="2">TOTAL</td>
             <td class="item-total">Bs {{number_format($suma_subtotal, 2, '.', ',')}}</td>
         </tr>
     </tbody>
@@ -215,15 +219,20 @@ $fecha_formateada = str_replace(array_keys($meses), array_values($meses), $fecha
 
 <!-- Información de pago -->
 <div class="payment-info">
-    <div class="text-bold">Total a pagar: Bs {{number_format($venta->precio_total, 2, '.', ',')}}</div>
-    <div>Son: {{$literal}}</div>
+    <div class="text-bold">Total a pagar: Bs {{number_format($suma_subtotal, 2, '.', ',')}}</div>
+    
+
+<div>Son: {{ $literal }}</div>
+
 </div>
+
+
 
 <!-- Pie de página -->
 <div class="footer">
     {{date('d/m/Y H:i:s')}}<br>
     ¡Gracias por su compra!<br>
-    {{$sucursal->nombre}}
+   
 </div>
 
 </body>

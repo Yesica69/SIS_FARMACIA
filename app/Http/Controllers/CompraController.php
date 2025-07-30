@@ -392,6 +392,18 @@ public function reporte($tipo, Request $request)
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 private function generarPDF($compras)
 {
     $pdf = PDF::loadView('admin.compras.reporte', [
@@ -519,26 +531,37 @@ public function pdf($id)
         $id_sucursal = Auth::user()->sucursal_id;
         $sucursal = Sucursal::findOrFail($id_sucursal);
         
-        // 2. Obtener la compra con relaciones (ajustado a tu estructura)
+        // 2. Obtener la compra con relaciones (incluyendo lotes)
         $compra = Compra::with([
-                'detalles.producto',  // Asegura la relación con productos
-                'laboratorio'        // Relación con laboratorio
+                'detalles.producto.lotes' => function($query) {
+                    $query->orderBy('created_at', 'desc');
+                },
+                'laboratorio'
             ])
             ->where('sucursal_id', $id_sucursal)
             ->findOrFail($id);
 
-        // 3. Convertir total a letras
+        // 3. Calcular subtotal basado en lotes
+        $subtotal_calculado = 0;
+        foreach ($compra->detalles as $detalle) {
+            $lote = $detalle->producto->lotes->first();
+            $detalle->precio_compra_calculado = $lote ? $lote->precio_compra : 0;
+            $detalle->subtotal_calculado = $detalle->cantidad * $detalle->precio_compra_calculado;
+            $subtotal_calculado += $detalle->subtotal_calculado;
+        }
+
+        // 4. Convertir total a letras
         $literal = $this->numerosALetrasConDecimales($compra->precio_total);
 
-        // 4. Generar PDF con datos específicos
+        // 5. Generar PDF con datos
         $pdf = PDF::loadView('admin.compras.pdf', [
             'sucursal' => $sucursal,
             'compra' => $compra,
             'literal' => $literal,
-            'fecha_generacion' => now()->format('d/m/Y H:i') // Nuevo dato útil
+            'subtotal_calculado' => $subtotal_calculado,
+            'fecha_generacion' => now()->format('d/m/Y H:i')
         ])->setPaper([0, 0, 250.77, 600], 'portrait');
 
-        // 5. Nombre descriptivo del archivo
         return $pdf->stream("compra-{$compra->comprobante}.pdf");
 
     } catch (\Exception $e) {
@@ -548,7 +571,6 @@ public function pdf($id)
     }
 }
 
-// Función separada (puede estar en un trait o helper)
 private function numerosALetrasConDecimales($numero) {
     $formatter = new NumberFormatter("es", NumberFormatter::SPELLOUT);
     $partes = explode('.', number_format($numero, 2, '.', ''));

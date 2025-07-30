@@ -531,6 +531,11 @@ document.querySelectorAll('.btn-eliminar-compra').forEach(button => {
             window.location.reload();
         });
 
+        // Botón de exportar (ejemplo básico)
+        document.getElementById('exportExcel').addEventListener('click', function() {
+            // Aquí puedes implementar la lógica de exportación a Excel
+            alert('Funcionalidad de exportación a Excel');
+        });
     });
 </script>
 @endsection

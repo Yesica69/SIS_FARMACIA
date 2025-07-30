@@ -10,7 +10,7 @@
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
                         <i class="ni ni-money-coins me-2 text-primary"></i>
-                        <h6>Detalle de Venta #{{ $venta->id }}</h6>
+                        <h6>Detalle de Venta </h6>
                     </div>
                     <div>
                         <a href="{{ url('/admin/ventas') }}" class="btn btn-sm btn-outline-secondary me-2">
