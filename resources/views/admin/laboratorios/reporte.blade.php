@@ -106,7 +106,7 @@
         <h1 class="compact-title">REPORTE DE LABORATORIOS</h1>
         <p class="compact-subtitle">Farmacia Mariel</p>
         <div class="compact-meta">
-            {{ $fecha_generacion }} | {{ Auth::user()->name ?? 'Sistema' }}
+            {{ $fecha_generacion }} 
         </div>
     </div>
 </div>
@@ -136,7 +136,7 @@
 
       <div class="footer">
         <p>Sistema de Gestión - {{ date('Y') }} </p>
-        <p>Generado por: {{ Auth::user()->name ?? 'Sistema' }}</p>
+       
     </div>
 </body>
 </html>

@@ -22,38 +22,7 @@
                              <i class="fas fa-database me-1"></i> {{ $permisos->count() }} Permisos
                         </span>
                         
-                        <div class="dropdown me-2">
-                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
-                                    id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
-                                    title="Exportar reporte en diferentes formatos">
-                                <i class="fas fa-download me-1"></i> Exportar
-                            </button>
-                           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
-                                <li>
-                                    <a class="dropdown-item" 
-                                    href="{{ route('admin.permisos.reporte') }}?tipo=pdf"
-                                    title="Exportar a PDF" target="_blank">
-                                        <i class="fas fa-file-pdf text-danger me-2"></i> PDF
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" 
-                                    href="{{ route('admin.permisos.reporte') }}?tipo=excel"
-                                    title="Exportar a Excel">
-                                        <i class="fas fa-file-excel text-success me-2"></i> Excel
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" 
-                                    href="{{ route('admin.permisos.reporte') }}?tipo=csv"
-                                    title="Exportar a CSV">
-                                        <i class="fas fa-file-csv text-info me-2"></i> CSV
-                                    </a>
-                                </li>
-                                
-                                <li><hr class="dropdown-divider"></li>
-                            </ul>
-                        </div>
+                       
 
                         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrear">
                             <i class="fas fa-plus-circle me-1"></i> Nuevo

@@ -12,12 +12,12 @@
                         <div class="d-flex align-items-center">
                             <div class="icon icon-shape bg-gradient-primary text-white rounded-circle shadow me-3 d-flex justify-content-center align-items-center" 
      style="width: 60px; height: 60px; padding: 0;">
-    <i class="fas fa-shopping-cart fa-lg" style="margin: 0; line-height: 1;"></i>
+   
 </div>
 
                             <div>
-                                <h3 class="mb-0 text-dark font-weight-bold">Nueva Compra</h3>
-                                <p class="text-sm text-muted mb-0">Complete el formulario para registrar una nueva compra</p>
+                                <h4 class="mb-0 text-dark font-weight-bold">Registar Nueva Compra</h4>
+                               
                             </div>
                         </div>
                         <div>
@@ -32,7 +32,8 @@
 
                 
                 <div class="card-body">
-                    <form action="{{ route('admin.compras.create') }}" id="form_compra" method="POST" autocomplete="off">
+                   
+                        <form action="{{ route('admin.compras.store') }}" id="form_compra" method="POST" autocomplete="off">
                         @csrf
 
                         
@@ -88,7 +89,7 @@
 
                             </div>
 
-                                        <!-- Tabla de productos seleccionados - Diseño Mejorado -->
+                                        <!-- Tabla de productos seleccionados -->
                                         <div class="table-responsive">
                                             <table class="table table-sm table-borderless table-hover mb-0" style="font-size: 0.85rem;">
                                                 <thead class="bg-light">
@@ -117,58 +118,49 @@
                                                         <td class="text-center">{{ $tmp_compra->cantidad }}</td>
                                                         <td class="text-truncate" style="max-width: 200px;" title="{{ $tmp_compra->producto->nombre }}">{{ $tmp_compra->producto->nombre }}</td>
                                                         <!--aqui se visularia el lote de la compra -->
-<td>
-    @php
-        $lote = \App\Models\Lote::where('producto_id', $tmp_compra->producto_id)
-                                ->latest('id')
-                                ->first();
-    @endphp
+                                                    <td>
+                                                        <select class="form-select form-select-sm select-lote" 
+                                                                name="lotes[{{ $tmp_compra->producto_id }}]" 
+                                                                data-producto-id="{{ $tmp_compra->producto_id }}"
+                                                                required>
+                                                            <option value="">Ver lote</option>
+                                                            @foreach($tmp_compra->producto->lotes as $lote)
+                                                                <option value="{{ $lote->id }}" 
+                                                                        data-precio="{{ $lote->precio_compra }}"
+                                                                        {{ $lote->id == optional($lotesPorProducto[$tmp_compra->producto_id]->first())->id ? 'selected' : '' }}>
+                                                                    {{ $lote->numero_lote }} (Bs {{ number_format($lote->precio_compra, 2) }})
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 mt-1 btn-agregar-lote"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#loteModal"
+                                                                data-producto-id="{{ $tmp_compra->producto->id }}"
+                                                                data-nombre-producto="{{ $tmp_compra->producto->nombre }}">
+                                                            <i class="fas fa-plus-circle me-1"></i> Nuevo Lote
+                                                        </button>
+                                                    </td>
 
-    @if($lote)
-        <span class="badge bg-success">{{ $lote->numero_lote }}</span>
-    @else
-        <button type="button"
-                class="btn btn-sm btn-outline-primary py-0 px-2 btn-agregar-lote"
-                data-bs-toggle="modal"
-                data-bs-target="#loteModal"
-                data-producto-id="{{ $tmp_compra->producto->id }}"
-                data-nombre-producto="{{ $tmp_compra->producto->nombre }}">
-            <i class="fas fa-plus-circle me-1"></i> Agregar Lote
-        </button>
-    @endif
-</td>
+                                                                                                        @php
+                                                        $lote = isset($lotesPorProducto[$tmp_compra->producto_id])
+                                                                ? $lotesPorProducto[$tmp_compra->producto_id]->first()
+                                                                : null;
 
+                                                        $precio = $lote ? $lote->precio_compra : 0;
+                                                        $costo = $tmp_compra->cantidad * $precio;
+                                                    @endphp
 
+                                                    <td class="text-end">
+                                                        @if($lote)
+                                                            Bs {{ number_format($precio, 2, '.', '') }}
+                                                        @else
+                                                            <span class="text-muted">Pendiente</span>
+                                                        @endif
+                                                    </td>
 
-
-
-
-
-
-
-
-
-
-                                                       @php
-    $lote = isset($lotesPorProducto[$tmp_compra->producto_id])
-            ? $lotesPorProducto[$tmp_compra->producto_id]->first()
-            : null;
-
-    $precio = $lote ? $lote->precio_compra : 0;
-    $costo = $tmp_compra->cantidad * $precio;
-@endphp
-
-<td class="text-end">
-    @if($lote)
-        Bs {{ number_format($precio, 2, '.', '') }}
-    @else
-        <span class="text-muted">Pendiente</span>
-    @endif
-</td>
-
-<td class="text-end fw-semibold">
-    Bs {{ number_format($costo, 2, '.', '') }}
-</td>
+                                                    <td class="text-end fw-semibold">
+                                                        Bs {{ number_format($costo, 2, '.', '') }}
+                                                    </td>
 
 
                                                         <td class="text-center">
@@ -205,8 +197,8 @@
                                 </div>
                             </div>
 
-                            <!-- Sección de Información de Compra - Diseño Mejorado -->
-                            <!-- Sección de Información de Compra - Diseño Mejorado -->
+                          
+                            <!-- Sección de Información de Compra -->
                             <div class="col-lg-4">
                                 <div class="card border-0 shadow-sm h-100">
                                     <div class="card-header bg-white border-bottom">
@@ -304,93 +296,72 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                
                 <form id="formLote" method="POST" action="{{ route('compras.agregarLote') }}">
                     
-
                     @csrf
-                    <!-- Campos ocultos con IDs necesarios -->
                     <input type="hidden" name="producto_id" id="modalProductoId" value="">
-                    <input type="hidden" name="tmp_compra_id" id="modalTmpCompraId" value="">
                     
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Estás registrando un lote para: 
-                                <strong id="nombre-producto-alert">Cargando...</strong>
-                            </div>
-                        </div>
-                    </div>
-                        </div>
-                    </div>
+                   
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+                    <div class="row g-3">
+                        <div class="col-md-6">
                             <label class="form-label fw-bold">Número de Lote*</label>
                             <input type="text" class="form-control" name="numero_lote" required
-                                   placeholder="Ej: LT-2023-001" pattern="[A-Za-z0-9-]+" title="Solo letras, números y guiones">
+                                   placeholder="Ej: LT-2023-001" pattern="[A-Za-z0-9-]+" 
+                                   title="Solo letras, números y guiones">
                             <small class="text-muted">Código único para identificar este lote</small>
                         </div>
                         
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Cantidad en este Lote*</label>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Cantidad*</label>
                             <input type="number" class="form-control" name="cantidad" min="1" required
-                                   placeholder="Ej: 100">
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Fecha de Ingreso*</label>
-                            <input type="date" class="form-control" name="fecha_ingreso" required
-                                   value="{{ date('Y-m-d') }}">
+                                   placeholder="Ej: 100" id="cantidadInput">
+                            <div class="form-text">Stock inicial de este lote</div>
                         </div>
                         
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Fecha de Vencimiento</label>
-                            <input type="date" class="form-control" name="fecha_vencimiento"
-                                   min="{{ date('Y-m-d') }}">
-                            <small class="text-muted">Opcional para productos perecederos</small>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Fecha de Ingreso*</label>
+                            <input type="date" class="form-control" name="fecha_ingreso" required
+                                   min="{{ date('Y-m-d', strtotime('+1 day')) }}">
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+                        
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Fecha de Vencimiento*</label>
+                            <input type="date" class="form-control" name="fecha_vencimiento" required
+                                   min="{{ date('Y-m-d', strtotime('+1 day')) }}">
+                           
+                        </div>
+                        
+                        <div class="col-md-6">
                             <label class="form-label fw-bold">Precio de Compra (Bs)*</label>
                             <div class="input-group">
                                 <span class="input-group-text">Bs</span>
                                 <input type="number" step="0.01" class="form-control" 
-                                    name="precio_compra" placeholder="0.00" required>
+                                    name="precio_compra" placeholder="0.00" required min="0"
+                                    id="precioCompraInput">
                             </div>
-                            <small class="text-muted">Precio unitario de compra para este lote</small>
                         </div>
                         
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-6">
                             <label class="form-label fw-bold">Precio de Venta (Bs)*</label>
                             <div class="input-group">
                                 <span class="input-group-text">Bs</span>
                                 <input type="number" step="0.01" class="form-control" 
-                                    name="precio_venta" placeholder="0.00" required>
+                                    name="precio_venta" placeholder="0.00" required min="0"
+                                    id="precioVentaInput">
                             </div>
-                            <small class="text-muted">Precio unitario de venta para este lote</small>
+                            <div class="form-text" id="gananciaText"></div>
                         </div>
                     </div>
-
-                   
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-2"></i> Cancelar
                 </button>
-                
                 <button type="button" class="btn btn-primary" id="btnGuardarLote">
-                <i class="fas fa-save me-2"></i> Guardar Lote
+                    <i class="fas fa-save me-2"></i> Guardar Lote
                 </button>
-                
             </div>
         </div>
     </div>
@@ -398,8 +369,6 @@
 
 
 
-
->
 <!-- Modal de Productos  -->
 <div class="modal fade" id="productosModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -581,6 +550,214 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+
+// Agrega esto en tu sección de scripts
+$(document).ready(function() {
+    $('#form_compra').submit(function(e) {
+        let todosTienenLote = true;
+        let formularioValido = true;
+        
+        // Validar que todos los productos tengan lote seleccionado
+        $('.select-lote').each(function() {
+            if (!$(this).val()) {
+                todosTienenLote = false;
+                $(this).addClass('is-invalid');
+                formularioValido = false;
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        // Validar que haya al menos un producto
+        if ($('tbody tr').length <= 1) { // Considera la fila vacía
+            Swal.fire('Error', 'Debes agregar al menos un producto', 'error');
+            formularioValido = false;
+        }
+        
+        // Validar laboratorio seleccionado
+        if (!$('#id_laboratorio').val()) {
+            Swal.fire('Error', 'Debes seleccionar un laboratorio', 'error');
+            formularioValido = false;
+        }
+        
+        if (!formularioValido) {
+            e.preventDefault();
+            if (!todosTienenLote) {
+                Swal.fire('Error', 'Debes seleccionar un lote para cada producto', 'error');
+            }
+            return false;
+        }
+    });
+});
+
+
+
+
+// En tu sección de scripts
+$(document).ready(function() {
+    // Manejar cambio de selección de lote
+    $(document).on('change', '.select-lote', function() {
+        const productoId = $(this).data('producto-id');
+        const loteId = $(this).val();
+        const precio = $(this).find('option:selected').data('precio');
+        const cantidad = $(this).closest('tr').find('td:nth-child(3)').text();
+        
+        // Actualizar precios
+        if (loteId && precio) {
+            const subtotal = cantidad * precio;
+            $(this).closest('tr').find('td:nth-child(6)').text('Bs ' + precio.toFixed(2));
+            $(this).closest('tr').find('td:nth-child(7)').text('Bs ' + subtotal.toFixed(2));
+            
+            // Actualizar totales
+            calcularTotales();
+        }
+    });
+    
+    // Función para calcular totales
+    // Reemplaza tu función calcularTotales() con esta versión mejorada
+function calcularTotales() {
+    let totalCompra = 0;
+    let totalCantidad = 0;
+    
+    $('tbody tr').each(function() {
+        // Excluir la fila de "no hay productos"
+        if ($(this).find('td').length > 1) {
+            const cantidad = parseInt($(this).find('td:nth-child(3)').text()) || 0;
+            const precioText = $(this).find('td:nth-child(6)').text().replace('Bs ', '') || '0';
+            const precio = parseFloat(precioText.replace(',', '')) || 0;
+            
+            totalCantidad += cantidad;
+            totalCompra += cantidad * precio;
+            
+            // Actualizar subtotal si es necesario
+            const subtotal = cantidad * precio;
+            $(this).find('td:nth-child(7)').text('Bs ' + subtotal.toFixed(2));
+        }
+    });
+    
+    // Actualizar totales en el footer
+    $('tfoot th:nth-child(3)').text(totalCantidad);
+    $('tfoot th:nth-child(6)').text('Bs ' + totalCompra.toFixed(2));
+    $('input[name="precio_total"]').val(totalCompra.toFixed(2));
+    
+    // Habilitar/deshabilitar botón de registro
+    $('button[type="submit"]').prop('disabled', totalCompra <= 0);
+}
+});
+
+
+// En el success del AJAX del modal
+// Actualiza el código del modal de lotes
+$(document).on('click', '.btn-agregar-lote', function() {
+    const productoId = $(this).data('producto-id');
+    const nombreProducto = $(this).data('nombre-producto');
+    
+    $('#modalProductoId').val(productoId);
+    $('#nombre-producto-modal').text(nombreProducto);
+    $('#nombre-producto-alert').text(nombreProducto);
+    
+    // Resetear formulario
+    $('#formLote')[0].reset();
+    $('#formLote input[name="fecha_ingreso"]').val(new Date().toISOString().split('T')[0]);
+    
+    // Enfocar primer campo
+    setTimeout(() => {
+        $('#formLote input[name="numero_lote"]').focus();
+    }, 500);
+});
+
+// Manejar el éxito de guardar lote
+function handleLoteGuardado(response) {
+    if (response.success) {
+        const select = $(`.select-lote[data-producto-id="${response.producto_id}"]`);
+        
+        // Limpiar y agregar nuevas opciones
+        select.empty().append('<option value="">Seleccionar lote</option>');
+        
+        // Agregar el nuevo lote como seleccionado
+        select.append(`<option value="${response.lote.id}" 
+                        data-precio="${response.lote.precio_compra}" 
+                        selected>
+                        ${response.lote.numero_lote} (Bs ${response.lote.precio_compra.toFixed(2)})
+                    </option>`);
+        
+        // Cerrar modal
+        $('#loteModal').modal('hide');
+        
+        // Actualizar precios
+        select.trigger('change');
+        
+        Swal.fire('Éxito', 'Lote guardado correctamente', 'success');
+    } else {
+        Swal.fire('Error', response.message || 'Error al guardar el lote', 'error');
+    }
+}
+
+
+
+
+
+
+
+// Reemplázalo por este código mejorado:
+// En el formulario del modal (#formLote)
+$('#formLote').submit(function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const productoId = $('#modalProductoId').val();
+    
+    $.ajax({
+        url: $(this).attr('action'),
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.success) {
+                // Actualizar el select de lotes
+                const select = $(`.select-lote[data-producto-id="${response.producto_id}"]`);
+                
+                // Limpiar y agregar nuevas opciones
+                select.find('option:not(:first)').remove();
+                
+                // Agregar el nuevo lote como seleccionado
+                select.append(`<option value="${response.lote.id}" 
+                              data-precio="${response.lote.precio_compra}" 
+                              selected>
+                              ${response.lote.text}
+                          </option>`);
+                
+                // Cerrar modal
+                $('#loteModal').modal('hide');
+                
+                // Actualizar precios y totales
+                select.trigger('change');
+                
+                Swal.fire('Éxito', response.message, 'success');
+            }
+        },
+        error: function(xhr) {
+            let errorMessage = 'Error desconocido';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            }
+            Swal.fire('Error', errorMessage, 'error');
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
     document.addEventListener('DOMContentLoaded', function () {
         const botonesAgregarLote = document.querySelectorAll('.btn-agregar-lote');
         const inputProductoId = document.getElementById('modalProductoId');

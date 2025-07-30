@@ -6,6 +6,7 @@ use App\Models\Compra;
 use App\Models\DetalleCompra;
 use App\Models\Producto;
 use App\Models\Caja;
+use Illuminate\Support\Facades\Cache;
 use App\Models\MovimientoCaja;
 use App\Models\TmpCompra;
 use NumberToWords\NumberToWords;
@@ -55,125 +56,142 @@ class CompraController extends Controller
     $session_id = session()->getId();
     $tmp_compras = TmpCompra::where('session_id',$session_id)->get();
 $lotesPorProducto = \App\Models\Lote::latest('id')->get()->groupBy('producto_id');
+ $productosConLotes = Producto::with('lotes')->get();
 
-        return view('admin.compras.create', compact('productos', 'laboratorios', 'tmp_compras', 'lotesPorProducto'));
+        return view('admin.compras.create', compact('productos', 'laboratorios', 'tmp_compras', 'lotesPorProducto','productosConLotes'));
 
     }
     
- public function store(Request $request)
-    {
-        // Lógica para almacenar la compra
-        //$datos = request()->all();
-        //return response()->json($datos);
-
-
-        // Validación de los datos de entrada
-        $request->validate([
-            
-            'fecha' => 'required',
-            'comprobante' => 'required',
-            'precio_total' => 'required', //
-        ]);
-
-        // Crear un nuevo laboratorio
-        $compra = new Compra();
-        $compra->fecha = $request->fecha;
-        $compra->comprobante = $request->comprobante;
-        $compra->precio_total = $request->precio_total;
-
-        $compra->sucursal_id = Auth::user()->sucursal_id;
-        $compra->laboratorio_id = $request->laboratorio_id;
-        $compra->save();
-
-        $session_id = session()->getId();
-
-
-
-        //registar en la caja 
-        $caja_id = Caja::whereNull('fecha_cierre')->first();
-        $movimiento = new MovimientoCaja();
-        $movimiento->tipo = "EGRESO";
-        $movimiento->monto = $request->precio_total;
-        $movimiento->descripcion = "Compra de productos";
-       
-        $movimiento->fecha_movimiento = $request->fecha_movimiento ?? now();
-        $movimiento->caja_id = $caja_id->id;// Ahora podemos estar más seguros de que no será null
-        $movimiento->save(); 
-        //
-
-
-        // Redirigir al índice con un mensaje de éxito
-       $tmp_compras = TmpCompra::where('session_id',$session_id)->get();
-
-       foreach($tmp_compras as $tmp_compra){
-//traer toda la informacion del producto
-        $producto = Producto::where('id',$tmp_compra->producto_id)->first();
-        $detalle_compra = new DetalleCompra();
-        $detalle_compra->cantidad = $tmp_compra->cantidad;
-     
-        $detalle_compra->compra_id = $compra->id;
-        $detalle_compra->producto_id = $tmp_compra->producto_id;
-       
-        $detalle_compra->save();
-
-//SUMAR 
-      //  $producto->stock += $tmp_compra->cantidad;
-       // $producto->save();
-
-
-
-
-       }
-       //QUE SE ELIMI LA TABLA DE TEMPORAL
-       TmpCompra::where('session_id',$session_id)->delete();
-       return redirect()->route('admin.compras.index')
-       ->with('mensaje','Se registro el producto')
-       ->with('icono','success');
-
-       
-    }
-
-    /**
-     * Display the specified resource.
-     */
-
-
-    /**
-     * Display the specified resource.
-     */
-
-// CompraController.php
-// En tu LoteController.php
-public function agregarLote(Request $request)
+    
+public function store(Request $request)
 {
+    // Validación (sin cambios)
     $request->validate([
-    'numero_lote' => 'required|string',
-    'cantidad' => 'required|integer|min:1',
-    'fecha_ingreso' => 'required|date',
-    'precio_compra' => 'required|numeric',
-    'precio_venta' => 'required|numeric',
-    'producto_id' => 'required|exists:productos,id',
-]);
-
- 
-
-    // Guardar el lote (esto depende de tu relación, ejemplo con hasOne)
-    
-
-        Lote::create([
-    'numero_lote' => $request->numero_lote,
-    'fecha_ingreso' => $request->fecha_ingreso,
-    'fecha_vencimiento' => $request->fecha_vencimiento,
-    'cantidad' => $request->cantidad,
-    'precio_compra' => $request->precio_compra,
-    'precio_venta' => $request->precio_venta,
-    'producto_id' => $request->producto_id,
-'session_id' => session()->getId(),
-
+        'fecha' => 'required|date',
+        'comprobante' => 'required|string|max:50',
+        'precio_total' => 'required|numeric|min:0',
+        'lotes' => 'required|array',
+        'lotes.*' => 'required|exists:lotes,id'
     ]);
 
-    return redirect()->back()->with('success', 'Lote registrado correctamente.');
+    $caja = Caja::whereNull('fecha_cierre')->firstOrFail();
     
+    DB::beginTransaction();
+
+    try {
+        // Crear la compra (sin cambios)
+        $compra = Compra::create([
+            'fecha' => $request->fecha,
+            'comprobante' => $request->comprobante,
+            'precio_total' => $request->precio_total,
+            'sucursal_id' => Auth::user()->sucursal_id,
+            'laboratorio_id' => $request->laboratorio_id
+        ]);
+
+        // Movimiento de caja (sin cambios)
+        MovimientoCaja::create([
+            'tipo' => "EGRESO",
+            'monto' => $request->precio_total,
+            'descripcion' => "Compra de productos",
+            'fecha_movimiento' => $request->fecha_movimiento ?? now(),
+            'caja_id' => $caja->id
+        ]);
+
+        // Procesar productos temporales
+        $session_id = session()->getId();
+        $tmp_compras = TmpCompra::where('session_id', $session_id)->get();
+
+        foreach($tmp_compras as $tmp_compra) {
+            $lote_id = $request->lotes[$tmp_compra->producto_id] ?? null;
+            
+            if (!$lote_id) {
+                throw new \Exception("No se seleccionó lote para el producto ID: {$tmp_compra->producto_id}");
+            }
+
+            // Crear detalle de compra
+            DetalleCompra::create([
+                'cantidad' => $tmp_compra->cantidad,
+                'compra_id' => $compra->id,
+                'producto_id' => $tmp_compra->producto_id
+            ]);
+
+            // SOLO actualizar stock en el lote (eliminada la línea de producto)
+            Lote::where('id', $lote_id)->increment('cantidad', $tmp_compra->cantidad);
+        }
+
+        // Eliminar temporales
+        TmpCompra::where('session_id', $session_id)->delete();
+
+        DB::commit();
+
+        return redirect()->route('admin.compras.index')
+            ->with('mensaje', 'Compra registrada correctamente')
+            ->with('icono', 'success');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        return back()->withInput()
+            ->with('mensaje', 'Error al registrar la compra: ' . $e->getMessage())
+            ->with('icono', 'error');
+    }
+}
+public function agregarLote(Request $request)
+{
+    $validated = $request->validate([
+        'numero_lote' => 'required|string|unique:lotes,numero_lote',
+        'cantidad' => 'required|integer|min:1',
+        'fecha_ingreso' => 'required|date',
+        'fecha_vencimiento' => 'required|date|after_or_equal:fecha_ingreso',
+        'precio_compra' => 'required|numeric|min:0',
+        'precio_venta' => 'required|numeric|min:0|gte:precio_compra',
+        'producto_id' => 'required|exists:productos,id',
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        // Obtener la sucursal del usuario autenticado
+        $sucursal_id = auth()->user()->sucursal_id;
+
+        // Crear el nuevo lote con sucursal
+        Lote::create([
+            'numero_lote' => $validated['numero_lote'],
+            'fecha_ingreso' => $validated['fecha_ingreso'],
+            'fecha_vencimiento' => $validated['fecha_vencimiento'],
+            'cantidad' => $validated['cantidad'],
+            'cantidad_inicial' => $validated['cantidad'],
+            'precio_compra' => $validated['precio_compra'],
+            'precio_venta' => $validated['precio_venta'],
+            'producto_id' => $validated['producto_id'],
+            'sucursal_id' => $sucursal_id, // Asignar sucursal automáticamente
+            'activo' => true,
+            'session_id' => session()->getId(),
+        ]);
+
+        DB::commit();
+
+        return back()->with('alert', [
+            'type' => 'success',
+            'message' => 'Lote creado correctamente'
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error al crear lote: '.$e->getMessage());
+        
+        return back()->with('alert', [
+            'type' => 'error',
+            'message' => 'Error al crear el lote: '.$e->getMessage()
+        ]);
+    }
+}
+
+public function getStockTotalAttribute()
+{
+    return Cache::remember("producto_{$this->id}_stock", now()->addHours(1), function() {
+        return $this->lotes()->sum('cantidad');
+    });
 }
 public function mostrarTmpCompras()
 {
@@ -247,48 +265,35 @@ public function mostrarTmpCompras()
     /**
      * Remove the specified resource from storage.
      */
-public function destroy($id)
-{
+public function destroy($id) {
     DB::beginTransaction();
     try {
-        // Cargar la compra con sus relaciones usando el nombre correcto
-        $compra = Compra::with(['detalles.lote', 'movimientoCaja'])->findOrFail($id);
+        // 1. Obtener la compra con sus detalles
+        $compra = Compra::with(['detalles'])->findOrFail($id);
         
-        // 1. Revertir la cantidad en los lotes asociados
-        foreach ($compra->detalles as $detalle) {
-            if ($detalle->lote) {
-                $lote = $detalle->lote;
-                $lote->cantidad += $detalle->cantidad; // Revertimos la compra
-                
-                if ($lote->cantidad <= 0) {
-                    $lote->delete();
-                } else {
-                    $lote->save();
-                }
-            }
-        }
+        // 2. Obtener los IDs de productos involucrados
+        $productosIds = $compra->detalles->pluck('producto_id')->unique();
         
-        // 2. Eliminar el movimiento de caja asociado (usando movimientoCaja)
-        if ($compra->movimientoCaja) {
-            $compra->movimientoCaja->delete();
-        }
+        // 3. Eliminar lotes asociados a esos productos
+        Lote::whereIn('producto_id', $productosIds)->delete();
         
-        // 3. Eliminar los detalles de la compra
+        // 4. Eliminar detalles de la compra
         $compra->detalles()->delete();
         
-        // 4. Finalmente eliminar la compra
+        // 5. Eliminar la compra
         $compra->delete();
         
         DB::commit();
         
         return redirect()->route('admin.compras.index')
-               ->with('success', 'Compra eliminada correctamente');
+               ->with('success', 'Compra eliminada con sus lotes asociados');
                
     } catch (\Exception $e) {
         DB::rollBack();
-        Log::error('Error eliminando compra ID '.$id.': '.$e->getMessage());
+        Log::error("Error eliminando compra {$id}: " . $e->getMessage());
+        
         return redirect()->back()
-               ->with('error', 'No se pudo eliminar la compra: '.$e->getMessage());
+               ->with('error', 'No se pudo eliminar: ' . $e->getMessage());
     }
 }
     public function agregarTmp(Request $request)

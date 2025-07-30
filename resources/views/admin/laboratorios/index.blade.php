@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Gestión de Laboratorios'])
 
 @section('content')
-@include('layouts.navbars.auth.topnav', ['title' => 'Laboratorios'])
+@include('layouts.navbars.auth.topnav', ['title' => 'Gestion de Laboratorios'])
 <div class="container-fluid py-4">
     <!-- Header Principal -->
 
@@ -47,14 +47,7 @@
                                         <i class="fas fa-file-excel text-success me-2"></i> Excel
                                     </a>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item" 
-                                    href="{{ route('admin.laboratorios.reporte') }}?tipo=csv"
-                                    title="Exportar a CSV">
-                                        <i class="fas fa-file-csv text-info me-2"></i> CSV
-                                    </a>
-                                </li>
-                                
+                               
                                 <li><hr class="dropdown-divider"></li>
                             </ul>
                         </div>
@@ -415,7 +408,7 @@ document.querySelectorAll('.btn-eliminar-laboratorio').forEach(button => {
                             <span class="input-group-text"><i class="fas fa-phone"></i></span>
                             <input type="text" class="form-control" name="telefono" 
                                    value="{{ old('telefono') }}" required 
-                                   placeholder="Ej: 555-123456">
+                                   placeholder=".">
                         </div>
                         @error('telefono')
                             <div class="text-danger small mt-2">{{ $message }}</div>
@@ -428,7 +421,7 @@ document.querySelectorAll('.btn-eliminar-laboratorio').forEach(button => {
                             <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
                             <input type="text" class="form-control" name="direccion" 
                                    value="{{ old('direccion') }}" required 
-                                   placeholder="Ej: Av. Principal #123">
+                                   placeholder="Ej: Av. Montes #123">
                         </div>
                         @error('direccion')
                             <div class="text-danger small mt-2">{{ $message }}</div>

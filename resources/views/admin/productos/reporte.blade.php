@@ -123,9 +123,9 @@
     </div>
 
     <div class="company-info">
-        <strong>{{ config('app.name') }}</strong> | 
-        Dirección: Calle P, Ciudad | 
-        Teléfono:  | Email: info
+        <p class="compact-subtitle">Farmacia Mariel</p>| 
+        Dirección: Zon Vino tinto
+        Teléfono: 75260345 
     </div>
 
     <table>
@@ -192,7 +192,7 @@
 
      <div class="footer">
         <p>Sistema de Gestión - {{ date('Y') }} </p>
-        <p>Generado por: {{ Auth::user()->name ?? 'Sistema' }}</p>
+      
     </div>
 
     <div class="signature">

@@ -159,7 +159,7 @@
         <h1 class="compact-title">REPORTE DE USUARIOS</h1>
         <p class="compact-subtitle">Farmacia Mariel</p>
         <div class="compact-meta">
-            {{ $fecha_generacion }} | {{ Auth::user()->name ?? 'Sistema' }}
+            {{ $fecha_generacion }} | {{ Auth::user()->name ??  }}
         </div>
     </div>
 </div>
@@ -174,7 +174,7 @@
                 <th class="col-name">Apellidos</th>
                 <th class="col-email">Correo</th>
                 <th class="col-username">Usuario</th>
-                <th class="col-role">Rol</th>
+               
                 <th class="col-sucursal">Sucursal</th>
                 <th class="col-address">Dirección</th>
                 <th class="col-phone">Teléfono</th>
@@ -191,7 +191,7 @@
                 <td class="col-name">{{ $usuario->lastname }}</td>
                 <td class="col-email">{{ $usuario->email }}</td>
                 <td class="col-username">{{ $usuario->username }}</td>
-                <td class="col-role">{{ $usuario->role }}</td>
+                
                 <td class="col-sucursal">{{ $usuario->sucursal->nombre ?? 'N/A' }}</td>
                 <td class="col-address">{{ Str::limit($usuario->address, 25) }}</td>
                 <td class="col-phone">{{ $usuario->celular ?? 'N/A' }}</td>
@@ -205,7 +205,7 @@
 
              <div class="footer">
         <p>Sistema de Gestión - {{ date('Y') }} </p>
-        <p>Generado por: {{ Auth::user()->name ?? 'Sistema' }}</p>
+   
     </div>
 
     <div class="signature">

@@ -89,7 +89,7 @@
         <div class="container-fluid">
             <!-- Logo y botón móvil -->
             <a class="navbar-brand text-primary me-3" href="#">
-                <i class="fas fa-clinic-medical me-2"></i>
+                
                 <img src="{{ asset('assets/img/logo2.jpeg') }}" alt="Logo" width="80" height="auto">
             </a>
             

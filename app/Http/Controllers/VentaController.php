@@ -51,9 +51,7 @@ class VentaController extends Controller
        
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+   
     public function create()
     {
         //
@@ -88,89 +86,106 @@ class VentaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        //
-        //$datos =request()->all();
-        //return response()->json($datos);
+  public function store(Request $request)
+{
+        // Validación de los datos de entrada
+    $request->validate([
+        'fecha' => 'required',
+        'precio_total' => 'required',
+    ]);
 
-            // Validación de los datos de entrada
-            $request->validate([
-                        
-                'fecha' => 'required',
-              
-                'precio_total' => 'required', //
-            ]);
-            
+    // Iniciar transacción para asegurar integridad de datos
+    DB::beginTransaction();
 
-            // Crear un nuevo laboratorio
-            $ventas = new Venta();
-            $ventas->fecha = $request->fecha;
-            
-            $ventas->precio_total = $request->precio_total;
+    try {
+        // Crear la venta principal
+        $ventas = new Venta();
+        $ventas->fecha = $request->fecha;
+        $ventas->precio_total = $request->precio_total;
+        $ventas->sucursal_id = Auth::user()->sucursal_id;
+        $ventas->cliente_id = $request->cliente_id;
+        $ventas->save();
 
-            $ventas->sucursal_id = Auth::user()->sucursal_id;
-            $ventas->cliente_id = $request->cliente_id;
-            $ventas->save();
+        $session_id = session()->getId();
 
-            $session_id = session()->getId();
-
-
-                    //registar en la caja 
+        // Registrar en la caja 
         $caja_id = Caja::whereNull('fecha_cierre')->first();
         $movimiento = new MovimientoCaja();
         $movimiento->tipo = "INGRESO";
         $movimiento->monto = $request->precio_total;
-       
         $movimiento->descripcion = "venta de productos";
         $movimiento->fecha_movimiento = $request->fecha_movimiento ?? now();
-        $movimiento->caja_id = $caja_id->id;// Ahora podemos estar más seguros de que no será null
-        $movimiento->save(); 
-        //
+        $movimiento->caja_id = $caja_id->id;
+        $movimiento->save();
 
+        // Procesar productos temporales
+        $tmp_ventas = TmpVenta::where('session_id', $session_id)->get();
 
+        foreach ($tmp_ventas as $tmp_venta) {
+            // Crear detalle venta (manteniendo tu lógica actual)
+            $detalle_venta = new DetalleVenta();
+            $detalle_venta->cantidad = $tmp_venta->cantidad;
+            $detalle_venta->venta_id = $ventas->id;
+            $detalle_venta->producto_id = $tmp_venta->producto_id;
+            $detalle_venta->save();
 
-
-            // Redirigir al índice con un mensaje de éxito
-            $tmp_ventas = TmpVenta::where('session_id',$session_id)->get();
-
-            foreach ($tmp_ventas as $tmp_venta) {
-                // Crear detalle venta
-                $detalle_venta = new DetalleVenta();
-                $detalle_venta->cantidad = $tmp_venta->cantidad;
-                $detalle_venta->venta_id = $ventas->id;
-                $detalle_venta->producto_id = $tmp_venta->producto_id;
-                $detalle_venta->save();
-
-                // Descontar cantidad vendida del primer lote disponible (ordenado por fecha_ingreso asc)
-                $lote = Lote::where('producto_id', $tmp_venta->producto_id)
-                            ->where('cantidad', '>', 0)
-                            ->orderBy('fecha_ingreso', 'asc')
-                            ->first();
-
-                if ($lote) {
-                    $lote->cantidad -= $tmp_venta->cantidad;
-                    if ($lote->cantidad < 0) $lote->cantidad = 0; // Evitar cantidad negativa
-                    $lote->save();
-                }
+            // PEPS para descontar de múltiples lotes
+            $cantidad_restante = $tmp_venta->cantidad;
             
+            // Obtener lotes ordenados por fecha de ingreso (más antiguos primero)
+            $lotes = Lote::where('producto_id', $tmp_venta->producto_id)
+                        ->where('cantidad', '>', 0)
+                        ->orderBy('fecha_ingreso', 'asc')
+                        ->get();
 
+            foreach ($lotes as $lote) {
+                if ($cantidad_restante <= 0) break;
 
-            
+                $cantidad_a_descontar = min($lote->cantidad, $cantidad_restante);
+                
+                $lote->cantidad -= $cantidad_a_descontar;
+                $lote->save();
 
-
-
-
+                $cantidad_restante -= $cantidad_a_descontar;
             }
-            //QUE SE ELIMI LA TABLA DE TEMPORAL
-            TmpVenta::where('session_id',$session_id)->delete();
-            return redirect()->route('admin.ventas.index')
-            ->with('mensaje','Se registro la venta')
-            ->with('icono','success');
 
+            // Validar si hay suficiente stock
+            if ($cantidad_restante > 0) {
+                throw new \Exception("No hay suficiente stock para el producto: ".$tmp_venta->producto->nombre);
+            }
+        }
 
+        // Eliminar temporales
+        TmpVenta::where('session_id', $session_id)->delete();
 
+        DB::commit();
+
+        return redirect()->route('admin.ventas.index')
+            ->with('mensaje', 'Se registró la venta correctamente')
+            ->with('icono', 'success');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()
+            ->with('mensaje', 'Error al registrar la venta: '.$e->getMessage())
+            ->with('icono', 'error');
     }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 public function pdf($id){
 
 
@@ -293,66 +308,36 @@ function numerosALetrasConDecimales($numero)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+public function destroy($id)
 {
     DB::beginTransaction();
     try {
-        $venta = Venta::with('detallesVenta.producto')->findOrFail($id);
-        
-        // 1. Búsqueda exacta del movimiento de caja
-        $movimiento = MovimientoCaja::where('descripcion', 'Venta ID: '.$venta->id)
-                                  ->first();
-        
-        // 2. Si no se encuentra, buscar por monto y fecha exacta
-        if (!$movimiento) {
-            $movimiento = MovimientoCaja::where('monto', $venta->precio_total)
-                                      ->whereDate('created_at', $venta->created_at->toDateString())
-                                      ->where('tipo', 'INGRESO')
-                                      ->first();
-        }
-        
-        // 3. Debug: Verificar datos de búsqueda
-        Log::info('Datos de búsqueda para venta ID: '.$venta->id, [
-            'descripcion_buscada' => 'Venta ID: '.$venta->id,
-            'precio_total' => $venta->precio_total,
-            'fecha_venta' => $venta->created_at,
-            'movimiento_encontrado' => $movimiento ? $movimiento->toArray() : null
-        ]);
-        
-        // 4. Revertir stock de productos
+        $venta = Venta::with(['detallesVenta.producto.lotes'])->findOrFail($id);
+
+        // 1. Restaurar stock en lotes
         foreach ($venta->detallesVenta as $detalle) {
-            $producto = $detalle->producto;
-            $producto->stock += $detalle->cantidad;
-            $producto->save();
+            $lote = $detalle->producto->lotes->first();
+            if ($lote) {
+                $lote->increment('cantidad', $detalle->cantidad);
+            }
         }
-        
-        // 5. Eliminar movimiento si existe
-        if ($movimiento) {
-            $movimiento->delete();
-            Log::info("Movimiento eliminado: ".$movimiento->id);
-        } else {
-            Log::warning("No se encontró movimiento para venta ID: ".$venta->id);
-        }
-        
-        // 6. Eliminar detalles y venta
-        $venta->detallesVenta()->delete();
+
+        // 2. Eliminar en cascada
         $venta->delete();
-        
+
         DB::commit();
-        
+
         return redirect()->route('admin.ventas.index')
-            ->with('mensaje', 'Venta eliminada correctamente')
-            ->with('icono', 'success');
-            
+               ->with('success', 'Venta anulada y stock restaurado');
+
     } catch (\Exception $e) {
         DB::rollBack();
-        Log::error("Error eliminando venta ID {$id}: ".$e->getMessage());
+        Log::error("Error eliminando venta {$id}: " . $e->getMessage());
+        
         return redirect()->back()
-            ->with('mensaje', 'Error al eliminar: '.$e->getMessage())
-            ->with('icono', 'error');
+               ->with('error', 'No se pudo anular la venta: ' . $e->getMessage());
     }
 }
-
 //reportes
 
 public function reporte($tipo, Request $request)

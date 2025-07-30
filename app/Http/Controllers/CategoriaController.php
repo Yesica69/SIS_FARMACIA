@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Categoria;
+
+use App\Models\Sucursal;
+
+use Illuminate\Support\Facades\Auth; 
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -18,12 +22,24 @@ use PDF;
 class CategoriaController extends Controller
 {
    
-    public function index()
-    {
-        $categorias = Categoria::all();//LISTA DE USUARIOS
-        return view('admin.categorias.index',compact('categorias'));//ENVIARLOS DATOS ALA VISTA
+    public function index(Request $request)
+{
+    // Obtener todas las sucursales para mostrar en un select
+    $sucursales = Sucursal::all();
+    
+    // Filtrar categorías por sucursal si se envía el parámetro
+    $query = Categoria::query();
+    
+    if ($request->has('sucursal_id')) {
+        $query->whereHas('sucursales', function($q) use ($request) {
+            $q->where('sucursales.id', $request->sucursal_id);
+        });
     }
-
+    
+    $categorias = $query->get();
+    
+    return view('admin.categorias.index', compact('categorias', 'sucursales'));
+}
     
     public function create()
     {
@@ -45,6 +61,7 @@ class CategoriaController extends Controller
         // Crear un nuevo categoria
         $categoria = new Categoria();
         $categoria->nombre = $request->nombre;
+         $categoria->sucursal_id = Auth::user()->sucursal_id;
         $categoria->descripcion = $request->descripcion;
         $categoria->save();
 
@@ -92,6 +109,7 @@ class CategoriaController extends Controller
 
         // Actualizar los datos básicos
         $categoria->nombre = $request->nombre;
+         $categoria->sucursal_id = Auth::user()->sucursal_id;
         $categoria->descripcion = $request->descripcion;
       
 $categoria->save();
@@ -158,13 +176,27 @@ protected function generarReportePorTipo($tipo, $categorias)
     }
 }
 
-private function generarPDF($categorias) {
+private function generarPDF($categorias, $sucursalId = null) {
+    // Asegurarse de tener valores por defecto
+    $sucursalNombre = 'Todas las sucursales';
+    
+    if ($sucursalId) {
+        $sucursal = Sucursal::find($sucursalId);
+        $sucursalNombre = $sucursal ? $sucursal->nombre : 'Sucursal seleccionada';
+    }
+
     $pdf = PDF::loadView('admin.categorias.reporte', [
         'categorias' => $categorias,
-        'fecha_generacion' => now()->format('d/m/Y H:i:s')
+        'fecha_generacion' => now()->format('d/m/Y H:i:s'),
+        'sucursalId' => $sucursalId, // Asegúrate de pasar este valor
+        'sucursalNombre' => $sucursalNombre // Y este también
     ])->setPaper('a4', 'portrait');
 
-    return $pdf->download('reporte_categorias_'.now()->format('Ymd_His').'.pdf');
+    $nombreArchivo = 'reporte_categorias_';
+    $nombreArchivo .= $sucursalId ? 'sucursal_'.$sucursalId.'_' : '';
+    $nombreArchivo .= now()->format('Ymd_His').'.pdf';
+
+    return $pdf->download($nombreArchivo);
 }
    
 

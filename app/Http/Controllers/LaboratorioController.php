@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Laboratorio;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Illuminate\Support\Facades\Auth; 
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use App\Models\Sucursal;
 use Illuminate\Http\Request;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -43,6 +45,7 @@ class LaboratorioController extends Controller
         $laboratorio = new Laboratorio();
         $laboratorio->nombre = $request->nombre;
         $laboratorio->telefono = $request->telefono;
+        $laboratorio->sucursal_id = Auth::user()->sucursal_id;
         $laboratorio->direccion = $request->direccion;
         $laboratorio->save();
 
@@ -90,6 +93,7 @@ class LaboratorioController extends Controller
         // Actualizar los datos básicos
         $laboratorio->nombre = $request->nombre;
         $laboratorio->telefono = $request->telefono;
+         $laboratorio->sucursal_id = Auth::user()->sucursal_id;
         $laboratorio->direccion = $request->direccion;
       
 $laboratorio->save();

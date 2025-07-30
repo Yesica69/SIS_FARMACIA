@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Productos'])
 
 @section('content')
-@include('layouts.navbars.auth.topnav', ['title' => 'Productos'])
+@include('layouts.navbars.auth.topnav', ['title' => 'Gestion de Productos'])
 
 <div class="container-fluid mt--7">
     <!-- Header Section -->
@@ -133,13 +133,7 @@
                                                 <i class="fas fa-file-excel text-success me-2"></i> Excel
                                             </a>
                                         </li>
-                                        <li>
-                                            <a class="dropdown-item" 
-                                            href="{{ route('admin.productos.reporte', ['tipo' => 'csv']) }}?categoria={{ request('categoria') }}&stockBajo={{ request('stockBajo', 0) }}&diasVencimiento={{ request('diasVencimiento') }}"
-                                            title="Exportar a CSV">
-                                                <i class="fas fa-file-csv text-info me-2"></i> CSV
-                                            </a>
-                                        </li>
+                                         <li><hr class="dropdown-divider"></li>
                                     </ul>
                                 </div>
                             </div>       

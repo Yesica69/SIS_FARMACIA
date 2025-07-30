@@ -41,7 +41,7 @@
         </button>
     </div>
 <!-- Contenedor principal con 1cm exacto a cada lado -->
-<div style="margin: 0 30px;"> <!-- 1cm (10px) a cada lado -->
+<div style="margin: 0 30px;"> 
     <!-- Filtro de categoría -->
     @if(request()->has('categoria'))
     <div class="row mb-2">
@@ -61,7 +61,7 @@
     @endif
 
 
-    <div class="d-flex flex-wrap justify-content-center gap-3 mb-4 px-3 py-4 rounded-4" style="background: rgba(245,245,245,0.8);">
+<div class="d-flex flex-wrap justify-content-center gap-3 mb-4 px-3 py-4 rounded-4" style="background: rgba(245,245,245,0.8);">
     @foreach($categorias as $cat)
         @php
             switch (strtolower($cat->nombre)) {
@@ -111,9 +111,11 @@
                     $gradient = 'radial-gradient(circle at top, #00c6ff, #0072ff)';
                     break;
                 default:
-                    $icono = 'fas fa-tags';
+                    
+                    $icono = 'fas fa-pills';
                     $iconColor = '#ffffff';
-                    $gradient = 'radial-gradient(circle at top, #667eea, #764ba2)';
+                    
+                    $gradient = 'radial-gradient(circle at top, #3a7bd5, #00d2ff)';
             }
         @endphp
 

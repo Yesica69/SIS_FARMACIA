@@ -8,50 +8,84 @@
             </div>
         </div>
     </div>
-    <main class="main-content  mt-0">
-        <section>
-            <div class="page-header min-vh-100">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
-                            <div class="card card-plain">
-                                <div class="card-header pb-0 text-start">
-                                    <h4 class="font-weight-bolder">Reset your password</h4>
-                                    <p class="mb-0">Enter your email and please wait a few seconds</p>
+    <section class="min-vh-100" style="
+        background: linear-gradient(to bottom, #ff8c00, #ff6b00, #ccca70ff);
+        display: flex;
+        align-items: center;
+    ">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-5 col-lg-6 col-md-8">
+                    <div class="card border-0" style=" 
+                        background-color: rgba(95, 87, 87, 0.5);
+                        backdrop-filter: blur(10px);
+                        border-radius: 15px;
+                        box-shadow: 0 10px 25px rgba(95, 87, 87, 0.5);
+                    ">
+                        <!-- Encabezado -->
+                        <div class="card-header bg-transparent text-center pt-4 pb-3">
+                            <h4 class="mb-0 text-white" style="font-weight: 600;">Restablecer contraseña</h4>
+                            <p class="text-white-50 mb-0">Ingresa tu email y espera unos segundos</p>
+                        </div>
+                        
+                        <!-- Cuerpo del formulario -->
+                        <div class="card-body px-5 pt-4 pb-3">
+                            <form role="form" method="POST" action="{{ route('reset.perform') }}">
+                                @csrf
+                                @method('post')
+                                
+                                <!-- Campo Email -->
+                                <div class="mb-4">
+                                    <label for="email" class="form-label text-white" style="font-weight: 500;">Correo electrónico</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text" style="
+                                            background: rgba(255, 255, 255, 0.15);
+                                            border: 1px solid rgba(255, 255, 255, 0.2);
+                                            color: white;
+                                        ">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+                                        <input type="email" name="email" id="email" 
+                                               class="form-control text-white" 
+                                               style="
+                                                   background: rgba(255, 255, 255, 0.15);
+                                                   border: 1px solid rgba(255, 255, 255, 0.2);
+                                                   border-left: 0;
+                                                   backdrop-filter: blur(5px);
+                                               "
+                                               placeholder="Email" 
+                                               value="{{ old('email') }}" required>
+                                    </div>
+                                    @error('email') 
+                                        <div class="text-white small mt-1" style="text-shadow: 0 0 3px rgba(255,0,0,0.5);">{{ $message }}</div> 
+                                    @enderror
                                 </div>
-                                <div class="card-body">
-                                    <form role="form" method="POST" action="{{ route('reset.perform') }}">
-                                        @csrf
-                                        @method('post')
-                                        <div class="flex flex-col mb-3">
-                                            <input type="email" name="email" class="form-control form-control-lg" placeholder="Email" value="{{ old('email') }}" aria-label="Email">
-                                            @error('email') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
-                                        </div>
-                                        <div class="text-center">
-                                            <button type="submit" class="btn btn-lg btn-primary btn-lg w-100 mt-4 mb-0">Send Reset Link</button>
-                                        </div>
-                                    </form>
+                                
+                                <!-- Botón de Envío -->
+                                <div class="d-grid mb-3">
+                                    <button type="submit" class="btn btn-lg py-3" 
+                                            style="
+                                                background: linear-gradient(135deg, rgba(255,126,0,0.8) 0%, rgba(255,94,0,0.9) 100%);
+                                                border: none;
+                                                color: white;
+                                                font-weight: 600;
+                                                letter-spacing: 0.5px;
+                                                transition: all 0.3s ease;
+                                                box-shadow: 0 4px 15px rgba(255, 94, 0, 0.3);
+                                            ">
+                                        Enviar enlace
+                                    </button>
                                 </div>
+                                
+                                <!-- Alerta -->
                                 <div id="alert">
                                     @include('components.alert')
                                 </div>
-                            </div>
-                        </div>
-                        <div
-                            class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 end-0 text-center justify-content-center flex-column">
-                            <div class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
-                                style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg');
-                                        background-size: cover;">
-                                <span class="mask bg-gradient-primary opacity-6"></span>
-                                <h4 class="mt-5 text-white font-weight-bolder position-relative">"Attention is the new
-                                    currency"</h4>
-                                <p class="text-white position-relative">The more effortless the writing looks, the more
-                                    effort the writer actually put into the process.</p>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
 @endsection

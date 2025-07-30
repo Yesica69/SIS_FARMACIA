@@ -138,7 +138,7 @@ class SucursalController extends Controller
 
         // Redirigir al índice con un mensaje de éxito
         return redirect()->route('admin.sucursals.index')
-            ->with('mensaje', 'laboratorio eliminada con éxito.')
+            ->with('mensaje', 'sucursal eliminada con éxito.')
             ->with('icono', 'success');
     }
 

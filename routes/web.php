@@ -121,7 +121,7 @@ Route::get('/admin/usuarios/reporte/{tipo}', [App\Http\Controllers\UsuarioContro
 
 
 //rutas para CATEGORIAS
-// Coloca ESTA RUTA ANTES de cualquier ruta similar
+
 Route::get('/admin/categorias/reporte', [App\Http\Controllers\CategoriaController::class, 'generarReporte'])
      ->name('admin.categorias.reporte');
 Route::get('/admin/categorias', [App\Http\Controllers\CategoriaController::class, 'index'])->name('admin.categorias.index')->middleware('auth');
@@ -347,3 +347,20 @@ Route::get('/admin/lotes/reporte', [App\Http\Controllers\LoteController::class, 
 
     //cchat
     Route::post('/chat-ia', [App\Http\Controllers\ChatIAController::class, 'preguntar']);
+
+
+    // inventario
+    Route::get('/admin/inventario', [App\Http\Controllers\InventarioController::class, 'index'])->name('admin.inventario.index');
+
+   
+     Route::get('/admin/inventario/bajo-stock', [App\Http\Controllers\InventarioController::class, 'bajoStock'])->name('admin.inventario.bajo_stock');
+
+
+Route::get('/admin/inventario/productos_porvencer', [App\Http\Controllers\InventarioController::class, 'productosPorVencer' ])->name('admin.inventario.productos_porvencer');
+
+     Route::get('/admin/compras/mensual', [App\Http\Controllers\InventarioController::class, 'comprasMensuales'])->name('admin.compras.mensual');
+Route::get('/admin/inventario/reporte_compras', [App\Http\Controllers\InventarioController::class, 'imprimirCompras'])->name('admin.inventario.reporte_compras');
+
+Route::get('/admin/inventario/reporte_ventas', [App\Http\Controllers\InventarioController::class, 'imprimirVentas'])->name('admin.inventario.reporte_ventas');
+
+Route::get('/admin/inventario/reportegeneral', [App\Http\Controllers\InventarioController::class, 'reporteGeneral'])->name('admin.inventario.reportegeneral');

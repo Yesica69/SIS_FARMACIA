@@ -135,7 +135,8 @@
         <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('admin.proveedores.*') ? 'active' : '' }}" href="{{ route('admin.proveedores.index') }}">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                    <i class="ni ni-truck text-primary text-sm opacity-10"></i>
+                    <i class="ni ni-delivery-fast text-primary text-sm opacity-10"></i>
+                   
                 </div>
                 <span class="nav-link-text ms-1">Proveedores</span>
             </a>
@@ -229,11 +230,11 @@
         </li>
         
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('admin.productos.*') ? 'active' : '' }}" href="{{ route('admin.productos.index') }}">
+            <a class="nav-link {{ request()->routeIs('admin.inventario.*') ? 'active' : '' }}" href="{{ route('admin.inventario.index') }}">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="ni ni-archive-2 text-primary text-sm opacity-10"></i>
                 </div>
-                <span class="nav-link-text ms-1">Reporte de Inventario</span>
+                <span class="nav-link-text ms-1">Inventario</span>
             </a>
         </li>
 

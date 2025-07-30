@@ -33,6 +33,8 @@ class Compra extends Model
 
 
 
+
+
 public function movimientosCaja()
 {
     return $this->hasOne(MovimientoCaja::class, 'compra_id');

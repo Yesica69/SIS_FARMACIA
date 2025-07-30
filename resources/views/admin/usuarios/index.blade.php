@@ -40,13 +40,7 @@
                                         <i class="fas fa-file-excel text-success me-2"></i> Excel
                                     </a>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item" 
-                                    href="{{ route('admin.usuarios.reporte', ['tipo' => 'csv']) }}?rol={{ request('rol') }}&sucursal={{ request('sucursal') }}&estado={{ request('estado') }}"
-                                    title="Exportar a CSV">
-                                        <i class="fas fa-file-csv text-info me-2"></i> CSV
-                                    </a>
-                                </li>
+                                
                                 <li><hr class="dropdown-divider"></li>
                             </ul>
                         </div>
@@ -718,7 +712,7 @@ document.querySelectorAll('.btn-eliminar').forEach(button => {
                                 
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Correo Electrónico <span class="text-danger">*</span></label>
-                                    <input type="email" class="form-control shadow-sm" name="email" value="{{ old('email') }}" required placeholder="ejemplo@dominio.com">
+                                    <input type="email" class="form-control shadow-sm" name="email" value="{{ old('email') }}" required placeholder="usuario@gmail.com">
                                 </div>
                                 
                                 <div class="alert alert-primary p-3">

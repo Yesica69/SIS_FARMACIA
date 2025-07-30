@@ -21,4 +21,9 @@ class Sucursal extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function lotes()
+    {
+        return $this->hasMany(Lote::class);
+    }
 }

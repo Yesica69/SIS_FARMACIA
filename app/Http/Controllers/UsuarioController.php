@@ -31,31 +31,21 @@ use PDF;
 class UsuarioController extends Controller
 {
 
-    public function index()
-    {
-        // Verificar autenticación
-        
-    
-        $sucursal_id = Auth::user()->sucursal_id;
-        
-        // Cargar usuarios con relaciones y filtrar por sucursal
-       
-        $usuarios = User::with(['roles', 'sucursal'])
-            ->where('sucursal_id', $sucursal_id)
-            ->get()
-            ->map(function ($usuario) {
-                // Accede al nombre de la sucursal a través de la relación ya cargada
-                $usuario->sucursal_nombre = $usuario->sucursal->nombre ?? 'N/A';
-                return $usuario;
-            });
-    
-        // Obtener datos adicionales
-        $sucursales = Sucursal::all();
-        $roles = Role::all();
-    
-        return view('admin.usuarios.index', compact('usuarios', 'roles', 'sucursales'));
-    }
+  public function index()
+{
+    // Cargar todos los usuarios con relaciones (sin filtro por sucursal)
+    $usuarios = User::with(['roles', 'sucursal'])
+        ->get()
+        ->map(function ($usuario) {
+            $usuario->sucursal_nombre = $usuario->sucursal->nombre ?? 'N/A';
+            return $usuario;
+        });
 
+    $sucursales = Sucursal::all();
+    $roles = Role::all();
+
+    return view('admin.usuarios.index', compact('usuarios', 'roles', 'sucursales'));
+}
 
 
 
@@ -135,7 +125,7 @@ class UsuarioController extends Controller
             'lastname' => $validated['lastname'],
             'email' => $validated['email'],
             'username' => $validated['username'],
-            'password' => Hash::make($validated['username']), // Contraseña = username
+            'password' => Hash::make($validated['username']), // Contraseña = usernamenoolvidar
             'address' => $validated['address'],
             'celular' => $validated['celular'],
             'imagen' => $imagenPath,

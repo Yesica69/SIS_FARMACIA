@@ -63,13 +63,7 @@
                                         <span>Exportar a Excel</span>
                                     </a>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item d-flex align-items-center" 
-                                       href="{{ route('admin.compras.reporte', ['tipo' => 'csv']) }}?fecha_inicio={{ request('fecha_inicio') }}&fecha_fin={{ request('fecha_fin') }}&laboratorio_id={{ request('laboratorio_id') }}">
-                                        <i class="fas fa-file-csv text-info me-2"></i>
-                                        <span>Exportar a CSV</span>
-                                    </a>
-                                </li>
+                                
                             </ul>
                         </div>
                     
@@ -155,13 +149,8 @@
                                             <i class="fas fa-eye"></i>
                                             </a>
                                             
-                                           
+                                                                               
                                             
-                                            
-                                            
-
-
-
 
 
 <form action="{{ route('admin.compras.destroy', $compra->id) }}" 
@@ -171,13 +160,20 @@
       data-nombre="{{ $compra->nombre }}">
     @csrf
     @method('DELETE')
-    <button type="button" 
+    <button type="button"  
             class="btn btn-sm bg-gradient-danger text-white mx-1 btn-eliminar-compra"
             style="width: 30px; height: 30px; min-width: 30px; padding: 0;"
             title="Eliminar compra"
             data-bs-toggle="tooltip">
-        <i class="fas fa-trash-alt"></i>
+        <span class="btn-inner--icon me-1">
+                <i class="fas fa-trash-alt"></i>
+            </span>
+            <span class="btn-inner--text"></span>
     </button>
+
+
+
+
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -535,11 +531,6 @@ document.querySelectorAll('.btn-eliminar-compra').forEach(button => {
             window.location.reload();
         });
 
-        // Botón de exportar (ejemplo básico)
-        document.getElementById('exportExcel').addEventListener('click', function() {
-            // Aquí puedes implementar la lógica de exportación a Excel
-            alert('Funcionalidad de exportación a Excel');
-        });
     });
 </script>
 @endsection

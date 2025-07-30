@@ -9,7 +9,7 @@ use App\Models\Compra;
 use App\Models\Producto;
 use App\Models\Venta;
 use App\Models\Cliente;
-use App\Models\DetalleVenta; // Asegúrate de importar el modelo DetalleVenta
+use App\Models\DetalleVenta; //
 use Illuminate\Support\Facades\DB; // Necesario para las consultas
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;

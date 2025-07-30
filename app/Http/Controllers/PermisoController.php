@@ -28,7 +28,7 @@ class PermisoController extends Controller
 
         // Redirigir al índice con un mensaje de éxito
         return redirect()->route('admin.permisos.index')
-        ->with('mensaje', 'Se registro el permiso de l manera correct')
+        ->with('mensaje', 'Se registro el permiso de la manera correcta')
         ->with('icono', 'success');
 
     }

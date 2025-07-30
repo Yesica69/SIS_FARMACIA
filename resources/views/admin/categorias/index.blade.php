@@ -43,13 +43,7 @@
                                         <i class="fas fa-file-excel text-success me-2"></i> Excel
                                     </a>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item" 
-                                    href="{{ route('admin.categorias.reporte') }}?tipo=csv"
-                                    title="Exportar a CSV">
-                                        <i class="fas fa-file-csv text-info me-2"></i> CSV
-                                    </a>
-                                </li>
+                                
                                 
                                 <li><hr class="dropdown-divider"></li>
                             </ul>

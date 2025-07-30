@@ -122,11 +122,8 @@
 <hr>
 
     <!-- Segunda Fila: Alertas y Gráficos -->
-    <div class="row">
+ <div class="row">
 
-
-    
-       
 
        <div class="col-lg-7 mb-3">
     @if($lowStockProducts->count() > 0)

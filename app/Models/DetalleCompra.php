@@ -6,6 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class DetalleCompra extends Model
 {
+
+
+     protected $fillable = [
+        'cantidad',
+        'compra_id',
+        'producto_id',
+        // Agrega aquí cualquier otro campo que necesites asignar masivamente
+        // 'lote_id', // Solo si decidiste agregar este campo
+    ];
     //
     public function compra(){
         return $this->belongsTo(Compra::class);
@@ -28,6 +37,7 @@ public function laboratorio(){
 {
     return $this->belongsTo(Lote::class);
 }
+
 
 
 }

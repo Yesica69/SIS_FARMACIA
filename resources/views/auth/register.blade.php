@@ -2,52 +2,115 @@
 
 @section('content')
     @include('layouts.navbars.guest.navbar')
-    <main class="main-content  mt-0">
-        <div class="page-header align-items-start min-vh-50 pt-5 pb-11 m-3 border-radius-lg">
-           
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-5 text-center mx-auto">
-                        <h1 class="text-black mb-2 mt-5">Bienvenido </h1>
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
+    <main class="main-content mt-0 min-vh-100" style="
+        background: linear-gradient(to bottom, #ff8c00, #ff6b00, #ccca70ff);
+        padding-top: 1rem;
+    ">
         <div class="container">
-            <div class="row mt-lg-n10 mt-md-n11 mt-n10 justify-content-center">
+            
+            
+            <div class="row justify-content-center">
                 <div class="col-xl-4 col-lg-5 col-md-7 mx-auto">
-                    <div class="card z-index-0">
-                        <div class="card-header text-center pt-4">
-                            <h5>Regístrate en tu cuenta</h5>
+                    <div class="card z-index-0 border-0" style="
+                        background-color: rgba(95, 87, 87, 0.5);
+                        backdrop-filter: blur(10px);
+                        border-radius: 15px;
+                        box-shadow: 0 10px 25px rgba(95, 87, 87, 0.5);
+                        margin-bottom: 2rem;
+                    ">
+                        <div class="card-header text-center pt-4 bg-transparent">
+                            <h5 class="text-white">Regístrate en tu cuenta</h5>
                         </div>
                         <div class="card-body">
                             <form method="POST" action="{{ route('register.perform') }}">
                                 @csrf
                                 <div class="flex flex-col mb-3">
-                                    <input type="text" name="username" class="form-control" placeholder="Nombre de usuario" aria-label="Nombre" value="{{ old('username') }}" >
-                                    @error('username') <p class='text-danger text-xs pt-1'> {{ $message }} </p> @enderror
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text" style="
+                                            background: rgba(255, 255, 255, 0.15);
+                                            border: 1px solid rgba(255, 255, 255, 0.2);
+                                            color: white;
+                                        ">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        <input type="text" name="username" class="form-control text-white" 
+                                               style="
+                                                   background: rgba(255, 255, 255, 0.15);
+                                                   border: 1px solid rgba(255, 255, 255, 0.2);
+                                                   border-left: 0;
+                                                   backdrop-filter: blur(5px);
+                                               "
+                                               placeholder="Nombre de usuario" 
+                                               aria-label="Nombre" 
+                                               value="{{ old('username') }}">
+                                    </div>
+                                    @error('username') <p class='text-white small mt-1' style="text-shadow: 0 0 3px rgba(255,0,0,0.5);"> {{ $message }} </p> @enderror
                                 </div>
+                                
                                 <div class="flex flex-col mb-3">
-                                    <input type="email" name="email" class="form-control" placeholder="Correo electrónico" aria-label="Correo electrónico" value="{{ old('email') }}" >
-                                    @error('email') <p class='text-danger text-xs pt-1'> {{ $message }} </p> @enderror
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text" style="
+                                            background: rgba(255, 255, 255, 0.15);
+                                            border: 1px solid rgba(255, 255, 255, 0.2);
+                                            color: white;
+                                        ">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+                                        <input type="email" name="email" class="form-control text-white" 
+                                               style="
+                                                   background: rgba(255, 255, 255, 0.15);
+                                                   border: 1px solid rgba(255, 255, 255, 0.2);
+                                                   border-left: 0;
+                                                   backdrop-filter: blur(5px);
+                                               "
+                                               placeholder="Correo electrónico" 
+                                               aria-label="Correo electrónico" 
+                                               value="{{ old('email') }}">
+                                    </div>
+                                    @error('email') <p class='text-white small mt-1' style="text-shadow: 0 0 3px rgba(255,0,0,0.5);"> {{ $message }} </p> @enderror
                                 </div>
+                                
                                 <div class="flex flex-col mb-3">
-                                    <input type="password" name="password" class="form-control" placeholder="Contraseña" aria-label="Contraseña">
-                                    @error('password') <p class='text-danger text-xs pt-1'> {{ $message }} </p> @enderror
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text" style="
+                                            background: rgba(255, 255, 255, 0.15);
+                                            border: 1px solid rgba(255, 255, 255, 0.2);
+                                            color: white;
+                                        ">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                        <input type="password" name="password" class="form-control text-white" 
+                                               style="
+                                                   background: rgba(255, 255, 255, 0.15);
+                                                   border: 1px solid rgba(255, 255, 255, 0.2);
+                                                   border-left: 0;
+                                                   backdrop-filter: blur(5px);
+                                               "
+                                               placeholder="Contraseña" 
+                                               aria-label="Contraseña">
+                                    </div>
+                                    @error('password') <p class='text-white small mt-1' style="text-shadow: 0 0 3px rgba(255,0,0,0.5);"> {{ $message }} </p> @enderror
                                 </div>
-                                <div class="form-check form-check-info text-start">
-                                    <input class="form-check-input" type="checkbox" name="terms" id="flexCheckDefault" >
-                                    <label class="form-check-label" for="flexCheckDefault">
-                                        Acepto los <a href="javascript:;" class="text-dark font-weight-bolder">Términos y condiciones</a>
-                                    </label>
-                                    @error('terms') <p class='text-danger text-xs'> {{ $message }} </p> @enderror
-                                </div>
+                                
+                               
+                                
                                 <div class="text-center">
-                                    <button type="submit" class="btn bg-gradient-dark w-100 my-4 mb-2">Registrarse</button>
+                                    <button type="submit" class="btn btn-lg w-100 my-4 mb-2 py-3" style="
+                                        background: linear-gradient(135deg, rgba(255,126,0,0.8) 0%, rgba(255,94,0,0.9) 100%);
+                                        border: none;
+                                        color: white;
+                                        font-weight: 600;
+                                        letter-spacing: 0.5px;
+                                        transition: all 0.3s ease;
+                                        box-shadow: 0 4px 15px rgba(255, 94, 0, 0.3);
+                                    ">
+                                        Registrarse
+                                    </button>
                                 </div>
-                                <p class="text-sm mt-3 mb-0">¿Ya tienes una cuenta? <a href="{{ route('login') }}"
-                                        class="text-dark font-weight-bolder">Iniciar sesión</a></p>
+                                
+                                <p class="text-sm mt-3 mb-0 text-white-50">¿Ya tienes una cuenta? 
+                                    <a href="{{ route('login') }}" class="text-white font-weight-bolder">Iniciar sesión</a>
+                                </p>
                             </form>
                         </div>
                     </div>

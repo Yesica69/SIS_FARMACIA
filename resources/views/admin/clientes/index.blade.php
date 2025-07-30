@@ -162,7 +162,7 @@
                 <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom">
                             <h5 class="mb-0 ">
                             
-                            <i class="ni ni-bullet-list-67 me-2 text-primary"></i></i>Categorias Registrados
+                            <i class="ni ni-bullet-list-67 me-2 text-primary"></i></i>Clientes Registrados
                             </h5>
                                     
                 </div>

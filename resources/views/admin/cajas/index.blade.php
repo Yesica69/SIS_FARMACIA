@@ -1,7 +1,7 @@
-@extends('layouts.app', ['title' => 'Productos'])
+@extends('layouts.app', ['title' => 'Gestion de Cajas'])
 
 @section('content')
-@include('layouts.navbars.auth.topnav', ['title' => 'Productos'])
+@include('layouts.navbars.auth.topnav', ['title' => 'Gestion de Cajas'])
 <div class="container-fluid mt--6">
     <div class="row">
         <div class="col">
@@ -257,8 +257,14 @@
                     </div>
                     <div class="mb-3">
                         <label for="fecha_cierre" class="form-label">Fecha de cierre</label>
-                        <input type="datetime-local" class="form-control" name="fecha_cierre" required>
+                        <input type="datetime-local" 
+                        class="form-control" 
+                        name="fecha_cierre" required>
                     </div>
+
+                    
+
+
                     <div class="mb-3">
                         <label for="monto_final" class="form-label">Monto final</label>
                         <input type="number" step="0.01" class="form-control" name="monto_final" required>

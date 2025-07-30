@@ -8,6 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class MovimientoCaja extends Model
 {
+
+ protected $fillable = [
+        'tipo',
+        'monto',
+        'descripcion',
+        'fecha_movimiento',
+        'caja_id',
+        // Agrega aquí otros campos que necesites asignar masivamente
+    ];
+
+
     use HasFactory;
     //un movimiento puede tener un arqueo
 public function caja(){

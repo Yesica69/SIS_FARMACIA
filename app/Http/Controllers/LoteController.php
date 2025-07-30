@@ -14,28 +14,61 @@ use Carbon\Carbon;
 
 class LoteController extends Controller
 {
-    public function index(Request $request)
-    {
-        $query = Lote::with('producto');
-        
-        // Filtros
-        if ($request->has('producto_id') && $request->producto_id != '') {
-            $query->where('producto_id', $request->producto_id);
-        }
-        
-        if ($request->has('estado')) {
-            if ($request->estado == 'vencidos') {
-                $query->where('fecha_vencimiento', '<', now());
-            } elseif ($request->estado == 'activos') {
-                $query->where('fecha_vencimiento', '>=', now());
-            }
-        }
-        
-        $lotes = $query->orderBy('fecha_vencimiento', 'asc')->paginate(10);
-        $productos = Producto::all();
-        
-        return view('admin.lotes.index', compact('lotes', 'productos'));
+public function index(Request $request)
+{      
+    $query = Lote::with('producto');
+    
+    // Filtros (se mantiene igual)
+    if ($request->has('producto_id') && $request->producto_id != '') {
+        $query->where('producto_id', $request->producto_id);
     }
+    
+    if ($request->has('estado')) {
+        switch ($request->estado) {
+            case 'activos':
+                $query->where('activo', true)
+                      ->where('cantidad', '>', 0)
+                      ->where(function($q) {
+                          $q->whereNull('fecha_vencimiento')
+                            ->orWhere('fecha_vencimiento', '>=', now());
+                      });
+                break;
+                
+            case 'inactivos':
+                $query->where('activo', false);
+                break;
+                
+            case 'vencidos':
+                $query->where(function($q) {
+                    $q->where('fecha_vencimiento', '<', now())
+                      ->orWhere('cantidad', '<=', 0);
+                });
+                break;
+                
+            case 'agotados':
+                $query->where('cantidad', '<=', 0);
+                break;
+                
+            case 'multiples':
+                $query->whereIn('producto_id', function($q) {
+                    $q->select('producto_id')
+                      ->from('lotes')
+                      ->where('activo', true)
+                      ->groupBy('producto_id')
+                      ->havingRaw('COUNT(*) > 1');
+                });
+                break;
+        }
+    }
+    
+    $lotes = $query->orderBy('fecha_vencimiento', 'asc')->get();
+    $productos = Producto::all();
+    
+    // NUEVO: Obtener el conteo total de lotes SIN filtros
+    $totalLotes = Lote::count();
+    
+    return view('admin.lotes.index', compact('lotes', 'productos', 'totalLotes'));
+}
 
     public function store(Request $request)
     {

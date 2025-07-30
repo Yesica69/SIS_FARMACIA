@@ -9,6 +9,7 @@
 <!-- Asegúrate de tener estas dependencias en tu head -->
  
 <!-- Font Awesome para los iconos -->
+ 
  <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -49,16 +50,21 @@ crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-icon.png">
   <link rel="icon" type="image/png" href="/img/favicon.png">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+ 
 </head>
 
 
 
 
-<body style="background-image: url('{{ asset('assets/img/fondo.jpg') }}'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed;">
+<body 
+style="background-image: url('{{ asset('assets/img/fondo.jpg') }}'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed;">
 
 
   @guest
     @yield('content')
+
+    
   @endguest
 
   @auth
@@ -85,6 +91,9 @@ crossorigin="anonymous" referrerpolicy="no-referrer" />
     @endif
   @endauth
 
+
+  
+
   <!-- Scripts JS principales -->
    <!-- Bootstrap Bundle JS -->
   
@@ -107,11 +116,22 @@ crossorigin="anonymous" referrerpolicy="no-referrer" />
     }
   </script>
 
+
+
+ @include('partials.alerts')
+
+ 
   <!-- Argon Dashboard JS -->
   <script src="{{ asset('assets/js/argon-dashboard.js') }}"></script>
 
   <!-- Scripts personalizados -->
   @yield('js')
   @stack('js')
+
+
+
+
+
+
 </body>
 </html>

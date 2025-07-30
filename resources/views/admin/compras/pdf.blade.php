@@ -88,7 +88,7 @@
             </tr>
             <tr>
                 <td colspan="2" style="border: none; padding-top: 10px;">
-                    <small><strong>Total en letras:</strong> {{ $literal }}</small>
+                    <small><strong>Total:</strong> {{ $literal }}</small>
                 </td>
             </tr>
         </table>

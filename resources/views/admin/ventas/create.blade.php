@@ -11,11 +11,11 @@
                     <div class="d-flex justify-content-between align-items-center py-2">
                         <div class="d-flex align-items-center">
                             <div class="icon icon-shape bg-gradient-primary text-white rounded-circle shadow me-3">
-                                <i class="fas fa-shopping-cart"></i>
+                                
                             </div>
                             <div>
-                                <h3 class="mb-0 text-dark font-weight-bold">Nueva Venta</h3>
-                                <p class="text-sm text-muted mb-0">Complete el formulario para registrar una nueva compra</p>
+                                <h4 class="mb-0 text-dark font-weight-bold">Registar Nueva Venta</h4>
+                                
                             </div>
                         </div>
                         <div>
@@ -69,41 +69,46 @@
 
                     <!-- Tabla de productos -->
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table table-sm table-hover align-middle" style="font-size: 0.85rem;">
                             <thead class="table-light">
-                            <tr>
-                <th class="text-center px-1" style="width: 3%;">#</th>
-                <th class="text-center px-1" style="width: 10%;">Código</th>
-                <th class="text-center px-1" style="width: 5%;">Cant.</th>
-                <th class="px-1" style="width: 40%;">Nombre</th>
-                <th class="text-end px-1" style="width: 12%;">Unit.</th>
-                <th class="text-end px-1" style="width: 15%;">Subtotal</th>
-                <th class="text-center px-1" style="width: 5%;"></th>
-            </tr>
+                                <tr>
+                                    <th class="text-center px-1" style="width: 3%;">#</th>
+                                    <th class="text-center px-1" style="width: 8%;">Código</th>
+                                    <th class="text-center px-1" style="width: 5%;">Cant.</th>
+                                    <th class="px-1" style="width: 35%;">Nombre</th>
+                                    <th class="text-end px-1" style="width: 10%;">Unit.</th>
+                                    <th class="text-end px-1" style="width: 12%;">Subtotal</th>
+                                    <th class="text-center px-1" style="width: 4%;"></th>
+                                </tr>
                             </thead>
                             <tbody>
                                 <?php $cont = 1; $total_cantidad = 0; $total_venta = 0;?>
                                 @foreach($tmp_ventas as $tmp_venta)
                                 <tr>
                                     <td class="text-center">{{$cont++}}</td>
-                                    <td class="text-center">{{$tmp_venta->producto->codigo}}</td>
+                                    <td class="text-center small">{{$tmp_venta->producto->codigo}}</td>
                                     <td class="text-center">{{$tmp_venta->cantidad}}</td>
-                                    <td>{{$tmp_venta->producto->nombre}}</td>
+                                    <td class="small text-truncate" style="max-width: 200px;" title="{{$tmp_venta->producto->nombre}}">
+                                        {{$tmp_venta->producto->nombre}}
+                                    </td>
                                     @php
-    $lote = \App\Models\Lote::where('producto_id', $tmp_venta->producto_id)
-                            ->latest('id') // o por fecha_ingreso si prefieres
-                            ->first();
-    $precioVenta = $lote->precio_venta ?? 0;
-    $costo = $tmp_venta->cantidad * $precioVenta;
-@endphp
-
-<td class="text-center">Bs {{ number_format($precioVenta, 2) }}</td>
-<td class="text-center">Bs {{ number_format($costo, 2) }}</td>
-
+                                        $lote = \App\Models\Lote::where('producto_id', $tmp_venta->producto_id)
+                                                                ->latest('id')
+                                                                ->first();
+                                        $precioVenta = $lote->precio_venta ?? 0;
+                                        $costo = $tmp_venta->cantidad * $precioVenta;
+                                    @endphp
+                                    <td class="text-end">Bs {{ number_format($precioVenta, 2) }}</td>
+                                    <td class="text-end">Bs {{ number_format($costo, 2) }}</td>
                                     <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="{{$tmp_venta->id}}">
-                                            <i class="fas fa-trash"></i>
+                                        <button type="button" class="btn btn-sm btn-outline-danger border-0 py-0 px-2 delete-btn" data-id="{{$tmp_venta->id}}">
+                                            
+                                             <i class="fas fa-trash-alt" style="font-size: 0.75rem;"></i>
                                         </button>
+
+                                                           
+
+
                                     </td>
                                 </tr>
                                 @php
@@ -114,10 +119,10 @@
                             </tbody>
                             <tfoot class="table-light">
                                 <tr>
-                                    <th colspan="2" class="text-end">TOTAL</th>
-                                    <th class="text-center">{{$total_cantidad}}</th>
-                                    <th colspan="2" class="text-end">TOTAL VENTA</th>
-                                    <th class="text-center text-primary">Bs {{number_format($total_venta, 2)}}</th>
+                                    <th colspan="2" class="text-end small">TOTAL</th>
+                                    <th class="text-center small">{{$total_cantidad}}</th>
+                                    <th colspan="2" class="text-end small">TOTAL VENTA</th>
+                                    <th class="text-center text-primary small">Bs {{number_format($total_venta, 2)}}</th>
                                     <th></th>
                                 </tr>
                             </tfoot>
@@ -215,7 +220,6 @@
             <!-- Encabezado del Modal -->
             <div class="modal-header bg-gradient-primary text-white border-bottom-0">
                 <div class="d-flex align-items-center">
-                    
                     <h5 class="modal-title mb-0">Listado de Productos</h5>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -241,9 +245,12 @@
                             <tr>
                                 <td class="text-xs font-weight-normal ps-4">{{ $loop->iteration }}</td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-outline-primary seleccionar-btn" 
-                                            data-id="{{$producto->codigo}}">
-                                        <i class="fas fa-check-circle me-1"></i> 
+                                    <button type="button" 
+                                            class="btn btn-sm @if($producto->stock <= 0) btn-outline-secondary disabled @else btn-outline-primary @endif seleccionar-btn" 
+                                            data-id="{{$producto->codigo}}"
+                                            data-nombre="{{$producto->nombre}}"
+                                            @if($producto->stock <= 0) disabled @endif>
+                                        <i class="fas fa-check-circle me-1"></i>
                                     </button>
                                 </td>
                                 <td class="text-xs font-weight-normal">
@@ -253,37 +260,37 @@
                                     <strong>{{ $producto->nombre }}</strong>
                                 </td>
                                 <td class="text-center">
-                                    <span class="badge @if($producto->stock <= 5) bg-gradient-danger @else bg-gradient-success @endif">
-                                        {{ $producto->stock }}
+                                    <span class="badge 
+                                        @if($producto->stock <= 0) bg-gradient-danger
+                                        @elseif($producto->stock <= 5) bg-gradient-danger 
+                                        @else bg-gradient-success @endif">
+                                        @if($producto->stock <= 0) 0 STOCK @else {{ $producto->stock }} @endif
                                     </span>
                                 </td>
                                 @php
-    $lote = $producto->lotes->sortByDesc('id')->first(); // o puedes usar ->first() si ya vienen ordenados
-@endphp
-
-<td class="text-end text-xs font-weight-bold text-primary">
-    @if($lote)
-        Bs {{ number_format($lote->precio_venta, 2) }}
-    @else
-        <span class="text-muted">N/A</span>
-    @endif
-</td>
-
-<td class="text-xs font-weight-normal">
-    @if($lote && $lote->fecha_vencimiento)
-        <span class="badge 
-            @if(\Carbon\Carbon::parse($lote->fecha_vencimiento)->isPast()) 
-                bg-gradient-danger 
-            @else 
-                bg-gradient-info 
-            @endif">
-            {{ \Carbon\Carbon::parse($lote->fecha_vencimiento)->format('d/m/Y') }}
-        </span>
-    @else
-        <span class="badge bg-gray-200">N/A</span>
-    @endif
-</td>
-
+                                    $lote = $producto->lotes->sortByDesc('id')->first();
+                                @endphp
+                                <td class="text-end text-xs font-weight-bold text-primary">
+                                    @if($lote)
+                                        Bs {{ number_format($lote->precio_venta, 2) }}
+                                    @else
+                                        <span class="text-muted">N/A</span>
+                                    @endif
+                                </td>
+                                <td class="text-xs font-weight-normal">
+                                    @if($lote && $lote->fecha_vencimiento)
+                                        <span class="badge 
+                                            @if(\Carbon\Carbon::parse($lote->fecha_vencimiento)->isPast()) 
+                                                bg-gradient-danger 
+                                            @else 
+                                                bg-gradient-info 
+                                            @endif">
+                                            {{ \Carbon\Carbon::parse($lote->fecha_vencimiento)->format('d/m/Y') }}
+                                        </span>
+                                    @else
+                                        <span class="badge bg-gray-200">N/A</span>
+                                    @endif
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -301,8 +308,15 @@
     </div>
 </div>
 
+<style>
+.btn-outline-secondary.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
+
 <!-- Modal Clientes -->
-<!-- Modal Clientes - Versión Mejorada -->
+
 <div class="modal fade" id="clienteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog ">
         <div class="modal-content border-0 shadow-lg">

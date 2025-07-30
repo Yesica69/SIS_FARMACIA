@@ -113,6 +113,7 @@ class ClienteController extends Controller
         $cliente->celular = $request->celular;
         $cliente->email = $request->email;
         $cliente->sucursal_id = Auth::user()->sucursal_id;
+        
       
 $cliente->save();
         // Redirigir al índice con un mensaje de éxito

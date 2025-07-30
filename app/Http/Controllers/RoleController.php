@@ -63,6 +63,8 @@ class RoleController extends Controller
         ->with('mensaje','Se registro el rol')
         ->with('icono','success');
 
+        
+
             
     }
 
@@ -79,6 +81,7 @@ class RoleController extends Controller
 {
     $role = Role::findOrFail($id);
     return view('admin.roles.edit', compact('role'));
+    
 }
 
 public function update(Request $request, string $id)

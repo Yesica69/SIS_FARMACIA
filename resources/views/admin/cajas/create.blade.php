@@ -1,7 +1,7 @@
-@extends('layouts.app', ['title' => 'Productos'])
+@extends('layouts.app', ['title' => 'Gestion de cajas'])
 
 @section('content')
-@include('layouts.navbars.auth.topnav', ['title' => 'Productos'])
+@include('layouts.navbars.auth.topnav', ['title' => 'Cajas'])
 <div class="container-fluid mt--6">
 <div class="row">
         <div class="col">
@@ -9,8 +9,8 @@
             <div class="card shadow-sm border-0 bg-white">
                 <div class="card-header border-0 bg-white">
                     <div class="d-flex align-items-center">
-                        <div class="icon icon-shape bg-light text-dark rounded-circle shadow-sm me-3">
-                            <i class="fas fa-cash-register"></i>
+                        <div class="icon icon-shape bg-primary text-dark rounded-circle shadow-sm me-3">
+                            
                         </div>
                         <h3 class="mb-0 text-dark"><b>Registro de Nueva Caja</b></h3>
                     </div>
@@ -44,15 +44,17 @@
                                     </label>
                                     <div class="input-group input-group-outline">
                                         <input type="datetime-local" class="form-control border-bottom px-0" 
-                                               value="{{ old('fecha_apertura') }}" 
-                                               name="fecha_apertura" required>
+                                            value="{{ old('fecha_apertura', now()->format('Y-m-d\TH:i')) }}" 
+                                            name="fecha_apertura" 
+                                            min="{{ now()->format('Y-m-d\TH:i') }}"
+                                            required>
                                     </div>
                                     @error('fecha_apertura')
                                         <small class="text-danger mt-2 d-block">{{$message}}</small>
                                     @enderror
                                 </div>
                             </div>
-                            
+                                                        
                             <!-- Campo Monto inicial -->
                             <div class="col-md-4">
                                 <div class="form-group">

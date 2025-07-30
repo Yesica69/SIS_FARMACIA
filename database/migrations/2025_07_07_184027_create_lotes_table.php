@@ -24,10 +24,6 @@ return new class extends Migration
             $table->decimal('precio_venta', 8, 2)->nullable();  // Opcional
             $table->timestamps();
 
-
-
-           
-
             // Relación con la tabla productos
             $table->foreign('producto_id')->references('id')->on('productos')->onDelete('cascade');
         });
