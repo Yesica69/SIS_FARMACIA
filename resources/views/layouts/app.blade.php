@@ -7,6 +7,9 @@
   <title>@yield('title', 'Dashboard')</title>
 
 <!-- Asegúrate de tener estas dependencias en tu head -->
+  <!-- 2. DataTables JS -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-dt@1.13.4/css/jquery.dataTables.min.css">
  
 <!-- Font Awesome para los iconos -->
  
@@ -36,7 +39,7 @@ crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+ 
 
   <!-- CSS local -->
   <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet">
@@ -96,17 +99,26 @@ style="background-image: url('{{ asset('assets/img/fondo.jpg') }}'); background-
 
   <!-- Scripts JS principales -->
    <!-- Bootstrap Bundle JS -->
+    <!-- 1. jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- 2. Bootstrap -->
+<script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
+<script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
+
   
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <!-- 2. DataTables JS -->
+
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <!-- Scripts locales -->
-  <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
-  <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
+
   <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
   <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
+  
 
   <!-- Scrollbar -->
   <script>
@@ -130,8 +142,12 @@ style="background-image: url('{{ asset('assets/img/fondo.jpg') }}'); background-
 
 
 
-
+<script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.4/js/jquery.dataTables.min.js"></script>
 
 
 </body>
 </html>
+
+
+
+

@@ -485,7 +485,8 @@ document.querySelectorAll('.btn-eliminar-compra').forEach(button => {
         // Inicializar DataTable
         const table = $('#comprasTable').DataTable({
             "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+              
+                "url": "https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
             },
             "responsive": true,
             "autoWidth": false,

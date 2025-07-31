@@ -75,7 +75,7 @@
 
                 <div class="card-body px-0 pt-0 pb-2">
                     <div class="table-responsive ">
-                        <table id="categorias-table" class="table table-hover align-items-center mb-0">
+                        <table id="categoriastabla" class="table table-hover align-items-center mb-0">
                             
                             
                         
@@ -602,7 +602,7 @@
 <script>
 $(document).ready(function() {
     // Configuración de DataTables
-    $('#categorias-table').DataTable({
+    $('#categoriastabla').DataTable({
         "pageLength": 10,
         "responsive": true,
         "autoWidth": false,
