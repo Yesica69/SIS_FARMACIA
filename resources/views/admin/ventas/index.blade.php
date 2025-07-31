@@ -159,7 +159,7 @@
             <div class="card shadow">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom">
                     <h5 class="mb-0">
-                        <i class="ni ni-bullet-list-67 me-2 text-primary"></i>Detalle de Ventas
+                        <i class="ni ni-bullet-list-67 me-2 text-primary"></i>Registro de Ventas
                     </h5>
                     <!-- Barra de acciones - Contenedor modificado -->
                 <div class="d-flex gap-2 align-items-center ms-auto position-relative">

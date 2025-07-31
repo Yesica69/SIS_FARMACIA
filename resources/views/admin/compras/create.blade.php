@@ -1,27 +1,21 @@
 @extends('layouts.app', ['title' => 'Gestión de Compras'])
 
 @section('content')
-@include('layouts.navbars.auth.topnav', ['title' => 'Compras'])
+@include('layouts.navbars.auth.topnav', ['title' => 'Gestion de Compras'])
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
             <!-- Card Principal - Diseño Mejorado -->
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-white border-bottom">
-                    <div class="d-flex justify-content-between align-items-center py-2">
+            <div class="card shadow-lg border-0 rounded-lg" style="height: auto; min-height: 0;">
+                <div class="card-header bg-white border-bottom py-3"> <!-- Reduje el padding vertical -->
+                    <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            <div class="icon icon-shape bg-gradient-primary text-white rounded-circle shadow me-3 d-flex justify-content-center align-items-center" 
-     style="width: 60px; height: 60px; padding: 0;">
-   
-</div>
-
                             <div>
-                                <h4 class="mb-0 text-dark font-weight-bold">Registar Nueva Compra</h4>
-                               
+                                <h class="mb-0 text-dark font-weight-bold" style="font-size: 1.1rem;">Registrar Nueva Compra</h4>
                             </div>
                         </div>
                         <div>
-                            <a href="{{ route('admin.compras.index') }}" class="btn btn-outline-dark btn-sm">
+                            <a href="{{ route('admin.compras.index') }}" class="btn btn-outline-dark btn-sm py-1"> <!-- Reduje padding del botón -->
                                 <i class="fas fa-list me-1"></i> Ver Historial
                             </a>
                         </div>
@@ -68,7 +62,7 @@
                                             <i class="fas fa-barcode text-primary"></i>
                                         </span>
                                         <input id="codigo" type="text" class="form-control border-primary border-start-0" 
-                                            name="codigo" placeholder="Escanear o ingresar código" autofocus>
+                                            name="codigo" placeholder="Ingresar código" autofocus>
                                     </div>
                                 </div>
 

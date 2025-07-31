@@ -9,10 +9,11 @@
         </div>
     </div>
     <section class="min-vh-100" style="
-        background: linear-gradient(to bottom, #ff8c00, #ff6b00, #ccca70ff);
-        display: flex;
-        align-items: center;
-    ">
+            background: url('{{ asset('assets/img/fondo4.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+        ">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-xl-5 col-lg-6 col-md-8">
@@ -25,7 +26,7 @@
                         <!-- Encabezado -->
                         <div class="card-header bg-transparent text-center pt-4 pb-3">
                             <h4 class="mb-0 text-white" style="font-weight: 600;">Restablecer contraseña</h4>
-                            <p class="text-white-50 mb-0">Ingresa tu email y espera unos segundos</p>
+                            <p class="text-white-50 mb-0">Ingresa tu correo y espera unos segundos</p>
                         </div>
                         
                         <!-- Cuerpo del formulario -->
@@ -53,7 +54,7 @@
                                                    border-left: 0;
                                                    backdrop-filter: blur(5px);
                                                "
-                                               placeholder="Email" 
+                                               placeholder="Correo" 
                                                value="{{ old('email') }}" required>
                                     </div>
                                     @error('email') 

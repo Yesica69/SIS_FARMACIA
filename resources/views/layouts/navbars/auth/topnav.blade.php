@@ -13,9 +13,7 @@
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
             <div class="ms-md-auto pe-md-3 d-flex align-items-center">
                 <!-- Botón del Asistente en Navbar -->
-                <button id="chatbot-trigger-nav" class="btn btn-sm btn-primary ms-2 d-flex align-items-center">
-                    <i class="fas fa-robot me-1"></i> Asistente IA
-                </button>
+                
                 
             </div>
             <ul class="navbar-nav justify-content-end">
@@ -38,24 +36,7 @@
 
 <!-- Chatbot Flotante Mejorado -->
 <!-- Chatbot Flotante Mejorado -->
-<div id="chatbot-container" class="position-fixed d-none bg-white rounded-lg shadow-lg"
-     style="bottom: 100px; right: 30px; width: 380px; height: 550px; z-index: 1050; display: flex; flex-direction: column;">
-    <div class="chat-header bg-primary text-white p-3 rounded-top d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 font-weight-bold"><i class="fas fa-pills me-2"></i>Asistente Farmacéutico</h6>
-        <button id="close-chatbot" class="btn btn-sm btn-light rounded-circle">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
 
-    <div id="chat-body" class="flex-grow-1 p-3" style="overflow-y: auto; font-size: 14px;">
-        <div class="text-muted">Escribe una pregunta sobre tu inventario…</div>
-    </div>
-
-    <div class="chat-footer p-3 border-top d-flex gap-2">
-        <textarea id="preguntaChat" class="form-control" placeholder="Ej: ¿Qué productos están por vencer?" rows="2"></textarea>
-        <button id="send-chatbot" class="btn btn-primary">Enviar</button>
-    </div>
-</div>
 
 <script>
     // Mostrar / Ocultar chatbot con el botón del navbar

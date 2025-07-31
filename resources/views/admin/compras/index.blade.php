@@ -81,7 +81,7 @@
                 <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom">
                             <h5 class="mb-0 ">
                             
-                            <i class="ni ni-bullet-list-67 me-2 text-primary"></i></i> Compras
+                            <i class="ni ni-bullet-list-67 me-2 text-primary"></i></i> Registro de Compras
                             </h5>
                                     
                 </div>

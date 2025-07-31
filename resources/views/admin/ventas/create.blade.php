@@ -6,26 +6,32 @@
     <div class="row">
 
     <!-- Card Principal - Diseño Mejorado -->
-            <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-white border-bottom">
-                    <div class="d-flex justify-content-between align-items-center py-2">
+
+
+            <div class="card shadow-lg border-0 rounded-lg" style="height: auto; min-height: 0;">
+                <div class="card-header bg-white border-bottom py-3"> <!-- Reduje el padding vertical -->
+                    <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            <div class="icon icon-shape bg-gradient-primary text-white rounded-circle shadow me-3">
-                                
-                            </div>
                             <div>
-                                <h4 class="mb-0 text-dark font-weight-bold">Registar Nueva Venta</h4>
-                                
+                                <h class="mb-0 text-dark font-weight-bold" style="font-size: 1.1rem;">Registrar Nueva Venta</h4>
                             </div>
                         </div>
                         <div>
-                            <a href="{{ route('admin.compras.index') }}" class="btn btn-outline-dark btn-sm">
+                            <a href="{{ route('admin.ventas.index') }}" class="btn btn-outline-dark btn-sm py-1"> <!-- Reduje padding del botón -->
                                 <i class="fas fa-list me-1"></i> Ver Historial
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
+
+
+
+
+
+
+
+
             <hr>
         <!-- Card 1: Registro de Productos -->
         <div class="col-lg-8">

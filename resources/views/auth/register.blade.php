@@ -3,9 +3,13 @@
 @section('content')
     @include('layouts.navbars.guest.navbar')
     <main class="main-content mt-0 min-vh-100" style="
-        background: linear-gradient(to bottom, #ff8c00, #ff6b00, #ccca70ff);
-        padding-top: 1rem;
-    ">
+        background: url('{{ asset('assets/img/fondo4.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+        ">
+
+   
         <div class="container">
             
             
