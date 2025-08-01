@@ -236,7 +236,7 @@
 
     <!-- Pie de página -->
     <div class="footer">
-        Sistema de Ventas | {{ config('app.name') }} | Página {PAGENO} de {nbpg}
+        Sistema de Ventas 
     </div>
 </body>
 </html>

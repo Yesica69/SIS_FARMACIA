@@ -236,7 +236,7 @@
 
     <!-- Pie de página -->
     <div class="footer">
-        Sistema de Inventarios | {{ config('app.name') }} | Página {PAGENO} de {nbpg}
+        Sistema de Inventarios 
     </div>
 </body>
 </html>

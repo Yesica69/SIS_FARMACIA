@@ -78,7 +78,7 @@
             <div class="mt-3 text-center">
                 @if($totalProductos > 0 || !$sucursalId)
                     <a href="{{ route('admin.productos.index') }}@if($sucursalId)?sucursal={{ $sucursalId }}@endif" 
-                       class="btn btn-sm btn-primary">
+                       class="btn btn-sm btn-outline-primary">
                         <i class="ni ni-zoom-split-in"></i> Ver Detalles
                     </a>
                 @else
@@ -107,7 +107,7 @@
                     </div>
                             <div class="mt-3">
                             <a href="{{ route('admin.inventario.bajo_stock') }}?sucursal={{ $sucursalId }}" 
-                            class="btn btn-sm btn-warning btn-block">
+                            class="btn btn-sm btn-outline-warning btn-block">
                                 <i class="fas fa-search mr-1"></i> Ver Listado
                             </a>
                         </div>
@@ -133,7 +133,7 @@
                     </div>
                     <div class="mt-3">
                         <a href="{{ route('admin.inventario.productos_porvencer', ['sucursal' => $sucursalId ?? null]) }}" 
-                        class="btn btn-sm btn-warning btn-block">
+                        class="btn btn-sm btn-outline-warning btn-block">
                             <i class="fas fa-search mr-1"></i> Ver Listado
                         </a>
                     </div>
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="mt-3 text-center">
                         <a href="{{ route('admin.inventario.reportegeneral') }}@if($sucursalId > 0)?sucursal={{ $sucursalId }}@endif" 
-                        class="btn btn-sm btn-primary"
+                        class="btn btn-sm btn-outline-primary"
                         @if($sucursalId > 0) title="Ver reportes de {{ $sucursales->firstWhere('id', $sucursalId)->nombre ?? 'esta sucursal' }}"
                         @else title="Ver reportes globales" @endif>
                             <i class="fas fa-chart-bar mr-1"></i> Ver Reportes

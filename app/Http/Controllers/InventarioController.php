@@ -183,26 +183,79 @@ public function index(Request $request)
 }
 
 
-public function bajoStock(Request $request)
-{
-    $sucursalId = $request->query('sucursal', 0);
-    
-    $query = Producto::with(['lotes', 'sucursal', 'categoria'])
-                ->whereHas('lotes', function($q) {
-                    $q->selectRaw('producto_id, SUM(cantidad) as total')
-                      ->groupBy('producto_id')
-                      ->havingRaw('SUM(cantidad) < productos.stock_minimo');
-                })
-                ->orderByRaw('(SELECT SUM(cantidad) FROM lotes WHERE lotes.producto_id = productos.id)');
+ public function bajoStock(Request $request)
+    {
+        $sucursalId = $request->query('sucursal', 0);
+        $alerta = $request->query('alerta');
+        
+        // Consulta base con eager loading y suma de lotes
+        $query = Producto::with(['lotes', 'sucursal', 'categoria'])
+                    ->withSum('lotes', 'cantidad')
+                    ->having('lotes_sum_cantidad', '<=', 15) // Solo productos con ≤15 unidades
+                    ->orderBy('lotes_sum_cantidad'); // Ordenar de menor a mayor stock
 
-    if ($sucursalId > 0) {
-        $query->where('sucursal_id', $sucursalId);
+        // Filtro por sucursal
+        if ($sucursalId > 0) {
+            $query->where('sucursal_id', $sucursalId);
+        }
+
+        // Filtro por nivel de alerta
+        if ($alerta) {
+            switch ($alerta) {
+                case 'critico':
+                    $query->having('lotes_sum_cantidad', '<=', 5);
+                    break;
+                case 'advertencia':
+                    $query->having('lotes_sum_cantidad', '>', 5)
+                          ->having('lotes_sum_cantidad', '<=', 10);
+                    break;
+                case 'precaucion':
+                    $query->having('lotes_sum_cantidad', '>', 10)
+                          ->having('lotes_sum_cantidad', '<=', 15);
+                    break;
+            }
+        }
+
+        // Paginación y transformación de resultados
+        $productos = $query->paginate(15)->withQueryString();
+
+        // Clasificar cada producto según su nivel de stock
+        $productos->getCollection()->transform(function ($producto) {
+            $stockActual = $producto->lotes_sum_cantidad;
+            $producto->diferencia = $stockActual - $producto->stock_minimo;
+            
+            // Definir niveles de alerta
+            if ($stockActual <= 0) {
+                $producto->nivel_alerta = 'danger';
+                $producto->icono_alerta = 'fa-times-circle';
+                $producto->texto_alerta = 'SIN STOCK';
+            } elseif ($stockActual <= 5) {
+                $producto->nivel_alerta = 'danger';
+                $producto->icono_alerta = 'fa-fire';
+                $producto->texto_alerta = 'CRÍTICO';
+            } elseif ($stockActual <= 10) {
+                $producto->nivel_alerta = 'warning';
+                $producto->icono_alerta = 'fa-exclamation-triangle';
+                $producto->texto_alerta = 'ADVERTENCIA';
+            } elseif ($stockActual <= 15) {
+                $producto->nivel_alerta = 'info';
+                $producto->icono_alerta = 'fa-info-circle';
+                $producto->texto_alerta = 'PRECAUCIÓN';
+            } else {
+                $producto->nivel_alerta = 'success';
+                $producto->icono_alerta = 'fa-check-circle';
+                $producto->texto_alerta = 'NORMAL';
+            }
+
+            return $producto;
+        });
+
+        return view('admin.inventario.bajo_stock', [
+            'productos' => $productos,
+            'sucursalId' => $sucursalId,
+            'sucursales' => Sucursal::all() // Para selector de sucursal si lo necesitas
+        ]);
     }
-
-    $productos = $query->paginate(15);
-
-    return view('admin.inventario.bajo_stock', compact('productos', 'sucursalId'));
-}
 
 public function productosPorVencer(Request $request)
 {

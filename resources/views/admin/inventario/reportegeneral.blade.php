@@ -6,24 +6,50 @@
 <div class="container-fluid">
     <!-- Filtro de Sucursal -->
     <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <form id="filtroSucursal">
-                        <div class="row align-items-center">
-                            
-                            
-                            <div class="col-md-6 mt-md-0 mt-2 text-md-end">
-                                <h5 class="mb-0 text-primary">
-                                    <i class="fas fa-flag me-2"></i> Gestion de reportes para la farmacia {{ $sucursalNombre }}
-                                </h5>
-                            </div>
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                    <!-- Título con icono -->
+                    <div class="d-flex align-items-center mb-3 mb-md-0">
+                        
+                        <div>
+                            <h5 class="mb-0 text-dark fw-bold">Gestión de Reportes</h5>
+                            <p class="mb-0 text-muted small">Farmacia: {{ $sucursalNombre }}</p>
                         </div>
-                    </form>
+                    </div>
+                    
+                    <!-- Botón de volver -->
+                    <div>
+                        <a href="{{ route('admin.inventario.index') }}?sucursal={{ $sucursalId }}" 
+                           class="btn btn-sm btn-outline-primary d-flex align-items-center">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            <span>Volver al Inventario</span>
+                        </a>
+                    </div>
                 </div>
+                
+                
             </div>
         </div>
     </div>
+</div>
+
+<style>
+    .icon-shape {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .bg-primary-soft {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+    }
+    .border-top {
+        border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+    }
+</style>
 
     <!-- Cards de Reportes -->
     <div class="row">
@@ -50,7 +76,7 @@
                     </div>
                     <div class="mt-3 text-center">
                         <a href="{{ route('admin.usuarios.reporte', ['tipo' => 'pdf']) }}?sucursal={{ $sucursalId }}" 
-                           class="btn btn-sm btn-danger"
+                           class="btn btn-sm btn-outline-danger"
                            title="Generar reporte en PDF"
                            target="_blank">
                             <i class="fas fa-file-pdf me-1"></i> Generar PDF
@@ -83,7 +109,7 @@
                     </div>
                     <div class="mt-3 text-center">
                         <a href="{{ route('admin.categorias.reporte') }}?tipo=pdf&sucursal={{ $sucursalId }}" 
-                           class="btn btn-sm btn-danger"
+                           class="btn btn-sm btn-outline-danger"
                            title="Generar reporte en PDF"
                            target="_blank">
                             <i class="fas fa-file-pdf me-1"></i> Generar PDF
@@ -116,7 +142,7 @@
                     </div>
                     <div class="mt-3 text-center">
                         <a href="{{ route('admin.proveedores.reporte') }}?tipo=pdf&sucursal={{ $sucursalId }}" 
-                           class="btn btn-sm btn-danger"
+                          class="btn btn-sm btn-outline-danger"
                            title="Generar reporte en PDF"
                            target="_blank">
                             <i class="fas fa-file-pdf me-1"></i> Generar PDF
@@ -145,7 +171,7 @@
                     </div>
                     <div class="mt-3 text-center">
                         <a href="{{ route('admin.laboratorios.reporte') }}?tipo=pdf&sucursal={{ $sucursalId }}" 
-                           class="btn btn-sm btn-danger"
+                           class="btn btn-sm btn-outline-danger"
                            title="Generar reporte en PDF"
                            target="_blank">
                             <i class="fas fa-file-pdf me-1"></i> Generar PDF
@@ -178,7 +204,7 @@
                     </div>
                     <div class="mt-3 text-center">
                         <a href="{{ route('admin.productos.reporte', ['tipo' => 'pdf']) }}?sucursal={{ $sucursalId }}" 
-                           class="btn btn-sm btn-danger"
+                           class="btn btn-sm btn-outline-danger"
                            title="Generar reporte en PDF"
                            target="_blank">
                             <i class="fas fa-file-pdf me-1"></i> Generar PDF
@@ -211,7 +237,7 @@
                     </div>
                     <div class="mt-3 text-center">
                         <a href="{{ route('admin.lotes.reporte') }}?tipo=pdf&sucursal={{ $sucursalId }}" 
-                           class="btn btn-sm btn-danger"
+                          class="btn btn-sm btn-outline-danger"
                            title="Generar reporte en PDF"
                            target="_blank">
                             <i class="fas fa-file-pdf me-1"></i> Generar PDF
@@ -244,7 +270,7 @@
                     </div>
                     <div class="mt-3 text-center">
                         <a href="{{ route('admin.clientes.reporte') }}?tipo=pdf&sucursal={{ $sucursalId }}" 
-                           class="btn btn-sm btn-danger"
+                           class="btn btn-sm btn-outline-danger"
                            title="Generar reporte en PDF"
                            target="_blank">
                             <i class="fas fa-file-pdf me-1"></i> Generar PDF
@@ -277,7 +303,7 @@
                     </div>
                     <div class="mt-3 text-center">
                         <a href="{{ route('admin.cajas.reporte', ['tipo' => 'pdf']) }}?sucursal={{ $sucursalId }}" 
-                           class="btn btn-sm btn-danger"
+                           class="btn btn-sm btn-outline-danger"
                            title="Generar reporte en PDF"
                            target="_blank">
                             <i class="fas fa-file-pdf me-1"></i> Generar PDF
@@ -306,7 +332,7 @@
                     </div>
                     <div class="mt-3 text-center">
                         <a href="{{ route('admin.ventas.reporte', ['tipo' => 'pdf']) }}?sucursal={{ $sucursalId }}" 
-                           class="btn btn-sm btn-danger"
+                           class="btn btn-sm btn-outline-danger"
                            title="Generar reporte en PDF"
                            target="_blank">
                             <i class="fas fa-file-pdf me-1"></i> Generar PDF
@@ -322,7 +348,8 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            
                                 Reporte de Compras
                             </div>
                             <div class="h6 mb-0 text-gray-800">
@@ -335,7 +362,7 @@
                     </div>
                     <div class="mt-3 text-center">
                         <a href="{{ route('admin.compras.reporte', ['tipo' => 'pdf']) }}?sucursal={{ $sucursalId }}" 
-                           class="btn btn-sm btn-danger"
+                           class="btn btn-sm btn-outline-danger"
                            title="Generar reporte en PDF"
                            target="_blank">
                             <i class="fas fa-file-pdf me-1"></i> Generar PDF
