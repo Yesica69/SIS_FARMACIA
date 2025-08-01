@@ -27,8 +27,8 @@
             </div>
             <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
                 <div class="carousel-caption d-none d-md-block">
-                    <h5>Ofertas Especiales</h5>
-                    <p>Aprovecha nuestros descuentos</p>
+                    <h5>Precio Increibles</h5>
+                    <p>Aprovecha nuestros precios</p>
                 </div>
             </div>
         </div>
